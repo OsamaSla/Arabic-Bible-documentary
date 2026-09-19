@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{TITLE} - ترجمات تعليقات الكتاب المقدس</title>
+    
+    <!-- Google Fonts - Arabic -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="../../css/document.css">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✝</text></svg>">
+</head>
+<body>
+    <!-- Header -->
+    <header class="site-header">
+        <div class="container">
+            <a href="../../index.html" class="logo">
+                <span class="cross">✝</span>
+                <span class="logo-text">ترجمات تعليقات الكتاب المقدس</span>
+            </a>
+            <nav class="main-nav">
+                <a href="../../index.html">الرئيسية</a>
+                <a href="../../index.html#old_testament">العهد القديم</a>
+                <a href="../../index.html#new_testament">العهد الجديد</a>
+                <a href="../../index.html#topics">المواضيع</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Document Viewer -->
+    <main class="document-viewer">
+        <div class="container">
+            <div class="document-header">
+                <div class="breadcrumb">
+                    <a href="../../index.html">الرئيسية</a>
+                    <span class="separator">←</span>
+                    <a href="../../index.html#{CATEGORY}">{CATEGORY_NAME}</a>
+                    <span class="separator">←</span>
+                    <span class="current">{BOOK_NAME}</span>
+                </div>
+                
+                <h1 class="document-title">{TITLE}</h1>
+                
+                <div class="document-actions">
+                    <a href="{DOWNLOAD_URL}" class="btn btn-download" download>
+                        <span class="btn-icon">📥</span>
+                        <span class="btn-text">تحميل الملف الأصلي</span>
+                    </a>
+                    <button onclick="window.print()" class="btn btn-print">
+                        <span class="btn-icon">🖨️</span>
+                        <span class="btn-text">طباعة</span>
+                    </button>
+                </div>
+            </div>
+            
+            <article class="document-content">
+                {CONTENT}
+            </article>
+            
+            <div class="document-footer">
+                <div class="back-link">
+                    <a href="../../index.html#{CATEGORY}">← العودة إلى القائمة</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="container">
+            <p>ترجمات تعليقات الكتاب المقدس - مبنية على bibelkommentare.de</p>
+            <p class="footer-cross">✝</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="../../js/search.js"></script>
+</body>
+</html>

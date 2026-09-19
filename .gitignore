@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Word temp files
+~$*.docx
+
+# Source documents (too large for git)
+docs-input/
+
+# Temp files
+_tmp_*.txt
+create_sample.py
+create_test_docs.py
+_processed_template.html
+
+# Build output (keep docs/ for GitHub Pages)
+# docs/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
