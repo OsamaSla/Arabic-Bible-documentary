@@ -92,10 +92,21 @@
                 const docId = el.getAttribute('data-doc-id');
                 const completed = el.querySelector('.completed-toggle')?.checked;
                 const hidden = el.querySelector('.hidden-toggle')?.checked;
-                if (completed || hidden) {
-                    overrides[docId] = {};
-                    if (completed) overrides[docId].completed = true;
-                    if (hidden) overrides[docId].hidden = true;
+                
+                const origDoc = (window.__allDocs || []).find(d => d.id === docId) || {};
+                const origCompleted = !!origDoc.completed;
+                const origHidden = !!origDoc.hidden;
+                
+                const ov = {};
+                if (completed !== origCompleted) {
+                    ov.completed = completed;
+                }
+                if (hidden !== origHidden) {
+                    ov.hidden = hidden;
+                }
+                
+                if (Object.keys(ov).length > 0) {
+                    overrides[docId] = ov;
                 }
             });
             
