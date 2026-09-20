@@ -79,32 +79,64 @@
         <div class="header-top"><div class="container">
             <a href="index.html" class="logo">
                 <span class="cross">&#10013;</span>
-                <span class="logo-text">ترجمات تعليقات الكتاب المقدس</span>
+                <span class="logo-text">Arabic Christian Documentary Translations</span>
             </a>
         </div></div>
     </header>
     
     <main>
         <div class="login-container">
-            <h1 class="login-title">&#128274; تسجيل الدخول</h1>
+            <h1 class="login-title">&#128274; Login</h1>
             <form class="login-form" id="loginForm">
                 <div class="form-group">
-                    <label for="username">اسم المستخدم</label>
-                    <input type="text" id="username" name="username" required autocomplete="username">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" required autocomplete="username" value="admin">
                 </div>
                 <div class="form-group">
-                    <label for="password">كلمة المرور</label>
+                    <label for="password">Password</label>
                     <input type="password" id="password" name="password" required autocomplete="current-password">
                 </div>
-                <button type="submit" class="login-btn">دخول</button>
-                <div class="login-error" id="loginError">اسم المستخدم أو كلمة المرور غير صحيحة</div>
+                <button type="submit" class="login-btn">Login</button>
+                <div class="login-error" id="loginError">Invalid username or password</div>
             </form>
             <div class="login-hint">
-                <a href="index.html">&#8592; العودة للموقع</a>
+                <a href="index.html">← Back to site</a>
             </div>
         </div>
     </main>
     
-    <script src="js/admin-auth.js"></script>
+    <script>
+        // Simple admin authentication using localStorage
+        const adminUsername = 'admin';
+        const adminPassword = 'admin123';
+        const storageKey = 'admin_logged_in';
+        
+        // Check if user is already logged in
+        function isLoggedIn() {
+            return localStorage.getItem(storageKey) === 'true';
+        }
+        
+        // Handle login form submission
+        function handleLogin() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            if (username === adminUsername && password === adminPassword) {
+                // Store login state in localStorage (persists across sessions)
+                localStorage.setItem(storageKey, 'true');
+                window.location.href = 'admin-panel.html';
+            } else {
+                // Show error message
+                document.getElementById('loginError').style.display = 'block';
+            }
+        }
+        
+        // Initialize - check login status on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            if (isLoggedIn()) {
+                window.location.href = 'admin-panel.html';
+            }
+        });
+    </script>
 </body>
 </html>

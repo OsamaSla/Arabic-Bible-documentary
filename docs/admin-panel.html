@@ -9,228 +9,17 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
     <style>
-        .admin-container {
-            max-width: 1200px;
-            margin: 2rem auto;
-            padding: 0 1rem;
-        }
-        .admin-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-            padding: 1rem;
-            background: var(--bg-light);
-            border-radius: var(--radius-md);
-        }
-        .admin-header h1 {
-            margin: 0;
-            color: var(--color-primary);
-        }
-        .admin-actions {
-            display: flex;
-            gap: 0.5rem;
-        }
-        .admin-btn {
-            padding: 0.5rem 1rem;
-            border: none;
-            border-radius: var(--radius-sm);
-            cursor: pointer;
-            font-family: inherit;
-            font-size: 0.9rem;
-            transition: all 0.2s;
-        }
-        .admin-btn-primary {
-            background: var(--color-primary);
-            color: white;
-        }
-        .admin-btn-primary:hover {
-            background: var(--color-secondary);
-        }
-        .admin-btn-danger {
-            background: #dc3545;
-            color: white;
-        }
-        .admin-btn-danger:hover {
-            background: #c82333;
-        }
-        .admin-btn-success {
-            background: #28a745;
-            color: white;
-        }
-        .admin-btn-success:hover {
-            background: #218838;
-        }
-        .search-box {
-            width: 100%;
-            padding: 0.75rem;
-            margin-bottom: 1rem;
-            border: 1px solid var(--border-light);
-            border-radius: var(--radius-sm);
-            font-size: 1rem;
-            font-family: inherit;
-            direction: rtl;
-        }
-        .search-box:focus {
-            outline: none;
-            border-color: var(--color-primary);
-        }
-        .stats-bar {
-            display: flex;
-            gap: 1.5rem;
-            margin-bottom: 1rem;
-            padding: 0.75rem;
-            background: var(--bg-white);
-            border-radius: var(--radius-sm);
-            border: 1px solid var(--border-light);
-            font-size: 0.9rem;
-        }
-        .stats-bar span {
-            font-weight: 600;
-        }
-        .stats-total { color: var(--color-primary); }
-        .stats-completed { color: var(--color-success, #28a745); }
-        .stats-progress { color: var(--color-warning, #ffc107); }
-        .stats-hidden { color: var(--color-error, #dc3545); }
-        .doc-table {
-            width: 100%;
-            background: var(--bg-white);
-            border-radius: var(--radius-md);
-            overflow: hidden;
-            box-shadow: var(--shadow-sm);
-        }
-        .doc-table table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        .doc-table th {
-            background: var(--color-primary);
-            color: white;
-            padding: 0.75rem;
-            text-align: right;
-            font-weight: 600;
-            position: sticky;
-            top: 0;
-        }
-        .doc-table td {
-            padding: 0.75rem;
-            border-bottom: 1px solid var(--border-light);
-        }
-        .doc-table tr:hover {
-            background: var(--bg-light);
-        }
-        .doc-table tr.hidden-doc {
-            opacity: 0.5;
-            background: #fff3cd;
-        }
-        .doc-title-cell {
-            max-width: 300px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-        .toggle-switch {
-            position: relative;
-            display: inline-block;
-            width: 44px;
-            height: 24px;
-        }
-        .toggle-switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-        .toggle-slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: #ccc;
-            transition: 0.3s;
-            border-radius: 24px;
-        }
-        .toggle-slider:before {
-            position: absolute;
-            content: "";
-            height: 18px;
-            width: 18px;
-            right: 3px;
-            bottom: 3px;
-            background: white;
-            transition: 0.3s;
-            border-radius: 50%;
-        }
-        input:checked + .toggle-slider {
-            background: #28a745;
-        }
-        input:checked + .toggle-slider:before {
-            transform: translateX(-20px);
-        }
-        .doc-actions {
-            display: flex;
-            gap: 0.5rem;
-        }
-        .pagination {
-            display: flex;
-            justify-content: center;
-            gap: 0.5rem;
-            margin-top: 1rem;
-        }
-        .page-btn {
-            padding: 0.5rem 1rem;
-            border: 1px solid var(--border-light);
-            background: var(--bg-white);
-            border-radius: var(--radius-sm);
-            cursor: pointer;
-        }
-        .page-btn.active {
-            background: var(--color-primary);
-            color: white;
-            border-color: var(--color-primary);
-        }
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 1000;
-        }
-        .modal-content {
-            background: white;
-            margin: 10% auto;
-            padding: 2rem;
-            border-radius: var(--radius-md);
-            max-width: 500px;
-        }
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 1rem;
-        }
-        .modal-close {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-        }
-        .json-preview {
-            width: 100%;
-            height: 300px;
-            font-family: monospace;
-            font-size: 0.85rem;
-            direction: ltr;
-            text-align: left;
-        }
-        .download-btn {
-            margin-top: 1rem;
-            width: 100%;
-            padding: 0.75rem;
-        }
+        .admin-container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
+        .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding: 1rem; background: var(--bg-light); border-radius: var(--radius-md); }
+        .admin-btn { padding: 0.5rem 1rem; border: none; border-radius: 4px; cursor: pointer; margin-left: 0.5rem; }
+        .admin-btn-primary { background: #007bff; color: white; }
+        .admin-btn-success { background: #28a745; color: white; }
+        .admin-btn-danger { background: #dc3545; color: white; }
+        .login-form { max-width: 400px; margin: 50px auto; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; }
+        .form-group input { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        .doc-item { padding: 10px; border: 1px solid #ddd; margin: 5px 0; border-radius: 4px; background: #fff; }
     </style>
 </head>
 <body>
@@ -238,64 +27,132 @@
         <div class="header-top"><div class="container">
             <a href="index.html" class="logo">
                 <span class="cross">&#10013;</span>
-                <span class="logo-text">ترجمات تعليقات الكتاب المقدس</span>
+                <span class="logo-text">Arabic Christian Documentary Translations</span>
             </a>
         </div></div>
     </header>
     
     <main class="admin-container">
         <div class="admin-header">
-            <h1>&#128221; إدارة المستندات</h1>
-            <div class="admin-actions">
-                <button class="admin-btn admin-btn-success" onclick="AdminPanel.exportOverrides()">&#128229; تصدير التغييرات</button>
-                <button class="admin-btn admin-btn-danger" onclick="AdminAuth.logout()">&#128682; خروج</button>
+            <h1>Admin Panel</h1>
+            <div>
+                <button class="admin-btn admin-btn-success" onclick="exportOverrides()">Export overrides</button>
+                <button class="admin-btn admin-btn-danger" onclick="logout()">Logout</button>
             </div>
         </div>
         
-        <div class="stats-bar" id="statsBar">
-            <span>الكل: <span class="stats-total" id="statTotal">0</span></span>
-            <span>&#10003; مكتمل: <span class="stats-completed" id="statCompleted">0</span></span>
-            <span>&#9679; قيد الترجمة: <span class="stats-progress" id="statProgress">0</span></span>
-            <span>&#128065; مخفي: <span class="stats-hidden" id="statHidden">0</span></span>
+        <div id="loginSection" class="login-form" style="display: none;">
+            <h2>Login Required</h2>
+            <p>You must login to access the admin panel.</p>
+            <button class="admin-btn admin-btn-primary" onclick="window.location.href='admin.html'">Go to Login</button>
         </div>
         
-        <input type="text" class="search-box" id="searchBox" placeholder="&#128269; بحث في المستندات...">
-        
-        <div class="doc-table">
-            <table>
-                <thead>
-                    <tr>
-                        <th style="width:80px">المعرف</th>
-                        <th>العنوان</th>
-                        <th>المؤلف</th>
-                        <th style="width:100px">مكتمل</th>
-                        <th style="width:100px">مخفي</th>
-                    </tr>
-                </thead>
-                <tbody id="docsTableBody">
-                </tbody>
-            </table>
+        <div id="adminContent" style="display: none;">
+            <h2>Document Management</h2>
+            <p>Toggle completed or hidden status for each document, then click Export overrides.</p>
+            <input type="text" id="filterBox" placeholder="Search docs..." style="width:100%; padding:8px; margin-bottom:15px; border:1px solid #ddd; border-radius:4px;">
+            <div id="docsContainer">
+                <p>Loading documents...</p>
+            </div>
         </div>
-        
-        <div class="pagination" id="pagination"></div>
     </main>
     
-    <!-- Export Modal -->
-    <div class="modal" id="exportModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>تصدير doc_overrides.json</h2>
-                <button class="modal-close" onclick="AdminPanel.closeModal()">&times;</button>
-            </div>
-            <p>انسخ المحتوى أدناه وضعه في ملف <code>doc_overrides.json</code>:</p>
-            <textarea class="json-preview" id="jsonPreview" readonly></textarea>
-            <button class="admin-btn admin-btn-primary download-btn" onclick="AdminPanel.downloadFile()">&#128229; تحميل الملف</button>
-            <button class="admin-btn admin-btn-success download-btn" onclick="AdminPanel.copyToClipboard()">&#128203; نسخ للمحافظة</button>
-        </div>
-    </div>
-    
-    <script>window.__OVERRIDES_DATA__ = {};</script>
-    <script src="js/admin-auth.js"></script>
-    <script src="js/admin-panel.js"></script>
+    <script>
+        const storageKey = 'admin_logged_in';
+        
+        function isLoggedIn() {
+            return localStorage.getItem(storageKey) === 'true';
+        }
+        
+        function logout() {
+            localStorage.removeItem(storageKey);
+            window.location.href = 'admin.html';
+        }
+        
+        function exportOverrides() {
+            const overrides = {};
+            document.querySelectorAll('[data-doc-id]').forEach(function(el) {
+                const docId = el.getAttribute('data-doc-id');
+                const completed = el.querySelector('.completed-toggle')?.checked;
+                const hidden = el.querySelector('.hidden-toggle')?.checked;
+                if (completed || hidden) {
+                    overrides[docId] = {};
+                    if (completed) overrides[docId].completed = true;
+                    if (hidden) overrides[docId].hidden = true;
+                }
+            });
+            
+            const dataStr = JSON.stringify({ overrides: overrides }, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'doc_overrides.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        function loadDocuments() {
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', 'documents/index.json', false);
+            try {
+                xhr.send();
+            } catch (e) {
+                document.getElementById('docsContainer').innerHTML = '<p>Error loading documents: ' + e.message + '</p>';
+                return;
+            }
+            
+            if (xhr.status !== 200) {
+                document.getElementById('docsContainer').innerHTML = '<p>Error loading documents (Status: ' + xhr.status + ')</p>';
+                return;
+            }
+            
+            var data = JSON.parse(xhr.responseText);
+            var docs = data.documents || [];
+            window.__allDocs = docs;
+            renderDocs(docs);
+            
+            document.getElementById('filterBox').addEventListener('input', function(e) {
+                var q = e.target.value.toLowerCase();
+                var filtered = window.__allDocs.filter(function(d) {
+                    return (d.title && d.title.toLowerCase().includes(q)) || 
+                           (d.id && d.id.toLowerCase().includes(q)) || 
+                           (d.author && d.author.toLowerCase().includes(q));
+                });
+                renderDocs(filtered);
+            });
+        }
+        
+        function renderDocs(docs) {
+            var container = document.getElementById('docsContainer');
+            if (docs.length === 0) {
+                container.innerHTML = '<p>No documents found.</p>';
+                return;
+            }
+            
+            var html = '';
+            docs.forEach(function(doc) {
+                html += '<div class="doc-item" data-doc-id="' + doc.id + '">' +
+                    '<strong>ID:</strong> ' + doc.id + ' | ' +
+                    '<strong>Title:</strong> ' + (doc.title || 'N/A') + ' | ' +
+                    '<strong>Author:</strong> ' + (doc.author || 'N/A') + '<br>' +
+                    '<label><input type="checkbox" class="completed-toggle" ' + (doc.completed ? 'checked' : '') + '> Completed</label> &nbsp;&nbsp; ' +
+                    '<label><input type="checkbox" class="hidden-toggle" ' + (doc.hidden ? 'checked' : '') + '> Hidden</label>' +
+                    '</div>';
+            });
+            container.innerHTML = html;
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            if (isLoggedIn()) {
+                document.getElementById('loginSection').style.display = 'none';
+                document.getElementById('adminContent').style.display = 'block';
+                loadDocuments();
+            } else {
+                document.getElementById('loginSection').style.display = 'block';
+                document.getElementById('adminContent').style.display = 'none';
+            }
+        });
+    </script>
 </body>
 </html>
