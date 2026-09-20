@@ -88,8 +88,8 @@
             const overrides = {};
             document.querySelectorAll('[data-doc-id]').forEach(function(el) {
                 const docId = el.getAttribute('data-doc-id');
-                const hidden = el.querySelector('.hidden-toggle')?.checked;
                 const completed = el.querySelector('.completed-toggle')?.checked;
+                const hidden = el.querySelector('.hidden-toggle')?.checked;
                 
                 const origDoc = (window.__allDocs || []).find(d => d.id === docId) || {};
                 const origCompleted = !!origDoc.completed;
@@ -241,13 +241,25 @@
                     return true;
                 }
                 
-                // If All is off and neither Completed nor Hidden is active, show only uncompleted & unhidden items together
+                // If neither filter is active, show only uncompleted & unhidden items
                 if (!filterCompletedActive && !filterHiddenActive) {
                     return !isCompleted && !isHidden;
                 }
                 
-                if (filterCompletedActive && !isCompleted) return false;
-                if (filterHiddenActive && !isHidden) return false;
+                // If both are active, show items matching BOTH
+                if (filterCompletedActive && filterHiddenActive) {
+                    return isCompleted && isHidden;
+                }
+                
+                // If only Completed filter is active
+                if (filterCompletedActive) {
+                    return isCompleted;
+                }
+                
+                // If only Hidden filter is active
+                if (filterHiddenActive) {
+                    return isHidden;
+                }
                 
                 return true;
             });
