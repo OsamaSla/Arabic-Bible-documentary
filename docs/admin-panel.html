@@ -89,8 +89,8 @@
             const overrides = {};
             document.querySelectorAll('[data-doc-id]').forEach(function(el) {
                 const docId = el.getAttribute('data-doc-id');
-                const completed = el.querySelector('.completed-toggle')?.checked;
                 const hidden = el.querySelector('.hidden-toggle')?.checked;
+                const completed = el.querySelector('.completed-toggle')?.checked;
                 
                 const origDoc = (window.__allDocs || []).find(d => d.id === docId) || {};
                 const origCompleted = !!origDoc.completed;
