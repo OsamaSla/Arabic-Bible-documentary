@@ -89,8 +89,9 @@
             const overrides = {};
             document.querySelectorAll('[data-doc-id]').forEach(function(el) {
                 const docId = el.getAttribute('data-doc-id');
-                const completed = el.querySelector('.completed-toggle')?.checked;
-                const hidden = el.querySelector('.hidden-toggle')?.checked;
+                // Swapped: .completed-toggle input controls 'hidden', .hidden-toggle input controls 'completed'
+                const hidden = el.querySelector('.completed-toggle')?.checked;
+                const completed = el.querySelector('.hidden-toggle')?.checked;
                 
                 const origDoc = (window.__allDocs || []).find(d => d.id === docId) || {};
                 const origCompleted = !!origDoc.completed;
@@ -273,8 +274,8 @@
                     '<strong>ID:</strong> ' + doc.id + ' | ' +
                     '<strong>Title:</strong> ' + (doc.title || 'N/A') + ' | ' +
                     '<strong>Author:</strong> ' + (doc.author || 'N/A') + '<br>' +
-                    '<label><input type="checkbox" class="completed-toggle" ' + (isCompleted ? 'checked' : '') + '> Completed</label> &nbsp;&nbsp; ' +
-                    '<label><input type="checkbox" class="hidden-toggle" ' + (isHidden ? 'checked' : '') + '> Hidden</label>' +
+                    '<label><input type="checkbox" class="completed-toggle" ' + (isHidden ? 'checked' : '') + '> Hidden</label> &nbsp;&nbsp; ' +
+                    '<label><input type="checkbox" class="hidden-toggle" ' + (isCompleted ? 'checked' : '') + '> Completed</label>' +
                     '</div>';
             });
             container.innerHTML = html;
