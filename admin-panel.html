@@ -283,7 +283,11 @@
             if (isLoggedIn()) {
                 document.getElementById('loginSection').style.display = 'none';
                 document.getElementById('adminContent').style.display = 'block';
-                loadDocuments();
+                if (window.__DOCUMENTS_DATA__) {
+                    loadDocuments();
+                } else {
+                    setTimeout(loadDocuments, 100);
+                }
             } else {
                 document.getElementById('loginSection').style.display = 'block';
                 document.getElementById('adminContent').style.display = 'none';
