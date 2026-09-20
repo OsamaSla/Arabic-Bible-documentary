@@ -174,11 +174,16 @@
             if (!btnAll._listenerAdded) {
                 btnAll._listenerAdded = true;
                 btnAll.addEventListener('click', function() {
-                    filterCompletedActive = false;
-                    filterHiddenActive = false;
-                    btnCompleted.classList.remove('active');
-                    btnHidden.classList.remove('active');
-                    btnAll.classList.add('active');
+                    // Toggle All button on/off independently
+                    if (btnAll.classList.contains('active')) {
+                        btnAll.classList.remove('active');
+                    } else {
+                        btnAll.classList.add('active');
+                        filterCompletedActive = false;
+                        filterHiddenActive = false;
+                        btnCompleted.classList.remove('active');
+                        btnHidden.classList.remove('active');
+                    }
                     applyFiltersAndRender();
                 });
             }
@@ -192,9 +197,6 @@
                         btnAll.classList.remove('active');
                     } else {
                         btnCompleted.classList.remove('active');
-                        if (!filterHiddenActive) {
-                            btnAll.classList.add('active');
-                        }
                     }
                     applyFiltersAndRender();
                 });
@@ -209,9 +211,6 @@
                         btnAll.classList.remove('active');
                     } else {
                         btnHidden.classList.remove('active');
-                        if (!filterCompletedActive) {
-                            btnAll.classList.add('active');
-                        }
                     }
                     applyFiltersAndRender();
                 });
@@ -230,19 +229,20 @@
                 });
             }
             
-            // Toggle filters (Completed / Hidden / Uncompleted & Unhidden)
+            var btnAllActive = document.getElementById('btnAll').classList.contains('active');
+            
+            // Toggle filters
             docs = docs.filter(function(d) {
                 var ov = overridesData[d.id] || {};
                 var isCompleted = ov.completed !== undefined ? ov.completed : (d.completed || false);
                 var isHidden = ov.hidden !== undefined ? ov.hidden : (d.hidden || false);
                 
-                var btnAllActive = document.getElementById('btnAll').classList.contains('active');
-                
+                // If All is active, show everything
                 if (btnAllActive) {
                     return true;
                 }
                 
-                // If neither Completed nor Hidden is active, show only uncompleted & unhidden items
+                // If All is off and neither Completed nor Hidden is active, show only uncompleted & unhidden items together
                 if (!filterCompletedActive && !filterHiddenActive) {
                     return !isCompleted && !isHidden;
                 }
