@@ -273,8 +273,8 @@
                     '<strong>ID:</strong> ' + doc.id + ' | ' +
                     '<strong>Title:</strong> ' + (doc.title || 'N/A') + ' | ' +
                     '<strong>Author:</strong> ' + (doc.author || 'N/A') + '<br>' +
-                    '<label><input type="checkbox" class="completed-toggle" ' + (isCompleted ? 'checked' : '') + '> Completed</label> &nbsp;&nbsp; ' +
-                    '<label><input type="checkbox" class="hidden-toggle" ' + (isHidden ? 'checked' : '') + '> Hidden</label>' +
+                    '<label><input type="checkbox" class="hidden-toggle" ' + (isHidden ? 'checked' : '') + '> Hidden</label> &nbsp;&nbsp; ' +
+                    '<label><input type="checkbox" class="completed-toggle" ' + (isCompleted ? 'checked' : '') + '> Completed</label>' +
                     '</div>';
             });
             container.innerHTML = html;
