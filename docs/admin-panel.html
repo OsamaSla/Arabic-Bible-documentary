@@ -267,7 +267,7 @@
             docs.forEach(function(doc) {
                 var ov = overridesData[doc.id] || {};
                 var isCompleted = ov.completed !== undefined ? ov.completed : (doc.completed || false);
-                var isHidden = ov.hidden !== undefined ? ov.hidden : (d.hidden || false);
+                var isHidden = ov.hidden !== undefined ? ov.hidden : (doc.hidden || false);
                 
                 html += '<div class="doc-item" data-doc-id="' + doc.id + '">' +
                     '<strong>ID:</strong> ' + doc.id + ' | ' +
