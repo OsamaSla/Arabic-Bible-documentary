@@ -131,11 +131,26 @@
             }
         }
         
-        // Initialize - check login status on page load
+        // Initialize - check login status on page load and handle form submit
         document.addEventListener('DOMContentLoaded', function() {
             if (isLoggedIn()) {
                 window.location.href = 'admin-panel.html';
+                return;
             }
+            
+            const form = document.getElementById('loginForm');
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+                
+                if (username === adminUsername && password === adminPassword) {
+                    localStorage.setItem(storageKey, 'true');
+                    window.location.href = 'admin-panel.html';
+                } else {
+                    document.getElementById('loginError').style.display = 'block';
+                }
+            });
         });
     </script>
 </body>
