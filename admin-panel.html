@@ -57,11 +57,9 @@
             <input type="text" id="filterBox" placeholder="Search docs..." style="width:100%; padding:8px; margin-bottom:10px; border:1px solid #ddd; border-radius:4px;">
             
             <div class="filter-buttons">
-                <button class="filter-btn active" data-filter="all">الكل (All)</button>
-                <button class="filter-btn" data-filter="completed">مكتمل (Completed)</button>
-                <button class="filter-btn" data-filter="uncompleted">غير مكتمل (Uncompleted)</button>
-                <button class="filter-btn" data-filter="hidden">مخفي (Hidden)</button>
-                <button class="filter-btn" data-filter="unhidden">غير مخفي (Unhidden)</button>
+                <button class="filter-btn active" data-filter="all" id="btnAll">الكل (All)</button>
+                <button class="filter-btn" data-filter="completed" id="btnCompleted">مكتمل (Completed)</button>
+                <button class="filter-btn" data-filter="hidden" id="btnHidden">مخفي (Hidden)</button>
             </div>
             
             <div id="docsContainer">
@@ -72,9 +70,10 @@
     
     <script>
         const storageKey = 'admin_logged_in';
-        let currentFilterType = 'all';
         let currentSearchQuery = '';
         let overridesData = {};
+        let filterCompletedActive = false;
+        let filterHiddenActive = false;
         
         function isLoggedIn() {
             return localStorage.getItem(storageKey) === 'true';
@@ -167,17 +166,51 @@
                 });
             }
             
-            document.querySelectorAll('.filter-btn').forEach(function(btn) {
-                if (!btn._listenerAdded) {
-                    btn._listenerAdded = true;
-                    btn.addEventListener('click', function() {
-                        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                        this.classList.add('active');
-                        currentFilterType = this.getAttribute('data-filter');
-                        applyFiltersAndRender();
-                    });
-                }
-            });
+            var btnAll = document.getElementById('btnAll');
+            var btnCompleted = document.getElementById('btnCompleted');
+            var btnHidden = document.getElementById('btnHidden');
+            
+            if (!btnAll._listenerAdded) {
+                btnAll._listenerAdded = true;
+                btnAll.addEventListener('click', function() {
+                    filterCompletedActive = false;
+                    filterHiddenActive = false;
+                    btnCompleted.classList.remove('active');
+                    btnHidden.classList.remove('active');
+                    btnAll.classList.add('active');
+                    applyFiltersAndRender();
+                });
+            }
+            
+            if (!btnCompleted._listenerAdded) {
+                btnCompleted._listenerAdded = true;
+                btnCompleted.addEventListener('click', function() {
+                    filterCompletedActive = !filterCompletedActive;
+                    if (filterCompletedActive) {
+                        btnCompleted.classList.add('active');
+                        btnAll.classList.remove('active');
+                    } else {
+                        btnCompleted.classList.remove('active');
+                        if (!filterHiddenActive) btnAll.classList.add('active');
+                    }
+                    applyFiltersAndRender();
+                });
+            }
+            
+            if (!btnHidden._listenerAdded) {
+                btnHidden._listenerAdded = true;
+                btnHidden.addEventListener('click', function() {
+                    filterHiddenActive = !filterHiddenActive;
+                    if (filterHiddenActive) {
+                        btnHidden.classList.add('active');
+                        btnAll.classList.remove('active');
+                    } else {
+                        btnHidden.classList.remove('active');
+                        if (!filterCompletedActive) btnAll.classList.add('active');
+                    }
+                    applyFiltersAndRender();
+                });
+            }
         }
         
         function applyFiltersAndRender() {
@@ -192,17 +225,16 @@
                 });
             }
             
-            // Category status filter
+            // Toggle filters (Completed / Hidden)
             docs = docs.filter(function(d) {
                 var ov = overridesData[d.id] || {};
                 var isCompleted = ov.completed !== undefined ? ov.completed : (d.completed || false);
                 var isHidden = ov.hidden !== undefined ? ov.hidden : (d.hidden || false);
                 
-                if (currentFilterType === 'completed') return isCompleted;
-                if (currentFilterType === 'uncompleted') return !isCompleted;
-                if (currentFilterType === 'hidden') return isHidden;
-                if (currentFilterType === 'unhidden') return !isHidden;
-                return true; // 'all'
+                if (filterCompletedActive && !isCompleted) return false;
+                if (filterHiddenActive && !isHidden) return false;
+                
+                return true;
             });
             
             renderDocs(docs);
