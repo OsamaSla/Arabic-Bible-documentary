@@ -284,8 +284,8 @@
                     '<strong>ID:</strong> ' + doc.id + ' | ' +
                     '<strong>Title:</strong> ' + (doc.title || 'N/A') + ' | ' +
                     '<strong>Author:</strong> ' + (doc.author || 'N/A') + '<br>' +
-                    '<label>Hidden <input type="checkbox" class="hidden-toggle" ' + (isHidden ? 'checked' : '') + '></label> &nbsp;&nbsp; ' +
-                    '<label>Completed <input type="checkbox" class="completed-toggle" ' + (isCompleted ? 'checked' : '') + '></label>' +
+                    '<label><input type="checkbox" class="completed-toggle" ' + (isCompleted ? 'checked' : '') + '> Completed</label> &nbsp;&nbsp; ' +
+                    '<label><input type="checkbox" class="hidden-toggle" ' + (isHidden ? 'checked' : '') + '> Hidden</label>' +
                     '</div>';
             });
             container.innerHTML = html;
