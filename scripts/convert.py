@@ -403,12 +403,12 @@ def main():
     if hidden_count > 0:
         print(f'[OV] Hiding {hidden_count} documents')
 
-    # Filter out hidden documents
+    # Filter out hidden documents (keep them in index.json with hidden flag for admin panel)
     visible_documents = [d for d in documents if not d.get('hidden', False)]
 
     index_data = {
-        'documents': visible_documents,
-        'total_count': len(visible_documents),
+        'documents': documents,
+        'total_count': len(documents),
         'completed_count': sum(1 for d in visible_documents if d['completed']),
         'authors': {}
     }

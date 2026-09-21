@@ -746,10 +746,12 @@ def inject_translations_data(html_path, index_data):
         f.write(content)
 
 
-def inject_overrides_data(html_path, base_dir):
-    """Inject overrides data for admin panel"""
+def inject_admin_data(html_path, index_data, base_dir):
+    """Inject documents and overrides data for admin panel"""
     with open(html_path, 'r', encoding='utf-8') as f:
         content = f.read()
+    
+    docs_json = json.dumps(index_data.get('documents', []), ensure_ascii=False)
     
     overrides_file = base_dir / 'doc_overrides.json'
     if overrides_file.exists():
@@ -758,11 +760,11 @@ def inject_overrides_data(html_path, base_dir):
         overrides = ov_data.get('overrides', {})
     else:
         overrides = {}
-    
     ov_json = json.dumps(overrides, ensure_ascii=False)
-    script_tag = f'<script>window.__OVERRIDES_DATA__ = {ov_json};</script>\n    '
     
-    content = content.replace('<script src="js/', script_tag + '<script src="js/', 1)
+    script_tag = f'<script>window.__DOCUMENTS_DATA__ = {docs_json}; window.__OVERRIDES_DATA__ = {ov_json};</script>\n    '
+    
+    content = content.replace('<script', script_tag + '<script', 1)
     
     with open(html_path, 'w', encoding='utf-8') as f:
         f.write(content)
@@ -793,49 +795,74 @@ def main():
     else:
         index_data = {'documents': [], 'categories': {}, 'total_count': 0}
     
+    # Create visible-only version for main site pages (excludes hidden docs)
+    all_documents = index_data.get('documents', [])
+    visible_documents = [d for d in all_documents if not d.get('hidden', False)]
+    visible_index_data = dict(index_data)
+    visible_index_data['documents'] = visible_documents
+    visible_index_data['total_count'] = len(visible_documents)
+    visible_index_data['completed_count'] = sum(1 for d in visible_documents if d.get('completed'))
+    # Rebuild authors dict from visible docs only
+    visible_authors = {}
+    for doc in visible_documents:
+        author = doc.get('author', '')
+        if author not in visible_authors:
+            visible_authors[author] = {
+                'slug': doc.get('author_slug', ''),
+                'total': 0,
+                'completed': 0
+            }
+        visible_authors[author]['total'] += 1
+        if doc.get('completed'):
+            visible_authors[author]['completed'] += 1
+    visible_index_data['authors'] = visible_authors
+    hidden_count = len(all_documents) - len(visible_documents)
+    if hidden_count > 0:
+        print(f'[BUILD] {hidden_count} hidden documents excluded from main site')
+    
     # Copy static files
     print('\n[BUILD] Copying static files...')
     copy_static_files(base_dir, docs_dir)
     
-    # Generate index.html
+    # Generate index.html (uses visible docs only)
     print('\n[BUILD] Generating index.html...')
-    generate_index_html(base_dir, docs_dir, index_data)
+    generate_index_html(base_dir, docs_dir, visible_index_data)
     
-    # Inject inline data into index.html
-    inject_inline_data(docs_dir / 'index.html', index_data)
+    # Inject inline data into index.html (visible docs only)
+    inject_inline_data(docs_dir / 'index.html', visible_index_data)
     print(f'  [OK] Injected inline data into index.html')
     
     # Generate document index pages
     print('\n[BUILD] Generating document index pages...')
     # generate_document_index_pages(base_dir, docs_dir, index_data)  # Not needed with flat structure
     
-    # Generate author pages
+    # Generate author pages (visible docs only)
     print('\n[BUILD] Generating author pages...')
-    generate_author_pages(docs_dir, index_data)
+    generate_author_pages(docs_dir, visible_index_data)
     
-    # Generate separate authors page
+    # Generate separate authors page (visible docs only)
     print('\n[BUILD] Generating authors.html...')
-    generate_authors_page(docs_dir, index_data)
+    generate_authors_page(docs_dir, visible_index_data)
     
-    # Inject inline data into authors.html
-    inject_inline_data(docs_dir / 'authors.html', index_data)
+    # Inject inline data into authors.html (visible docs only)
+    inject_inline_data(docs_dir / 'authors.html', visible_index_data)
     print(f'  [OK] Injected inline data into authors.html')
     
     # Copy translations page
     print('\n[BUILD] Copying translations page...')
     copy_translations_page(base_dir, docs_dir)
     
-    # Inject inline data into translations.html
-    inject_translations_data(docs_dir / 'translations.html', index_data)
+    # Inject inline data into translations.html (visible docs only)
+    inject_translations_data(docs_dir / 'translations.html', visible_index_data)
     print(f'  [OK] Injected inline data into translations.html')
     
     # Copy admin files
     print('\n[BUILD] Copying admin files...')
     copy_admin_files(base_dir, docs_dir)
     
-    # Inject overrides data into admin-panel.html
-    inject_overrides_data(docs_dir / 'admin-panel.html', base_dir)
-    print(f'  [OK] Injected overrides data into admin-panel.html')
+    # Inject ALL data into admin-panel.html (includes hidden docs for admin management)
+    inject_admin_data(docs_dir / 'admin-panel.html', index_data, base_dir)
+    print(f'  [OK] Injected data into admin-panel.html (all {len(all_documents)} docs)')
     
     print('\n[BUILD] Site build completed successfully!')
     print(f'[BUILD] Site ready at: docs/')

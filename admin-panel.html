@@ -16,6 +16,7 @@
         .save-status.saving { background: #fff3cd; color: #856404; }
         .save-status.ok { background: #d4edda; color: #155724; }
         .save-status.error { background: #f8d7da; color: #721c24; }
+        .doc-item.hidden-doc { opacity: 0.65; border-style: dashed; }
         .admin-btn { padding: 0.5rem 1rem; border: none; border-radius: 4px; cursor: pointer; font-family: inherit; font-size: 0.95rem; }
         .admin-btn-primary { background: #007bff; color: white; }
         .admin-btn-success { background: #28a745; color: white; }
@@ -309,20 +310,15 @@
             
             var btnAllActive = document.getElementById('btnAll').classList.contains('active');
             
-            // Toggle filters
+            // Toggle filters - admin always shows all docs unless specific filter is active
             docs = docs.filter(function(d) {
                 var ov = overridesData[d.id] || {};
                 var isCompleted = ov.completed !== undefined ? ov.completed : (d.completed || false);
                 var isHidden = ov.hidden !== undefined ? ov.hidden : (d.hidden || false);
                 
-                // If All is active, show everything
-                if (btnAllActive) {
+                // If All is active or no filter is active, show everything
+                if (btnAllActive || (!filterCompletedActive && !filterHiddenActive)) {
                     return true;
-                }
-                
-                // If neither filter is active, show only uncompleted & unhidden items
-                if (!filterCompletedActive && !filterHiddenActive) {
-                    return !isCompleted && !isHidden;
                 }
                 
                 // If both are active, show items matching BOTH
@@ -373,10 +369,11 @@
                 var isHidden = ov.hidden !== undefined ? ov.hidden : (doc.hidden || false);
 
                 var link = doc.html_path || '';
-                html += '<div class="doc-item" data-doc-id="' + doc.id + '" onclick="openDoc(\'' + link + '\')" style="cursor:pointer;">' +
+                html += '<div class="doc-item' + (isHidden ? ' hidden-doc' : '') + '" data-doc-id="' + doc.id + '" onclick="openDoc(\'' + link + '\')" style="cursor:pointer;">' +
                     '<strong>ID:</strong> ' + doc.id + ' | ' +
                     '<strong>Title:</strong> ' + (doc.title || 'N/A') + ' | ' +
-                    '<strong>Author:</strong> ' + (doc.author || 'N/A') + '<br>' +
+                    '<strong>Author:</strong> ' + (doc.author || 'N/A') +
+                    (isHidden ? ' <span style="color:#6c757d;font-size:0.8em;">[Hidden]</span>' : '') + '<br>' +
                     '<span class="toggle-word completed-word' + (isCompleted ? ' on' : '') + '" onclick="event.stopPropagation(); toggleStatus(\'' + doc.id + '\', \'completed\')">Completed</span> ' +
                     '<span class="toggle-word hidden-word' + (isHidden ? ' on' : '') + '" onclick="event.stopPropagation(); toggleStatus(\'' + doc.id + '\', \'hidden\')">Hidden</span>' +
                     '</div>';
