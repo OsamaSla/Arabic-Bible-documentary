@@ -7225,20 +7225,6 @@
       "file_hash": "3ba05867"
     },
     {
-      "id": "doc_0516",
-      "title": "Der Brief an die Hebräer",
-      "description": "Einleitung Empfänger",
-      "author": "Wilhelm Heinemann",
-      "author_slug": "wilhelm-heinemann",
-      "completed": false,
-      "category": "uncategorized",
-      "filename": "Hebräer-Brief.docx",
-      "rel_path": "",
-      "html_path": "documents/wilhelm-heinemann/doc_0516.html",
-      "download_path": "downloads/wilhelm-heinemann/doc_0516.docx",
-      "file_hash": "f6e116d3"
-    },
-    {
       "id": "doc_0517",
       "title": "رسالة أفسس",
       "description": "تمهيد مستلم الرسالة: أفسس (آسيا الصغرى) ← عاصمة المقاطعة الرومانية في آسيا بولس كان هناك في إقامة قصيرة في رحلته الثانية (أعمال الرسل 18: 19 – 21) ولثلاث سنوات في رحلته الثالثة (أعمال الرسل 19: 1 –...",
@@ -7267,34 +7253,6 @@
       "file_hash": "7b573ec8"
     },
     {
-      "id": "doc_0519",
-      "title": "Römer-Brief.pdf_de-DE_ar-001.review",
-      "description": "",
-      "author": "Wilhelm Heinemann",
-      "author_slug": "wilhelm-heinemann",
-      "completed": false,
-      "category": "uncategorized",
-      "filename": "Römer-Brief.pdf_de-DE_ar-001.review.docx",
-      "rel_path": "رسالة رومية\\Römer-Brief.pdf_de-DE_ar-001.ProjectFiles\\External Review\\ar-001",
-      "html_path": "documents/wilhelm-heinemann/رسالة-رومية-römer-briefpdf_de-de_ar-001projectfile/doc_0519.html",
-      "download_path": "downloads/wilhelm-heinemann/رسالة-رومية-römer-briefpdf_de-de_ar-001projectfile/doc_0519.docx",
-      "file_hash": "5e72bb28"
-    },
-    {
-      "id": "doc_0520",
-      "title": "Römer-Brief.pdf_de-DE_ar-001.review",
-      "description": "",
-      "author": "Wilhelm Heinemann",
-      "author_slug": "wilhelm-heinemann",
-      "completed": false,
-      "category": "uncategorized",
-      "filename": "Römer-Brief.pdf_de-DE_ar-001.review.docx",
-      "rel_path": "رسالة رومية",
-      "html_path": "documents/wilhelm-heinemann/رسالة-رومية/doc_0520.html",
-      "download_path": "downloads/wilhelm-heinemann/رسالة-رومية/doc_0520.docx",
-      "file_hash": "5e72bb28"
-    },
-    {
       "id": "doc_0521",
       "title": "الرسالة إلى أهل غلاطية",
       "description": "تمهيد طابع الرسالة طابع تصحيحي وأقل تعليميًا رسالة رومية، رسالة أفسس أكثر تعليمية - رسالة كورنثوس وغلاطية أكثر تصحيحية",
@@ -7307,20 +7265,6 @@
       "html_path": "documents/wilhelm-heinemann/رسالة-غلاطية/doc_0521.html",
       "download_path": "downloads/wilhelm-heinemann/رسالة-غلاطية/doc_0521.docx",
       "file_hash": "dc3db3fd"
-    },
-    {
-      "id": "doc_0522",
-      "title": "~",
-      "description": "≠ → ← ⇐",
-      "author": "Wilhelm Heinemann",
-      "author_slug": "wilhelm-heinemann",
-      "completed": false,
-      "category": "uncategorized",
-      "filename": "علامات.docx",
-      "rel_path": "",
-      "html_path": "documents/wilhelm-heinemann/doc_0522.html",
-      "download_path": "downloads/wilhelm-heinemann/doc_0522.docx",
-      "file_hash": "d358b6a5"
     },
     {
       "id": "doc_0523",
@@ -10837,7 +10781,7 @@
       "file_hash": "68633ff0"
     }
   ],
-  "total_count": 774,
+  "total_count": 770,
   "completed_count": 342,
   "authors": {
     "Achim Zöfelt": {
@@ -11197,7 +11141,7 @@
     },
     "Wilhelm Heinemann": {
       "slug": "wilhelm-heinemann",
-      "total": 7,
+      "total": 3,
       "completed": 0
     },
     "William Gurnall": {

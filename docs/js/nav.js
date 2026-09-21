@@ -9,6 +9,30 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // Mobile search toggle
+    var searchToggle = document.getElementById('searchToggle');
+    var headerSearch = document.querySelector('.header-search');
+    if (searchToggle && headerSearch) {
+        searchToggle.addEventListener('click', function() {
+            var isOpen = headerSearch.classList.toggle('mobile-open');
+            this.classList.toggle('open');
+            if (isOpen) {
+                headerSearch.querySelector('input').focus();
+            }
+        });
+    }
+
+    // Close nav when clicking a nav link on mobile
+    var navLinks = document.querySelectorAll('.nav-link');
+    navLinks.forEach(function(link) {
+        link.addEventListener('click', function() {
+            if (window.innerWidth <= 768 && navBar) {
+                navBar.classList.remove('open');
+                toggle.classList.remove('open');
+            }
+        });
+    });
+
     // Book grid expand/collapse toggles
     var toggles = document.querySelectorAll('.nav-dropdown-toggle');
     toggles.forEach(function(toggleEl) {

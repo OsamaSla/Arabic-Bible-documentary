@@ -10,8 +10,13 @@
     <link rel="stylesheet" href="css/style.css">
     <style>
         .admin-container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
-        .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding: 1rem; background: var(--bg-light); border-radius: var(--radius-md); }
-        .admin-btn { padding: 0.5rem 1rem; border: none; border-radius: 4px; cursor: pointer; margin-left: 0.5rem; }
+        .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding: 1rem; background: var(--bg-light); border-radius: var(--radius-md); flex-wrap: wrap; gap: 0.5rem; }
+        .admin-header-actions { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+        .save-status { font-size: 0.85rem; font-weight: 600; padding: 4px 8px; border-radius: 4px; }
+        .save-status.saving { background: #fff3cd; color: #856404; }
+        .save-status.ok { background: #d4edda; color: #155724; }
+        .save-status.error { background: #f8d7da; color: #721c24; }
+        .admin-btn { padding: 0.5rem 1rem; border: none; border-radius: 4px; cursor: pointer; font-family: inherit; font-size: 0.95rem; }
         .admin-btn-primary { background: #007bff; color: white; }
         .admin-btn-success { background: #28a745; color: white; }
         .admin-btn-danger { background: #dc3545; color: white; }
@@ -19,10 +24,26 @@
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 5px; }
         .form-group input { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
-        .doc-item { padding: 10px; border: 1px solid #ddd; margin: 5px 0; border-radius: 4px; background: #fff; }
+        .doc-item { padding: 14px; border: 1px solid #ddd; margin: 8px 0; border-radius: 6px; background: #fff; }
         .filter-buttons { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
         .filter-btn { padding: 0.4rem 0.8rem; border: 1px solid #ddd; background: #f8f9fa; border-radius: 4px; cursor: pointer; font-family: inherit; font-size: 0.9rem; }
         .filter-btn.active { background: var(--color-primary); color: white; border-color: var(--color-primary); }
+
+        .toggle-word {
+            display: inline-block;
+            padding: 2px 8px;
+            margin: 4px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+        .toggle-word:hover { opacity: 0.8; }
+        .toggle-word.completed-word { background: #e9ecef; color: #495057; }
+        .toggle-word.completed-word.on { background: #28a745; color: #fff; }
+        .toggle-word.hidden-word { background: #e9ecef; color: #495057; }
+        .toggle-word.hidden-word.on { background: #6c757d; color: #fff; }
     </style>
 </head>
 <body>
@@ -38,8 +59,10 @@
     <main class="admin-container">
         <div class="admin-header">
             <h1>Admin Panel</h1>
-            <div>
-                <button class="admin-btn admin-btn-success" onclick="exportOverrides()">Export overrides</button>
+            <div class="admin-header-actions">
+                <span id="saveStatus" class="save-status"></span>
+                <button class="admin-btn admin-btn-success" id="saveBtn" onclick="saveOverrides()">Save & Rebuild</button>
+                <button class="admin-btn admin-btn-primary" onclick="exportOverrides()">Download JSON</button>
                 <button class="admin-btn admin-btn-danger" onclick="logout()">Logout</button>
             </div>
         </div>
@@ -52,7 +75,7 @@
         
         <div id="adminContent" style="display: none;">
             <h2>Document Management</h2>
-            <p>Toggle completed or hidden status for each document, then click Export overrides.</p>
+            <p>Toggle completed or hidden status for each document, then click Save & Rebuild (requires local server) or Download JSON.</p>
             
             <input type="text" id="filterBox" placeholder="Search docs..." style="width:100%; padding:8px; margin-bottom:10px; border:1px solid #ddd; border-radius:4px;">
             
@@ -69,15 +92,15 @@
     </main>
     
     <script>
-        const storageKey = 'admin_logged_in';
-        let currentSearchQuery = '';
-        let overridesData = {};
-        let filterCompletedActive = false;
-        let filterHiddenActive = false;
-        
-        function isLoggedIn() {
-            return localStorage.getItem(storageKey) === 'true';
-        }
+            const storageKey = 'admin_logged_in';
+            let currentSearchQuery = '';
+            let overridesData = {};
+            let filterCompletedActive = false;
+            let filterHiddenActive = false;
+
+            function isLoggedIn() {
+                return localStorage.getItem(storageKey) === 'true';
+            }
         
         function logout() {
             localStorage.removeItem(storageKey);
@@ -88,26 +111,24 @@
             const overrides = {};
             document.querySelectorAll('[data-doc-id]').forEach(function(el) {
                 const docId = el.getAttribute('data-doc-id');
-                const hidden = el.querySelector('.hidden-toggle')?.checked;
-                const completed = el.querySelector('.completed-toggle')?.checked;
-                
+                const completedEl = el.querySelector('.completed-word');
+                const hiddenEl = el.querySelector('.hidden-word');
+                const completed = completedEl ? completedEl.classList.contains('on') : false;
+                const hidden = hiddenEl ? hiddenEl.classList.contains('on') : false;
+
                 const origDoc = (window.__allDocs || []).find(d => d.id === docId) || {};
                 const origCompleted = !!origDoc.completed;
                 const origHidden = !!origDoc.hidden;
-                
+
                 const ov = {};
-                if (completed !== origCompleted) {
-                    ov.completed = completed;
-                }
-                if (hidden !== origHidden) {
-                    ov.hidden = hidden;
-                }
-                
+                if (completed !== origCompleted) ov.completed = completed;
+                if (hidden !== origHidden) ov.hidden = hidden;
+
                 if (Object.keys(ov).length > 0) {
                     overrides[docId] = ov;
                 }
             });
-            
+
             const dataStr = JSON.stringify({ overrides: overrides }, null, 2);
             const blob = new Blob([dataStr], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
@@ -116,6 +137,64 @@
             a.download = 'doc_overrides.json';
             a.click();
             URL.revokeObjectURL(url);
+        }
+
+        function collectOverrides() {
+            const overrides = {};
+            document.querySelectorAll('[data-doc-id]').forEach(function(el) {
+                const docId = el.getAttribute('data-doc-id');
+                const completedEl = el.querySelector('.completed-word');
+                const hiddenEl = el.querySelector('.hidden-word');
+                const completed = completedEl ? completedEl.classList.contains('on') : false;
+                const hidden = hiddenEl ? hiddenEl.classList.contains('on') : false;
+
+                const origDoc = (window.__allDocs || []).find(d => d.id === docId) || {};
+                const origCompleted = !!origDoc.completed;
+                const origHidden = !!origDoc.hidden;
+
+                const ov = {};
+                if (completed !== origCompleted) ov.completed = completed;
+                if (hidden !== origHidden) ov.hidden = hidden;
+
+                if (Object.keys(ov).length > 0) {
+                    overrides[docId] = ov;
+                }
+            });
+            return overrides;
+        }
+
+        function saveOverrides() {
+            const statusEl = document.getElementById('saveStatus');
+            const saveBtn = document.getElementById('saveBtn');
+            const overrides = collectOverrides();
+
+            statusEl.className = 'save-status saving';
+            statusEl.textContent = 'Saving...';
+            saveBtn.disabled = true;
+
+            fetch('/api/save-overrides', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ overrides: overrides })
+            })
+            .then(function(res) { return res.json(); })
+            .then(function(data) {
+                if (data.ok) {
+                    statusEl.className = 'save-status ok';
+                    statusEl.textContent = 'Saved & rebuilt!';
+                    setTimeout(function() { statusEl.textContent = ''; }, 3000);
+                } else {
+                    statusEl.className = 'save-status error';
+                    statusEl.textContent = data.message || 'Build failed';
+                }
+            })
+            .catch(function(err) {
+                statusEl.className = 'save-status error';
+                statusEl.textContent = 'Server not running. Use "python scripts/serve.py"';
+            })
+            .finally(function() {
+                saveBtn.disabled = false;
+            });
         }
         
         function loadDocuments() {
@@ -267,25 +346,39 @@
             renderDocs(docs);
         }
         
+        function toggleStatus(docId, field) {
+            var el = document.querySelector('[data-doc-id="' + docId + '"] .toggle-word.' + field + '-word');
+            if (!el) return;
+            el.classList.toggle('on');
+
+            if (!overridesData[docId]) overridesData[docId] = {};
+            overridesData[docId][field] = el.classList.contains('on');
+        }
+
+        function openDoc(htmlPath) {
+            if (htmlPath) window.open(htmlPath, '_blank');
+        }
+
         function renderDocs(docs) {
             var container = document.getElementById('docsContainer');
             if (docs.length === 0) {
                 container.innerHTML = '<p>No documents found.</p>';
                 return;
             }
-            
+
             var html = '';
             docs.forEach(function(doc) {
                 var ov = overridesData[doc.id] || {};
                 var isCompleted = ov.completed !== undefined ? ov.completed : (doc.completed || false);
                 var isHidden = ov.hidden !== undefined ? ov.hidden : (doc.hidden || false);
-                
-                html += '<div class="doc-item" data-doc-id="' + doc.id + '">' +
+
+                var link = doc.html_path || '';
+                html += '<div class="doc-item" data-doc-id="' + doc.id + '" onclick="openDoc(\'' + link + '\')" style="cursor:pointer;">' +
                     '<strong>ID:</strong> ' + doc.id + ' | ' +
                     '<strong>Title:</strong> ' + (doc.title || 'N/A') + ' | ' +
                     '<strong>Author:</strong> ' + (doc.author || 'N/A') + '<br>' +
-                    '<label><input type="checkbox" class="completed-toggle" ' + (isCompleted ? 'checked' : '') + '> Completed</label> &nbsp;&nbsp; ' +
-                    '<label><input type="checkbox" class="hidden-toggle" ' + (isHidden ? 'checked' : '') + '> Hidden</label>' +
+                    '<span class="toggle-word completed-word' + (isCompleted ? ' on' : '') + '" onclick="event.stopPropagation(); toggleStatus(\'' + doc.id + '\', \'completed\')">Completed</span> ' +
+                    '<span class="toggle-word hidden-word' + (isHidden ? ' on' : '') + '" onclick="event.stopPropagation(); toggleStatus(\'' + doc.id + '\', \'hidden\')">Hidden</span>' +
                     '</div>';
             });
             container.innerHTML = html;
