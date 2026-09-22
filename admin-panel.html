@@ -23,40 +23,34 @@
         .admin-container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
         .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding: 1rem; background: var(--bg-light); border-radius: var(--radius-md); flex-wrap: wrap; gap: 0.5rem; }
         .admin-header-actions { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
-        .save-status { font-size: 0.85rem; font-weight: 600; padding: 4px 8px; border-radius: 4px; }
-        .save-status.saving { background: #fff3cd; color: #856404; }
-        .save-status.ok { background: #d4edda; color: #155724; }
-        .save-status.error { background: #f8d7da; color: #721c24; }
+        .doc-item { min-height: 72px; padding: 14px; border: 1px solid #ddd; margin: 8px 0; border-radius: 6px; background: #fff; cursor: pointer; }
+        .doc-item:hover { border-color: var(--color-primary); }
+        .doc-item:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
         .doc-item.hidden-doc { opacity: 0.65; border-style: dashed; }
         .admin-btn { padding: 0.5rem 1rem; border: none; border-radius: 4px; cursor: pointer; font-family: inherit; font-size: 0.95rem; }
         .admin-btn-primary { background: #007bff; color: white; }
-        .admin-btn-success { background: #28a745; color: white; }
         .admin-btn-danger { background: #dc3545; color: white; }
         .login-form { max-width: 400px; margin: 50px auto; }
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 5px; }
         .form-group input { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
-        .doc-item { padding: 14px; border: 1px solid #ddd; margin: 8px 0; border-radius: 6px; background: #fff; }
         .filter-buttons { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
         .filter-btn { padding: 0.4rem 0.8rem; border: 1px solid #ddd; background: #f8f9fa; border-radius: 4px; cursor: pointer; font-family: inherit; font-size: 0.9rem; }
+        .filter-btn:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
         .filter-btn.active { background: var(--color-primary); color: white; border-color: var(--color-primary); }
-
-        .toggle-word {
+        .status-badge {
             display: inline-block;
             padding: 2px 8px;
             margin: 4px;
             border-radius: 4px;
-            cursor: pointer;
             font-weight: 600;
-            transition: all 0.2s ease;
+            font-size: 0.9rem;
             user-select: none;
         }
-        .toggle-word:hover { opacity: 0.8; }
-        .toggle-word:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
-        .toggle-word.completed-word { background: #e9ecef; color: #495057; }
-        .toggle-word.completed-word.on { background: #28a745; color: #fff; }
-        .toggle-word.hidden-word { background: #e9ecef; color: #495057; }
-        .toggle-word.hidden-word.on { background: #6c757d; color: #fff; }
+        .status-badge.completed-on { background: #28a745; color: #fff; }
+        .status-badge.completed-off { background: #e9ecef; color: #495057; }
+        .status-badge.hidden-on { background: #6c757d; color: #fff; }
+        .status-badge.hidden-off { background: #e9ecef; color: #495057; opacity: 0.55; }
     </style>
 </head>
 <body>
@@ -75,50 +69,45 @@
             </div>
         </div></div>
     </header>
-    
+
     <main id="main-content" class="admin-container">
         <div class="admin-header">
             <h1>Admin Panel</h1>
             <div class="admin-header-actions">
-                <span id="saveStatus" class="save-status"></span>
-                <button class="admin-btn admin-btn-success" id="saveBtn" onclick="saveOverrides()">Save & Rebuild</button>
-                <button class="admin-btn admin-btn-primary" onclick="exportOverrides()">Download JSON</button>
                 <button class="admin-btn admin-btn-danger" onclick="logout()">Logout</button>
             </div>
         </div>
-        
+
         <div id="loginSection" class="login-form" style="display: none;">
             <h2>Login Required</h2>
             <p>You must login to access the admin panel.</p>
             <button class="admin-btn admin-btn-primary" onclick="window.location.href='admin.html'">Go to Login</button>
         </div>
-        
+
         <div id="adminContent" style="display: none;">
-            <h2>Document Management</h2>
-            <p>Toggle completed or hidden status for each document, then click Save & Rebuild (requires local server) or Download JSON.</p>
-            
+            <h2>Document Status</h2>
+            <p>Read-only view. Status comes from source folders: <strong>تم</strong> = completed, <strong>hidden</strong> / <strong>مخفي</strong> = hidden.</p>
+
             <input type="text" id="filterBox" placeholder="Search docs..." style="width:100%; padding:8px; margin-bottom:10px; border:1px solid #ddd; border-radius:4px;">
-            
+
             <div class="filter-buttons">
                 <button class="filter-btn active" data-filter="all" id="btnAll">الكل (All)</button>
                 <button class="filter-btn" data-filter="completed" id="btnCompleted">مكتمل (Completed)</button>
                 <button class="filter-btn" data-filter="hidden" id="btnHidden">مخفي (Hidden)</button>
             </div>
-            
+
             <div id="docsContainer">
                 <p>Loading documents...</p>
             </div>
         </div>
     </main>
-    
+
     <script src="js/theme.js"></script>
     <script>
             const storageKey = 'admin_logged_in';
             let currentSearchQuery = '';
-            let overridesData = {};
             let filterCompletedActive = false;
             let filterHiddenActive = false;
-            let dirtyState = false;
 
             function isLoggedIn() {
                 try {
@@ -128,123 +117,14 @@
                 }
             }
 
-            function isDirty() {
-                return dirtyState;
-            }
-
-            window.addEventListener('beforeunload', function(e) {
-                if (dirtyState) {
-                    e.preventDefault();
-                    e.returnValue = '';
-                }
-            });
-
             function logout() {
-                if (dirtyState && !confirm('لديك تغييرات غير محفوظة. هل تريد المغادرة فعلاً؟')) {
-                    return;
-                }
                 try {
                     localStorage.removeItem(storageKey);
                 } catch (e) {}
                 window.location.href = 'admin.html';
             }
-        
-        function exportOverrides() {
-            const overrides = {};
-            document.querySelectorAll('[data-doc-id]').forEach(function(el) {
-                const docId = el.getAttribute('data-doc-id');
-                const completedEl = el.querySelector('.completed-word');
-                const hiddenEl = el.querySelector('.hidden-word');
-                const completed = completedEl ? completedEl.classList.contains('on') : false;
-                const hidden = hiddenEl ? hiddenEl.classList.contains('on') : false;
 
-                const origDoc = (window.__allDocs || []).find(d => d.id === docId) || {};
-                const origCompleted = !!origDoc.completed;
-                const origHidden = !!origDoc.hidden;
-
-                const ov = {};
-                if (completed !== origCompleted) ov.completed = completed;
-                if (hidden !== origHidden) ov.hidden = hidden;
-
-                if (Object.keys(ov).length > 0) {
-                    overrides[docId] = ov;
-                }
-            });
-
-            const dataStr = JSON.stringify({ overrides: overrides }, null, 2);
-            const blob = new Blob([dataStr], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'doc_overrides.json';
-            a.click();
-            URL.revokeObjectURL(url);
-        }
-
-        function collectOverrides() {
-            const overrides = {};
-            document.querySelectorAll('[data-doc-id]').forEach(function(el) {
-                const docId = el.getAttribute('data-doc-id');
-                const completedEl = el.querySelector('.completed-word');
-                const hiddenEl = el.querySelector('.hidden-word');
-                const completed = completedEl ? completedEl.classList.contains('on') : false;
-                const hidden = hiddenEl ? hiddenEl.classList.contains('on') : false;
-
-                const origDoc = (window.__allDocs || []).find(d => d.id === docId) || {};
-                const origCompleted = !!origDoc.completed;
-                const origHidden = !!origDoc.hidden;
-
-                const ov = {};
-                if (completed !== origCompleted) ov.completed = completed;
-                if (hidden !== origHidden) ov.hidden = hidden;
-
-                if (Object.keys(ov).length > 0) {
-                    overrides[docId] = ov;
-                }
-            });
-            return overrides;
-        }
-
-        function saveOverrides() {
-            const statusEl = document.getElementById('saveStatus');
-            const saveBtn = document.getElementById('saveBtn');
-            const overrides = collectOverrides();
-
-            statusEl.className = 'save-status saving';
-            statusEl.textContent = 'Saving...';
-            saveBtn.disabled = true;
-
-            fetch('/api/save-overrides', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ overrides: overrides })
-            })
-            .then(function(res) { return res.json(); })
-            .then(function(data) {
-                if (data.ok) {
-                    dirtyState = false;
-                    statusEl.className = 'save-status ok';
-                    statusEl.textContent = 'Saved & rebuilt!';
-                    setTimeout(function() { statusEl.textContent = ''; }, 3000);
-                } else {
-                    statusEl.className = 'save-status error';
-                    statusEl.textContent = data.message || 'Build failed';
-                }
-            })
-            .catch(function(err) {
-                statusEl.className = 'save-status error';
-                statusEl.textContent = 'Server not running. Use "python scripts/serve.py"';
-            })
-            .finally(function() {
-                saveBtn.disabled = false;
-            });
-        }
-        
         function loadDocuments() {
-            if (window.__OVERRIDES_DATA__) {
-                overridesData = window.__OVERRIDES_DATA__;
-            }
-            
             if (window.__DOCUMENTS_DATA__) {
                 var docs = window.__DOCUMENTS_DATA__;
                 window.__allDocs = docs;
@@ -252,7 +132,7 @@
                 setupControls();
                 return;
             }
-            
+
             var xhr = new XMLHttpRequest();
             xhr.open('GET', 'documents/index.json', false);
             try {
@@ -261,12 +141,12 @@
                 document.getElementById('docsContainer').innerHTML = '<p>Error loading documents: ' + e.message + '</p>';
                 return;
             }
-            
+
             if (xhr.status !== 200 && xhr.status !== 0) {
                 document.getElementById('docsContainer').innerHTML = '<p>Error loading documents (Status: ' + xhr.status + ')</p>';
                 return;
             }
-            
+
             try {
                 var data = JSON.parse(xhr.responseText);
                 var docs = data.documents || [];
@@ -277,7 +157,7 @@
                 document.getElementById('docsContainer').innerHTML = '<p>Error parsing documents: ' + err.message + '</p>';
             }
         }
-        
+
         function setupControls() {
             var filterBox = document.getElementById('filterBox');
             if (!filterBox._listenerAdded) {
@@ -287,15 +167,14 @@
                     applyFiltersAndRender();
                 });
             }
-            
+
             var btnAll = document.getElementById('btnAll');
             var btnCompleted = document.getElementById('btnCompleted');
             var btnHidden = document.getElementById('btnHidden');
-            
+
             if (!btnAll._listenerAdded) {
                 btnAll._listenerAdded = true;
                 btnAll.addEventListener('click', function() {
-                    // Toggle All button on/off independently
                     if (btnAll.classList.contains('active')) {
                         btnAll.classList.remove('active');
                     } else {
@@ -308,7 +187,7 @@
                     applyFiltersAndRender();
                 });
             }
-            
+
             if (!btnCompleted._listenerAdded) {
                 btnCompleted._listenerAdded = true;
                 btnCompleted.addEventListener('click', function() {
@@ -322,7 +201,7 @@
                     applyFiltersAndRender();
                 });
             }
-            
+
             if (!btnHidden._listenerAdded) {
                 btnHidden._listenerAdded = true;
                 btnHidden.addEventListener('click', function() {
@@ -337,68 +216,40 @@
                 });
             }
         }
-        
+
         function applyFiltersAndRender() {
             var docs = window.__allDocs || [];
-            
-            // Search filter
+
             if (currentSearchQuery) {
                 docs = docs.filter(function(d) {
-                    return (d.title && d.title.toLowerCase().includes(currentSearchQuery)) || 
-                           (d.id && d.id.toLowerCase().includes(currentSearchQuery)) || 
+                    return (d.title && d.title.toLowerCase().includes(currentSearchQuery)) ||
+                           (d.id && d.id.toLowerCase().includes(currentSearchQuery)) ||
                            (d.author && d.author.toLowerCase().includes(currentSearchQuery));
                 });
             }
-            
+
             var btnAllActive = document.getElementById('btnAll').classList.contains('active');
-            
-            // Toggle filters - admin always shows all docs unless specific filter is active
+
             docs = docs.filter(function(d) {
-                var ov = overridesData[d.id] || {};
-                var isCompleted = ov.completed !== undefined ? ov.completed : (d.completed || false);
-                var isHidden = ov.hidden !== undefined ? ov.hidden : (d.hidden || false);
-                
-                // If All is active or no filter is active, show everything
+                var isCompleted = !!(d.completed || false);
+                var isHidden = !!(d.hidden || false);
+
                 if (btnAllActive || (!filterCompletedActive && !filterHiddenActive)) {
                     return true;
                 }
-                
-                // If both are active, show items matching BOTH
                 if (filterCompletedActive && filterHiddenActive) {
                     return isCompleted && isHidden;
                 }
-                
-                // If only Completed filter is active
                 if (filterCompletedActive) {
                     return isCompleted;
                 }
-                
-                // If only Hidden filter is active
                 if (filterHiddenActive) {
                     return isHidden;
                 }
-                
                 return true;
             });
-            
-            renderDocs(docs);
-        }
-        
-        function toggleStatus(docId, field) {
-            var el = document.querySelector('[data-doc-id="' + docId + '"] .toggle-word.' + field + '-word');
-            if (!el) return;
-            el.classList.toggle('on');
-            var isOn = el.classList.contains('on');
-            el.setAttribute('aria-checked', isOn ? 'true' : 'false');
 
-            if (!overridesData[docId]) overridesData[docId] = {};
-            overridesData[docId][field] = isOn;
-            dirtyState = true;
-            var statusEl = document.getElementById('saveStatus');
-            if (statusEl && !statusEl.classList.contains('saving')) {
-                statusEl.className = 'save-status dirty';
-                statusEl.textContent = 'تغييرات غير محفوظة';
-            }
+            renderDocs(docs);
         }
 
         function openDoc(htmlPath) {
@@ -414,23 +265,21 @@
 
             var html = '';
             docs.forEach(function(doc) {
-                var ov = overridesData[doc.id] || {};
-                var isCompleted = ov.completed !== undefined ? ov.completed : (doc.completed || false);
-                var isHidden = ov.hidden !== undefined ? ov.hidden : (doc.hidden || false);
-
+                var isCompleted = !!(doc.completed || false);
+                var isHidden = !!(doc.hidden || false);
                 var link = doc.html_path || '';
-                html += '<div class="doc-item' + (isHidden ? ' hidden-doc' : '') + '" data-doc-id="' + doc.id + '" onclick="openDoc(\'' + link + '\')" style="cursor:pointer;">' +
+
+                html += '<div class="doc-item' + (isHidden ? ' hidden-doc' : '') + '" data-doc-id="' + doc.id + '" role="link" tabindex="0" onclick="openDoc(\'' + link + '\')" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();openDoc(\'' + link + '\')}">' +
                     '<strong>ID:</strong> ' + doc.id + ' | ' +
                     '<strong>Title:</strong> ' + (doc.title || 'N/A') + ' | ' +
-                    '<strong>Author:</strong> ' + (doc.author || 'N/A') +
-                    (isHidden ? ' <span style="color:#6c757d;font-size:0.8em;">[Hidden]</span>' : '') + '<br>' +
-                    '<span class="toggle-word completed-word' + (isCompleted ? ' on' : '') + '" role="switch" aria-checked="' + (isCompleted ? 'true' : 'false') + '" tabindex="0" onclick="event.stopPropagation(); toggleStatus(\'' + doc.id + '\', \'completed\')" onkeydown="if(event.key===\' \'||event.key===\'Enter\'){event.preventDefault();event.stopPropagation();toggleStatus(\'' + doc.id + '\', \'completed\')}">Completed</span> ' +
-                    '<span class="toggle-word hidden-word' + (isHidden ? ' on' : '') + '" role="switch" aria-checked="' + (isHidden ? 'true' : 'false') + '" tabindex="0" onclick="event.stopPropagation(); toggleStatus(\'' + doc.id + '\', \'hidden\')" onkeydown="if(event.key===\' \'||event.key===\'Enter\'){event.preventDefault();event.stopPropagation();toggleStatus(\'' + doc.id + '\', \'hidden\')}">Hidden</span>' +
+                    '<strong>Author:</strong> ' + (doc.author || 'N/A') + '<br>' +
+                    '<span class="status-badge ' + (isCompleted ? 'completed-on">✓ مكتمل' : 'completed-off">○ قيد الترجمة') + '</span> ' +
+                    '<span class="status-badge ' + (isHidden ? 'hidden-on">Hidden' : 'hidden-off">Visible') + '</span>' +
                     '</div>';
             });
             container.innerHTML = html;
         }
-        
+
         document.addEventListener('DOMContentLoaded', function() {
             if (isLoggedIn()) {
                 document.getElementById('loginSection').style.display = 'none';

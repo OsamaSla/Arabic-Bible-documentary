@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Local dev server with auto-rebuild and overrides API.
+Local dev server with auto-rebuild.
 
 Usage:
     python scripts/serve.py
@@ -8,13 +8,11 @@ Usage:
 
 Features:
   - Serves docs/ as a static site
-  - POST /api/save-overrides  -> saves doc_overrides.json + triggers build
   - POST /api/rebuild         -> triggers a full rebuild
 """
 
 import sys
 import io
-import json
 import subprocess
 import argparse
 from pathlib import Path
@@ -35,41 +33,10 @@ class DevHandler(SimpleHTTPRequestHandler):
         super().__init__(*args, directory=str(DOCS_DIR), **kwargs)
 
     def do_POST(self):
-        if self.path == '/api/save-overrides':
-            self._handle_save_overrides()
-        elif self.path == '/api/rebuild':
+        if self.path == '/api/rebuild':
             self._handle_rebuild()
         else:
             self.send_error(404, 'Not found')
-
-    def _handle_save_overrides(self):
-        """Save overrides JSON and rebuild."""
-        content_length = int(self.headers.get('Content-Length', 0))
-        body = self.rfile.read(content_length)
-
-        try:
-            data = json.loads(body)
-        except json.JSONDecodeError as e:
-            self._json_response(400, {'error': f'Invalid JSON: {e}'})
-            return
-
-        # Save to doc_overrides.json
-        overrides_path = BASE_DIR / 'doc_overrides.json'
-        output = {
-            'overrides': data.get('overrides', {})
-        }
-        with open(overrides_path, 'w', encoding='utf-8') as f:
-            json.dump(output, f, indent=2, ensure_ascii=False)
-
-        print(f'[SERVER] Saved overrides to {overrides_path}')
-
-        # Trigger rebuild
-        success = self._run_build()
-
-        if success:
-            self._json_response(200, {'ok': True, 'message': 'Overrides saved and site rebuilt.'})
-        else:
-            self._json_response(500, {'ok': False, 'message': 'Overrides saved but build failed.'})
 
     def _handle_rebuild(self):
         """Trigger a full rebuild."""
@@ -138,7 +105,6 @@ def main():
     server = HTTPServer(('0.0.0.0', args.port), DevHandler)
     print(f'[SERVER] Serving docs/ at http://localhost:{args.port}')
     print(f'[SERVER] API endpoints:')
-    print(f'  POST /api/save-overrides  - Save overrides + rebuild')
     print(f'  POST /api/rebuild         - Trigger rebuild')
     print(f'[SERVER] Press Ctrl+C to stop.\n')
 

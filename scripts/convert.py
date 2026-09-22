@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Word to HTML Converter for Arabic Christian Translations
-Scans author folders, detects completion status (تم subfolder),
+Scans author folders, detects completion status (تم subfolder) and hidden status (hidden/مخفي subfolder),
 generates flat HTML pages and index.json.
 """
 
@@ -248,9 +248,13 @@ def create_document_page(title, content, doc_id, author_name, completed, prefix=
 </html>'''
 
 
+HIDDEN_FOLDER_NAMES = {'hidden', 'مخفي'}
+
+
 def scan_source_directory(input_dir):
     """Recursively scan source directory, preserving subfolder structure.
-    Tracks relative path from author root for each document."""
+    Tracks relative path from author root for each document.
+    Status folders: تم = completed, hidden/مخفي = hidden."""
     documents = []
     for author_name in sorted(os.listdir(input_dir)):
         author_path = os.path.join(input_dir, author_name)
@@ -258,27 +262,25 @@ def scan_source_directory(input_dir):
             continue
         if author_name in ['Rubbish', 'Trados', 'كتب ترانيم']:
             continue
-        # Recursively scan all subfolders
-        _scan_recursive(author_path, author_path, author_name, documents, is_done=False)
+        _scan_recursive(author_path, author_path, author_name, documents, is_done=False, is_hidden=False)
     return documents
 
 
-def _scan_recursive(current_path, author_root, author_name, documents, is_done):
-    """Recursively scan a directory for .docx files."""
+def _scan_recursive(current_path, author_root, author_name, documents, is_done, is_hidden):
+    """Recursively scan a directory for .docx files.
+    Exact folder 'تم' marks subtree completed; 'hidden'/'مخفي' marks subtree hidden."""
     for item in sorted(os.listdir(current_path)):
         item_path = os.path.join(current_path, item)
         if os.path.isdir(item_path):
-            # Check if this is a "done" folder
-            sub_is_done = is_done or ('تم' in item and item != 'تم')
-            # Special case: exact "تم" folder marks its SIBLING files as done
             if item == 'تم':
-                # Files in this folder are completed
-                _scan_done_folder(item_path, author_root, author_name, documents)
+                _scan_recursive(item_path, author_root, author_name, documents, True, is_hidden)
+            elif item in HIDDEN_FOLDER_NAMES:
+                _scan_recursive(item_path, author_root, author_name, documents, is_done, True)
             else:
-                # Recurse into subfolder
-                _scan_recursive(item_path, author_root, author_name, documents, sub_is_done)
+                sub_is_done = is_done or ('تم' in item and item != 'تم')
+                sub_is_hidden = is_hidden or item in HIDDEN_FOLDER_NAMES
+                _scan_recursive(item_path, author_root, author_name, documents, sub_is_done, sub_is_hidden)
         elif item.lower().endswith('.docx') and not item.startswith('~'):
-            # Calculate relative path from author root
             rel_path = os.path.relpath(current_path, author_root)
             if rel_path == '.':
                 rel_path = ''
@@ -287,26 +289,11 @@ def _scan_recursive(current_path, author_root, author_name, documents, is_done):
                 'filename': item,
                 'filepath': item_path,
                 'rel_path': rel_path,
-                'completed': is_done
+                'completed': is_done,
+                'hidden': is_hidden
             })
 
 
-def _scan_done_folder(done_path, author_root, author_name, documents):
-    """Scan a "تم" folder and mark all files as completed."""
-    for root, dirs, files in os.walk(done_path):
-        for f in sorted(files):
-            if f.lower().endswith('.docx') and not f.startswith('~'):
-                f_path = os.path.join(root, f)
-                rel_path = os.path.relpath(root, author_root)
-                if rel_path == '.':
-                    rel_path = ''
-                documents.append({
-                    'author': author_name,
-                    'filename': f,
-                    'filepath': f_path,
-                    'rel_path': rel_path,
-                    'completed': True
-                })
 def main():
     base_dir = Path(__file__).parent.parent
     input_dir = Path('D:\\MegaDrive\\ترجمات')
@@ -320,7 +307,7 @@ def main():
     downloads_dir.mkdir(parents=True, exist_ok=True)
     print('[SCAN] Scanning source directory...')
     source_docs = scan_source_directory(input_dir)
-    print(f'[SCAN] Found {len(source_docs)} documents ({sum(1 for d in source_docs if d["completed"])} completed)')
+    print(f'[SCAN] Found {len(source_docs)} documents ({sum(1 for d in source_docs if d["completed"])} completed, {sum(1 for d in source_docs if d.get("hidden"))} hidden)')
     documents = []
     doc_counter = 0
     for source_doc in source_docs:
@@ -366,6 +353,7 @@ def main():
             'author': source_doc['author'],
             'author_slug': author_slug,
             'completed': source_doc['completed'],
+            'hidden': source_doc.get('hidden', False),
             'category': 'uncategorized',
             'filename': source_doc['filename'],
             'rel_path': rel_path,
@@ -394,33 +382,9 @@ def main():
         cat = cat_assignments.get(doc_id, cat_assignments.get(filename, 'uncategorized'))
         doc['category'] = cat
 
-    # Load overrides (completed + hidden)
-    overrides_file = base_dir / 'doc_overrides.json'
-    overrides = {}
-    if overrides_file.exists():
-        with open(overrides_file, 'r', encoding='utf-8') as f:
-            ov_data = json.load(f)
-            overrides = ov_data.get('overrides', {})
-        print(f'[OV] Loaded {len(overrides)} document overrides')
-
-    # Apply overrides
-    hidden_count = 0
-    override_count = 0
-    for doc in documents:
-        doc_id = doc['id']
-        filename = doc['filename']
-        ov = overrides.get(doc_id, overrides.get(filename, None))
-        if ov:
-            if 'completed' in ov:
-                doc['completed'] = ov['completed']
-                override_count += 1
-            if ov.get('hidden', False):
-                doc['hidden'] = True
-                hidden_count += 1
-    if override_count > 0:
-        print(f'[OV] Applied {override_count} completed overrides')
-    if hidden_count > 0:
-        print(f'[OV] Hiding {hidden_count} documents')
+    hidden_count = sum(1 for d in documents if d.get('hidden'))
+    if hidden_count:
+        print(f'[SCAN] {hidden_count} documents in hidden folders')
 
     # Filter out hidden documents (keep them in index.json with hidden flag for admin panel)
     visible_documents = [d for d in documents if not d.get('hidden', False)]

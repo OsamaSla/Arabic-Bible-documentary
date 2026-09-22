@@ -25,7 +25,6 @@ BASE_DIR = SCRIPT_DIR.parent
 CONFIG_FILES = [
     BASE_DIR / 'categories.json',
     BASE_DIR / 'doc_categories.json',
-    BASE_DIR / 'doc_overrides.json',
 ]
 TEMPLATE_DIR = BASE_DIR / 'templates'
 

@@ -122,11 +122,9 @@ Arabic-Bible-documentary/
 │   ├── nav.js               # Navigation and mobile menu
 │   ├── search.js            # Search functionality
 │   ├── translations.js      # Translations page logic
-│   ├── admin-auth.js        # Admin authentication
-│   └── admin-panel.js       # Admin panel logic
+│   └── admin-auth.js        # Admin authentication
 ├── categories.json          # Book/category definitions
 ├── doc_categories.json      # Document-to-category assignments
-├── doc_overrides.json       # Manual status overrides
 └── README.md
 ```
 
@@ -151,23 +149,16 @@ Maps documents to categories. Edit to assign documents to books:
 }
 ```
 
-### doc_overrides.json
+### Status folders (source tree)
 
-Override document status. Use the admin panel or edit directly:
+Status is controlled only by folders under each author directory (no JSON overrides):
 
-```json
-{
-  "overrides": {
-    "doc_0042": { "completed": true },
-    "doc_0103": { "hidden": true }
-  }
-}
-```
+| Folder | Effect |
+|--------|--------|
+| `تم/` | Marks documents inside as **completed** |
+| `hidden/` or `مخفي/` | Marks documents inside as **hidden** (excluded from the site) |
 
-| Override | Effect |
-|----------|--------|
-| `"completed": true` | Marks document as completed (green checkmark) |
-| `"hidden": true` | Removes document from the website entirely |
+Nesting works: `hidden/تم/` = completed **and** hidden. Move a file out of the folder and rebuild to revert.
 
 ---
 
@@ -181,11 +172,10 @@ Access via the gear icon (&#9881;) in the footer, or navigate to `admin.html`.
 
 > ⚠️ **Change the password** in `js/admin-auth.js` before deploying!
 
-### Admin features:
-- Toggle documents as completed/incomplete
-- Hide documents from the website
-- Search and filter documents
-- Export updated `doc_overrides.json`
+### Admin features (read-only):
+- View all documents including hidden ones
+- Search and filter by completed / hidden status
+- Open a document from its row
 
 ---
 

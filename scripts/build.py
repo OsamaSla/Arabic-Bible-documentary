@@ -786,25 +786,15 @@ def inject_translations_data(html_path, index_data):
 
 
 def inject_admin_data(html_path, index_data, base_dir):
-    """Inject documents and overrides data for admin panel"""
+    """Inject documents data for admin panel"""
     with open(html_path, 'r', encoding='utf-8') as f:
         content = f.read()
-    
+
     docs_json = json.dumps(index_data.get('documents', []), ensure_ascii=False)
-    
-    overrides_file = base_dir / 'doc_overrides.json'
-    if overrides_file.exists():
-        with open(overrides_file, 'r', encoding='utf-8') as f:
-            ov_data = json.load(f)
-        overrides = ov_data.get('overrides', {})
-    else:
-        overrides = {}
-    ov_json = json.dumps(overrides, ensure_ascii=False)
-    
-    script_tag = f'<script>window.__DOCUMENTS_DATA__ = {docs_json}; window.__OVERRIDES_DATA__ = {ov_json};</script>\n    '
-    
+    script_tag = f'<script>window.__DOCUMENTS_DATA__ = {docs_json};</script>\n    '
+
     content = content.replace('<script', script_tag + '<script', 1)
-    
+
     with open(html_path, 'w', encoding='utf-8') as f:
         f.write(content)
 
