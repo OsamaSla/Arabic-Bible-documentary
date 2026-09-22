@@ -32,11 +32,18 @@
         .admin-btn:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
         .admin-btn:disabled { opacity: 0.65; cursor: not-allowed; }
         .admin-btn-primary { background: #007bff; color: white; }
+        .admin-btn-secondary { background: #6c757d; color: white; }
         .admin-btn-danger { background: #dc3545; color: white; }
         .deploy-status { min-height: 1.5rem; margin-top: 0.75rem; font-size: 0.95rem; }
         .deploy-status.is-ok { color: #28a745; }
         .deploy-status.is-err { color: #dc3545; }
         .deploy-status.is-busy { color: #007bff; }
+        .changes-panel { min-height: 120px; margin-top: 0.75rem; padding: 0.75rem; border: 1px solid #ddd; border-radius: 6px; background: var(--bg-light, #f8f9fa); font-size: 0.92rem; }
+        .changes-panel h3 { margin: 0 0 0.5rem; font-size: 1rem; }
+        .changes-panel ul { margin: 0 0 0.75rem; padding-right: 1.25rem; }
+        .changes-panel li { margin: 0.15rem 0; word-break: break-all; }
+        .changes-panel .muted { color: #6c757d; }
+        .changes-panel code { font-size: 0.88em; }
         .login-form { max-width: 400px; margin: 50px auto; }
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 5px; }
@@ -81,11 +88,13 @@
         <div class="admin-header">
             <h1>Admin Panel</h1>
             <div class="admin-header-actions">
+                <button type="button" class="admin-btn admin-btn-secondary" id="changesBtn" aria-describedby="deployStatus">Check changes</button>
                 <button type="button" class="admin-btn admin-btn-primary" id="deployBtn" aria-describedby="deployStatus">Deploy to GitHub</button>
                 <button type="button" class="admin-btn admin-btn-danger" onclick="logout()">Logout</button>
             </div>
         </div>
         <div id="deployStatus" class="deploy-status" role="status" aria-live="polite"></div>
+        <div id="changesPanel" class="changes-panel" hidden></div>
 
         <div id="loginSection" class="login-form" style="display: none;">
             <h2>Login Required</h2>
@@ -140,25 +149,120 @@
                 el.className = 'deploy-status' + (cls ? ' ' + cls : '');
             }
 
+            function escapeHtml(s) {
+                return String(s == null ? '' : s)
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;');
+            }
+
+            function getLocalApiError() {
+                if (location.protocol === 'file:') {
+                    return 'This page is open as a file (file://). Deploy needs the local server:\n' +
+                        '1) python scripts\\serve.py\n' +
+                        '2) Open http://localhost:8000/admin-panel.html';
+                }
+                var host = location.hostname || '';
+                var isLocal = host === 'localhost' || host === '127.0.0.1' || host === '::1' || host === '[::1]';
+                if (!isLocal) {
+                    return 'You are on ' + location.origin + ' — Deploy only works on the local server.\n' +
+                        'Run: python scripts\\serve.py\n' +
+                        'Then open: http://localhost:8000/admin-panel.html';
+                }
+                return null;
+            }
+
+            function postApi(path) {
+                return fetch(path, { method: 'POST' }).then(function(res) {
+                    return res.json().catch(function() {
+                        return { ok: false, message: 'Bad server response (HTTP ' + res.status + ').' };
+                    }).then(function(data) {
+                        return { status: res.status, data: data };
+                    });
+                });
+            }
+
+            function getApi(path) {
+                return fetch(path, { method: 'GET' }).then(function(res) {
+                    return res.json().catch(function() {
+                        return { ok: false, message: 'Bad server response (HTTP ' + res.status + ').' };
+                    }).then(function(data) {
+                        return { status: res.status, data: data };
+                    });
+                });
+            }
+
+            function renderChanges(data) {
+                var panel = document.getElementById('changesPanel');
+                if (!panel) return;
+                var html = '<h3>Changes since last build</h3>';
+                html += '<p class="muted">Last build: <code>' + escapeHtml(data.lastBuild || 'never') + '</code>' +
+                    ' · Checked: <code>' + escapeHtml(data.checkedAt || '') + '</code></p>';
+
+                html += '<p><strong>Source (.docx):</strong> ' + (data.sourceCount || 0) + ' changed</p>';
+                if (data.sourceNote) {
+                    html += '<p class="muted">' + escapeHtml(data.sourceNote) + '</p>';
+                }
+                if (data.sourceChanges && data.sourceChanges.length) {
+                    html += '<ul>';
+                    data.sourceChanges.slice(0, 50).forEach(function(item) {
+                        html += '<li><code>' + escapeHtml(item.path) + '</code> <span class="muted">(' +
+                            escapeHtml(item.modified) + ')</span></li>';
+                    });
+                    html += '</ul>';
+                    if (data.sourceChanges.length > 50) {
+                        html += '<p class="muted">…and ' + (data.sourceChanges.length - 50) + ' more</p>';
+                    }
+                }
+
+                var git = data.gitChanges || [];
+                html += '<p><strong>Git working tree:</strong> ' + git.length + ' path(s)</p>';
+                if (git.length) {
+                    html += '<ul>';
+                    git.slice(0, 50).forEach(function(line) {
+                        html += '<li><code>' + escapeHtml(line) + '</code></li>';
+                    });
+                    html += '</ul>';
+                }
+
+                var commits = data.recentCommits || [];
+                if (commits.length) {
+                    html += '<p><strong>Recent commits:</strong></p><ul>';
+                    commits.forEach(function(c) {
+                        html += '<li><code>' + escapeHtml(c.sha) + '</code> ' + escapeHtml(c.date) +
+                            ' — ' + escapeHtml(c.subject) + '</li>';
+                    });
+                    html += '</ul>';
+                }
+
+                if (!git.length && !(data.sourceChanges && data.sourceChanges.length)) {
+                    html += '<p class="muted">Nothing pending since last build.</p>';
+                }
+
+                panel.innerHTML = html;
+                panel.hidden = false;
+            }
+
             function setupDeployButton() {
                 var btn = document.getElementById('deployBtn');
                 if (!btn || btn._listenerAdded) return;
                 btn._listenerAdded = true;
                 btn.addEventListener('click', function() {
                     if (btn.disabled) return;
+
+                    var originErr = getLocalApiError();
+                    if (originErr) {
+                        setDeployStatus(originErr, 'is-err');
+                        return;
+                    }
+
                     btn.disabled = true;
                     var prevLabel = btn.textContent;
                     btn.textContent = 'Deploying…';
-                    setDeployStatus('Building and pushing…', 'is-busy');
+                    setDeployStatus('Scanning source, rebuilding, then pushing…', 'is-busy');
 
-                    fetch('/api/deploy', { method: 'POST' })
-                        .then(function(res) {
-                            return res.json().catch(function() {
-                                return { ok: false, message: 'Bad server response (HTTP ' + res.status + ').' };
-                            }).then(function(data) {
-                                return { status: res.status, data: data };
-                            });
-                        })
+                    postApi('/api/deploy')
                         .then(function(result) {
                             var data = result.data || {};
                             if (result.status === 200 && data.ok) {
@@ -169,7 +273,56 @@
                         })
                         .catch(function(err) {
                             setDeployStatus(
-                                'Cannot reach local server. Start it with: python scripts/serve.py (' + (err && err.message ? err.message : 'network error') + ')',
+                                'Cannot reach local server at ' + location.origin +
+                                '. Start it with: python scripts\\serve.py then open http://localhost:8000/admin-panel.html (' +
+                                (err && err.message ? err.message : 'network error') + ')',
+                                'is-err'
+                            );
+                        })
+                        .then(function() {
+                            btn.disabled = false;
+                            btn.textContent = prevLabel;
+                        });
+                });
+            }
+
+            function setupChangesButton() {
+                var btn = document.getElementById('changesBtn');
+                if (!btn || btn._listenerAdded) return;
+                btn._listenerAdded = true;
+                btn.addEventListener('click', function() {
+                    if (btn.disabled) return;
+
+                    var originErr = getLocalApiError();
+                    if (originErr) {
+                        setDeployStatus(originErr, 'is-err');
+                        return;
+                    }
+
+                    btn.disabled = true;
+                    var prevLabel = btn.textContent;
+                    btn.textContent = 'Checking…';
+                    setDeployStatus('Checking source and git changes…', 'is-busy');
+
+                    getApi('/api/changes')
+                        .then(function(result) {
+                            var data = result.data || {};
+                            if (result.status === 200 && data.ok) {
+                                renderChanges(data);
+                                setDeployStatus(
+                                    (data.sourceCount || 0) + ' source change(s), ' +
+                                    ((data.gitChanges || []).length) + ' git path(s) since last build.',
+                                    'is-ok'
+                                );
+                            } else {
+                                setDeployStatus(data.message || ('Check failed (HTTP ' + result.status + ').'), 'is-err');
+                            }
+                        })
+                        .catch(function(err) {
+                            setDeployStatus(
+                                'Cannot reach local server at ' + location.origin +
+                                '. Start it with: python scripts\\serve.py then open http://localhost:8000/admin-panel.html (' +
+                                (err && err.message ? err.message : 'network error') + ')',
                                 'is-err'
                             );
                         })
@@ -341,6 +494,7 @@
 
         document.addEventListener('DOMContentLoaded', function() {
             setupDeployButton();
+            setupChangesButton();
             if (isLoggedIn()) {
                 document.getElementById('loginSection').style.display = 'none';
                 document.getElementById('adminContent').style.display = 'block';

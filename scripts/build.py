@@ -8,6 +8,7 @@ import os
 import sys
 import json
 import shutil
+from datetime import datetime
 from pathlib import Path
 
 # Add scripts directory to path
@@ -895,6 +896,12 @@ def main():
     
     print('\n[BUILD] Site build completed successfully!')
     print(f'[BUILD] Site ready at: docs/')
+    stamp_path = base_dir / '.last_build'
+    try:
+        stamp_path.write_text(datetime.now().isoformat(timespec='seconds'), encoding='utf-8')
+        print(f'[BUILD] Stamped {stamp_path.name}')
+    except Exception as e:
+        print(f'[BUILD] Could not write .last_build: {e}')
     print('\nTo deploy on GitHub Pages:')
     print('  1. git add docs/')
     print('  2. git commit -m "Build site"')

@@ -39,3 +39,6 @@ desktop.ini
 
 # Logs
 *.log
+
+# Local build timestamp
+.last_build

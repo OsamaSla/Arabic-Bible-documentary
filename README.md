@@ -93,10 +93,13 @@ python scripts/watch.py --push
 
 Every detected change rebuilds `docs/`, then commits and pushes.
 
-**Option B — Admin Deploy button** (requires `python scripts/serve.py`):
+**Option B — Admin panel** (requires `python scripts/serve.py`):
 
-1. Open `http://localhost:8000/admin.html` → login → **Admin Panel**
-2. Click **Deploy to GitHub** (rebuild + `git add` / `commit` / `push`)
+1. Open `http://localhost:8000/admin-panel.html` → login
+2. **Check changes** — source `.docx` + git changes since last build
+3. **Deploy to GitHub** — same as one watch cycle: scan source → rebuild → push
+
+> Deploy only works on `http://localhost:8000/...`. Opening the file directly (`file://`) or GitHub Pages cannot run local scripts.
 
 **Option C — manual:**
 
@@ -133,7 +136,7 @@ Arabic-Bible-documentary/
 │   ├── convert.py           # Word to HTML converter
 │   ├── build.py             # Master build script
 │   ├── watch.py             # Poll source + optional --push auto-deploy
-│   ├── serve.py             # Local server + /api/rebuild + /api/deploy
+│   ├── serve.py             # Local server + /api/changes + rebuild/deploy
 │   └── git_ops.py           # Shared git add/commit/push helper
 ├── templates/
 │   └── index.html           # Homepage template
@@ -195,11 +198,12 @@ Access via the gear icon (&#9881;) in the footer, or navigate to `admin.html`.
 
 > ⚠️ **Change the password** in `js/admin-auth.js` before deploying!
 
-### Admin features (read-only):
+### Admin features (read-only + local deploy):
 - View all documents including hidden ones
 - Search and filter by completed / hidden status
 - Open a document from its row
-- **Deploy to GitHub** button (local `serve.py` only): rebuild + push
+- **Check changes** — what changed in source/git since last build
+- **Deploy to GitHub** — scan + rebuild + push (local `serve.py` only)
 
 ---
 
