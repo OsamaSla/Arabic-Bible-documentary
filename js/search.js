@@ -9,18 +9,30 @@ class Search {
         this.searchInput = null;
         this.searchResults = null;
         this.isOpen = false;
-        
+        this.activeIndex = -1;
+        this.debounceTimer = null;
+        this.loadError = false;
+        this.isLoading = false;
+
         this.init();
     }
 
     async init() {
         this.searchInput = document.getElementById('searchInput');
         this.searchResults = document.getElementById('searchResults');
-        
+
         if (!this.searchInput || !this.searchResults) return;
-        
-        await this.loadDocuments();
+
+        if (!this.searchResults.id) {
+            this.searchResults.id = 'searchResults';
+        }
+        this.searchResults.setAttribute('role', 'listbox');
+        this.searchResults.setAttribute('aria-label', 'نتائج البحث');
+
         this.setupEventListeners();
+        this.isLoading = true;
+        await this.loadDocuments();
+        this.isLoading = false;
     }
 
     async loadDocuments() {
@@ -28,117 +40,235 @@ class Search {
             this.documents = window.__DOCUMENTS_DATA__;
             return;
         }
-        
-        try {
-            const response = await fetch('documents/index.json');
-            if (response.ok) {
-                const data = await response.json();
-                this.documents = data.documents || [];
-                return;
+
+        const paths = ['documents/index.json', '../documents/index.json'];
+        for (const path of paths) {
+            try {
+                const response = await fetch(path);
+                if (response.ok) {
+                    const data = await response.json();
+                    this.documents = data.documents || [];
+                    return;
+                }
+            } catch (error) {
+                console.error('Search load failed:', error);
             }
-        } catch (error) {}
-        
-        try {
-            const response = await fetch('../documents/index.json');
-            if (response.ok) {
-                const data = await response.json();
-                this.documents = data.documents || [];
-                return;
-            }
-        } catch (error) {}
+        }
+        this.loadError = true;
     }
 
     setupEventListeners() {
-        this.searchInput.addEventListener('input', (e) => {
-            this.handleSearch(e.target.value);
+        this.searchInput.setAttribute('role', 'combobox');
+        this.searchInput.setAttribute('aria-expanded', 'false');
+        this.searchInput.setAttribute('aria-controls', 'searchResults');
+        this.searchInput.setAttribute('aria-autocomplete', 'list');
+
+        this.searchInput.addEventListener('input', () => {
+            clearTimeout(this.debounceTimer);
+            this.debounceTimer = setTimeout(() => {
+                this.handleSearch(this.searchInput.value);
+            }, 150);
         });
-        
+
         this.searchInput.addEventListener('focus', () => {
-            if (this.searchInput.value.length > 0) {
+            if (this.searchInput.value.trim().length >= 2) {
                 this.showResults();
             }
         });
-        
-        document.addEventListener('click', (e) => {
-            if (!this.searchInput.contains(e.target) && 
-                !this.searchResults.contains(e.target)) {
-                this.hideResults();
-            }
-        });
-        
+
         this.searchInput.addEventListener('keydown', (e) => {
+            const items = this.getResultItems();
+
             if (e.key === 'Escape') {
                 this.hideResults();
-                this.searchInput.blur();
+                this.clearActive();
+                return;
+            }
+
+            if (e.key === 'ArrowDown' && items.length) {
+                e.preventDefault();
+                this.moveActive(1, items);
+            } else if (e.key === 'ArrowUp' && items.length) {
+                e.preventDefault();
+                this.moveActive(-1, items);
+            } else if (e.key === 'Enter' && this.activeIndex >= 0 && items[this.activeIndex]) {
+                e.preventDefault();
+                items[this.activeIndex].click();
+            }
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!this.searchInput.contains(e.target) &&
+                !this.searchResults.contains(e.target)) {
+                this.hideResults();
+                this.clearActive();
             }
         });
     }
 
+    getResultItems() {
+        return Array.from(this.searchResults.querySelectorAll('a.search-result-item'));
+    }
+
+    moveActive(delta, items) {
+        if (this.activeIndex >= 0 && items[this.activeIndex]) {
+            items[this.activeIndex].classList.remove('is-active');
+            items[this.activeIndex].removeAttribute('aria-selected');
+        }
+        this.activeIndex += delta;
+        if (this.activeIndex < 0) this.activeIndex = items.length - 1;
+        if (this.activeIndex >= items.length) this.activeIndex = 0;
+        const el = items[this.activeIndex];
+        el.classList.add('is-active');
+        el.setAttribute('aria-selected', 'true');
+        el.scrollIntoView({ block: 'nearest' });
+        this.searchInput.setAttribute('aria-activedescendant', el.id || '');
+        if (!el.id) {
+            el.id = 'search-result-' + this.activeIndex;
+            this.searchInput.setAttribute('aria-activedescendant', el.id);
+        }
+    }
+
+    clearActive() {
+        this.activeIndex = -1;
+        this.searchResults.querySelectorAll('.is-active').forEach(el => {
+            el.classList.remove('is-active');
+            el.removeAttribute('aria-selected');
+        });
+        this.searchInput.removeAttribute('aria-activedescendant');
+    }
+
     handleSearch(query) {
-        query = query.trim();
-        
+        query = (query || '').trim();
+
         if (query.length < 2) {
             this.hideResults();
+            this.announce('');
             return;
         }
-        
-        const results = this.searchDocuments(query);
-        this.displayResults(results, query);
+
+        if (this.loadError) {
+            this.searchResults.innerHTML = `
+                <div class="search-result-item" role="presentation">
+                    <div class="search-result-title">تعذر تحميل نتائج البحث</div>
+                    <div class="search-result-category">حاول تحديث الصفحة</div>
+                </div>
+            `;
+            this.showResults();
+            this.announce('خطأ في تحميل البحث');
+            return;
+        }
+
+        if (this.isLoading) {
+            this.searchResults.innerHTML = `
+                <div class="search-result-item" role="presentation">
+                    <div class="search-result-title">جاري التحميل...</div>
+                </div>
+            `;
+            this.showResults();
+            return;
+        }
+
+        try {
+            const results = this.searchDocuments(query);
+            this.displayResults(results, query);
+        } catch (error) {
+            console.error('Search error:', error);
+            this.searchResults.innerHTML = `
+                <div class="search-result-item" role="presentation">
+                    <div class="search-result-title">حدث خطأ في البحث</div>
+                </div>
+            `;
+            this.showResults();
+        }
     }
 
     searchDocuments(query) {
         const normalizedQuery = query.toLowerCase();
-        
-        return this.documents.filter(doc => {
+        const matched = this.documents.filter(doc => {
             const title = (doc.title || '').toLowerCase();
             const description = (doc.description || '').toLowerCase();
             const author = (doc.author || '').toLowerCase();
             const category = (doc.category || '').toLowerCase();
-            
-            return title.includes(normalizedQuery) || 
+
+            return title.includes(normalizedQuery) ||
                    description.includes(normalizedQuery) ||
                    author.includes(normalizedQuery) ||
                    category.includes(normalizedQuery);
-        }).slice(0, 20);
+        });
+        return { all: matched, shown: matched.slice(0, 20) };
     }
 
-    displayResults(results, query) {
+    displayResults(resultObj, query) {
+        const results = resultObj.shown || [];
+        const total = resultObj.all ? resultObj.all.length : results.length;
+        this.activeIndex = -1;
+
         if (results.length === 0) {
             this.searchResults.innerHTML = `
-                <div class="search-result-item">
-                    <div class="search-result-title">\u0644\u0627 \u062a\u0648\u062c\u062f \u0646\u062a\u0627\u0626\u062c</div>
-                    <div class="search-result-category">\u062c\u0631\u0628 \u0643\u0644\u0645\u0627\u062a \u0628\u062d\u062b \u0645\u062e\u062a\u0644\u0641\u0629</div>
+                <div class="search-result-item" role="presentation">
+                    <div class="search-result-title">لا توجد نتائج</div>
+                    <div class="search-result-category">جرّب كلمات بحث مختلفة</div>
                 </div>
             `;
+            this.announce('لا توجد نتائج');
         } else {
-            this.searchResults.innerHTML = results.map(doc => {
+            const moreNote = total > results.length
+                ? `<div class="search-result-more">عرض ${results.length} من ${total} نتيجة</div>`
+                : '';
+            this.searchResults.innerHTML = results.map((doc, i) => {
                 const path = doc.html_path || '#';
                 const author = doc.author || '';
+                const title = doc.title || 'بدون عنوان';
                 return `
-                <a href="${path}" class="search-result-item">
-                    <div class="search-result-title">${this.highlightText(doc.title, query)}</div>
+                <a href="${path}" class="search-result-item" role="option" id="search-result-${i}" aria-selected="false">
+                    <div class="search-result-title">${this.highlightText(title, query)}</div>
                     <div class="search-result-category">${author}</div>
                 </a>
                 `;
-            }).join('');
+            }).join('') + moreNote;
+            this.announce(`${total} نتيجة`);
         }
-        
+
         this.showResults();
     }
 
+    escapeRegex(str) {
+        return String(str).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+
     highlightText(text, query) {
-        if (!query) return text;
-        const regex = new RegExp(`(${query})`, 'gi');
-        return text.replace(regex, '<strong>$1</strong>');
+        const safe = String(text || 'بدون عنوان');
+        if (!query) return safe;
+        try {
+            const regex = new RegExp(`(${this.escapeRegex(query)})`, 'gi');
+            return safe.replace(regex, '<strong>$1</strong>');
+        } catch (e) {
+            return safe;
+        }
+    }
+
+    announce(message) {
+        let live = document.getElementById('searchLive');
+        if (!live) {
+            live = document.createElement('div');
+            live.id = 'searchLive';
+            live.setAttribute('aria-live', 'polite');
+            live.className = 'visually-hidden';
+            document.body.appendChild(live);
+        }
+        live.textContent = message;
     }
 
     showResults() {
         this.searchResults.classList.add('active');
+        this.searchInput.setAttribute('aria-expanded', 'true');
         this.isOpen = true;
     }
 
     hideResults() {
         this.searchResults.classList.remove('active');
+        this.searchInput.setAttribute('aria-expanded', 'false');
         this.isOpen = false;
     }
 }

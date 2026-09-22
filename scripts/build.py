@@ -385,6 +385,7 @@ def generate_document_index_pages(base_dir, docs_dir, index_data):
     <link rel="stylesheet" href="../../css/style.css">
 </head>
 <body>
+    <a class="skip-link" href="#main-content">تخطي إلى المحتوى الرئيسي</a>
     <header class="site-header">
         <div class="container">
             <a href="../../index.html" class="logo">
@@ -393,7 +394,7 @@ def generate_document_index_pages(base_dir, docs_dir, index_data):
             </a>
         </div>
     </header>
-    <main class="container">
+    <main id="main-content" class="container">
         <h1>{book}</h1>
         <div class="documents-list">
 '''
@@ -504,21 +505,39 @@ def generate_author_pages(docs_dir, index_data):
         page.append('    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>')
         page.append('    <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">')
         page.append('    <link rel="stylesheet" href="../../css/style.css">')
+        page.append('    <script>')
+        page.append('    (function () {')
+        page.append('        try {')
+        page.append('            var t = localStorage.getItem(\'theme\');')
+        page.append('            if (t !== \'dark\' && t !== \'light\') {')
+        page.append('                t = (window.matchMedia && window.matchMedia(\'(prefers-color-scheme: dark)\').matches) ? \'dark\' : \'light\';')
+        page.append('            }')
+        page.append('            if (t === \'dark\') document.documentElement.setAttribute(\'data-theme\', \'dark\');')
+        page.append('        } catch (e) {}')
+        page.append('    })();')
+        page.append('    </script>')
         page.append('    <style>')
         page.append('        .subfolder-section { margin: 1.5rem 0; padding: 1rem; background: var(--bg-light); border-radius: var(--radius-md); }')
         page.append('        .subfolder-title { color: var(--color-primary); font-size: 1.1rem; margin-bottom: 0.75rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--color-secondary); }')
         page.append('    </style>')
         page.append('</head>')
         page.append('<body>')
+        page.append('    <a class="skip-link" href="#main-content">تخطي إلى المحتوى الرئيسي</a>')
         page.append('    <header class="site-header">')
         page.append('        <div class="header-top"><div class="container">')
         page.append('            <a href="../../index.html" class="logo">')
-        page.append('                <span class="cross">\u271d</span>')
-        page.append('                <span class="logo-text">\u062a\u0631\u062c\u0645\u0627\u062a \u062a\u0639\u0644\u064a\u0642\u0627\u062a \u0627\u0644\u0643\u062a\u0627\u0628 \u0627\u0644\u0645\u0642\u062f\u0633</span>')
+        page.append('                <span class="cross">✝</span>')
+        page.append('                <span class="logo-text">ترجمات تعليقات الكتاب المقدس</span>')
         page.append('            </a>')
+        page.append('            <div class="header-actions">')
+        page.append('                <button type="button" class="theme-toggle" id="themeToggle" aria-pressed="false" aria-label="تبديل المظهر">')
+        page.append('                    <span class="theme-icon-moon" aria-hidden="true">&#9790;</span>')
+        page.append('                    <span class="theme-icon-sun" aria-hidden="true">&#9728;</span>')
+        page.append('                </button>')
+        page.append('            </div>')
         page.append('        </div></div>')
         page.append('    </header>')
-        page.append('    <main class="author-page">')
+        page.append('    <main id="main-content" class="author-page">')
         page.append('        <div class="container">')
         page.append('            <div class="breadcrumb">')
         page.append('                <a href="../../index.html">\u0627\u0644\u0631\u0626\u064a\u0633\u064a\u0629</a>')
@@ -542,6 +561,7 @@ def generate_author_pages(docs_dir, index_data):
         page.append('            <p class="footer-cross">\u271d</p>')
         page.append('        </div>')
         page.append('    </footer>')
+        page.append('    <script src="../../js/theme.js"></script>')
         page.append('</body>')
         page.append('</html>')
 
@@ -568,8 +588,20 @@ def generate_authors_page(docs_dir, index_data):
     html_parts.append('    <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">')
     html_parts.append('    <link rel="stylesheet" href="css/style.css">')
     html_parts.append('    <link rel="icon" href="data:image/svg+xml,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'><text y=\'.9em\' font-size=\'90\'>\u271d</text></svg>">')
+    html_parts.append('    <script>')
+    html_parts.append('    (function () {')
+    html_parts.append('        try {')
+    html_parts.append('            var t = localStorage.getItem(\'theme\');')
+    html_parts.append('            if (t !== \'dark\' && t !== \'light\') {')
+    html_parts.append('                t = (window.matchMedia && window.matchMedia(\'(prefers-color-scheme: dark)\').matches) ? \'dark\' : \'light\';')
+    html_parts.append('            }')
+    html_parts.append('            if (t === \'dark\') document.documentElement.setAttribute(\'data-theme\', \'dark\');')
+    html_parts.append('        } catch (e) {}')
+    html_parts.append('    })();')
+    html_parts.append('    </script>')
     html_parts.append('</head>')
     html_parts.append('<body>')
+    html_parts.append('    <a class="skip-link" href="#main-content">تخطي إلى المحتوى الرئيسي</a>')
     html_parts.append('    <header class="site-header">')
     html_parts.append('        <div class="header-top">')
     html_parts.append('            <div class="container">')
@@ -581,6 +613,12 @@ def generate_authors_page(docs_dir, index_data):
     html_parts.append('                    <input type="text" id="searchInput" placeholder="\u0627\u0628\u062d\u062b..." autocomplete="off">')
     html_parts.append('                    <span class="search-icon-btn">&#128269;</span>')
     html_parts.append('                    <div class="search-results" id="searchResults"></div>')
+    html_parts.append('                </div>')
+    html_parts.append('                <div class="header-actions">')
+    html_parts.append('                    <button type="button" class="theme-toggle" id="themeToggle" aria-pressed="false" aria-label="تبديل المظهر">')
+    html_parts.append('                        <span class="theme-icon-moon" aria-hidden="true">&#9790;</span>')
+    html_parts.append('                        <span class="theme-icon-sun" aria-hidden="true">&#9728;</span>')
+    html_parts.append('                    </button>')
     html_parts.append('                </div>')
     html_parts.append('                <div class="nav-toggle" id="navToggle">')
     html_parts.append('                    <span class="nav-toggle-open">&#9776;</span>')
@@ -602,7 +640,7 @@ def generate_authors_page(docs_dir, index_data):
     html_parts.append('            </div>')
     html_parts.append('        </nav>')
     html_parts.append('    </header>')
-    html_parts.append('    <main class="author-page">')
+    html_parts.append('    <main id="main-content" class="author-page">')
     html_parts.append('        <div class="container">')
     html_parts.append('            <h1 class="author-title">\u0627\u0644\u0645\u0624\u0644\u0641\u0648\u0646</h1>')
     html_parts.append(f'            <p class="author-count">{len(authors)} \u0645\u0624\u0644\u0641</p>')
@@ -672,6 +710,7 @@ def generate_authors_page(docs_dir, index_data):
     html_parts.append('            <span>\u00a9 2024 - 2026 \u062a\u0631\u062c\u0645\u0627\u062a \u062a\u0639\u0644\u064a\u0642\u0627\u062a \u0627\u0644\u0643\u062a\u0627\u0628 \u0627\u0644\u0645\u0642\u062f\u0633</span>')
     html_parts.append('        </div>')
     html_parts.append('    </footer>')
+    html_parts.append('    <script src="js/theme.js"></script>')
     html_parts.append('    <script src="js/nav.js"></script>')
     html_parts.append('    <script src="js/app.js"></script>')
     html_parts.append('    <script src="js/search.js"></script>')

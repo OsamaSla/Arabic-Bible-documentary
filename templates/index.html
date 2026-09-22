@@ -10,8 +10,20 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✝</text></svg>">
+    <script>
+    (function () {
+        try {
+            var t = localStorage.getItem('theme');
+            if (t !== 'dark' && t !== 'light') {
+                t = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+            }
+            if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+        } catch (e) {}
+    })();
+    </script>
 </head>
 <body>
+    <a class="skip-link" href="#main-content">تخطي إلى المحتوى الرئيسي</a>
     <header class="site-header">
         <div class="header-top">
             <div class="container">
@@ -25,6 +37,12 @@
                     <div class="search-results" id="searchResults"></div>
                 </div>
                 <div class="search-toggle" id="searchToggle">&#128269;</div>
+                <div class="header-actions">
+                    <button type="button" class="theme-toggle" id="themeToggle" aria-pressed="false" aria-label="تبديل المظهر">
+                        <span class="theme-icon-moon" aria-hidden="true">&#9790;</span>
+                        <span class="theme-icon-sun" aria-hidden="true">&#9728;</span>
+                    </button>
+                </div>
                 <div class="nav-toggle" id="navToggle">
                     <span class="nav-toggle-open">&#9776;</span>
                     <span class="nav-toggle-close">&times;</span>
@@ -46,7 +64,7 @@
         </nav>
     </header>
 
-    <main>
+    <main id="main-content">
         <section class="welcome container">
             <div>
                 <p class="eyebrow">دراسة الكتاب المقدس. فهم السياق.</p>
@@ -128,6 +146,7 @@
         </div>
     </footer>
 
+    <script src="js/theme.js"></script>
     <script src="js/nav.js"></script>
     <script src="js/app.js"></script>
     <script src="js/search.js"></script>

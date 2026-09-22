@@ -8,21 +8,39 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../../css/style.css">
+    <script>
+    (function () {
+        try {
+            var t = localStorage.getItem('theme');
+            if (t !== 'dark' && t !== 'light') {
+                t = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+            }
+            if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+        } catch (e) {}
+    })();
+    </script>
     <style>
         .subfolder-section { margin: 1.5rem 0; padding: 1rem; background: var(--bg-light); border-radius: var(--radius-md); }
         .subfolder-title { color: var(--color-primary); font-size: 1.1rem; margin-bottom: 0.75rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--color-secondary); }
     </style>
 </head>
 <body>
+    <a class="skip-link" href="#main-content">تخطي إلى المحتوى الرئيسي</a>
     <header class="site-header">
         <div class="header-top"><div class="container">
             <a href="../../index.html" class="logo">
                 <span class="cross">✝</span>
                 <span class="logo-text">ترجمات تعليقات الكتاب المقدس</span>
             </a>
+            <div class="header-actions">
+                <button type="button" class="theme-toggle" id="themeToggle" aria-pressed="false" aria-label="تبديل المظهر">
+                    <span class="theme-icon-moon" aria-hidden="true">&#9790;</span>
+                    <span class="theme-icon-sun" aria-hidden="true">&#9728;</span>
+                </button>
+            </div>
         </div></div>
     </header>
-    <main class="author-page">
+    <main id="main-content" class="author-page">
         <div class="container">
             <div class="breadcrumb">
                 <a href="../../index.html">الرئيسية</a>
@@ -58,5 +76,6 @@
             <p class="footer-cross">✝</p>
         </div>
     </footer>
+    <script src="../../js/theme.js"></script>
 </body>
 </html>

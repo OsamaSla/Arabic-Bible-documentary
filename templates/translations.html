@@ -136,8 +136,20 @@
             }
         }
     </style>
+    <script>
+    (function () {
+        try {
+            var t = localStorage.getItem('theme');
+            if (t !== 'dark' && t !== 'light') {
+                t = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+            }
+            if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+        } catch (e) {}
+    })();
+    </script>
 </head>
 <body>
+    <a class="skip-link" href="#main-content">تخطي إلى المحتوى الرئيسي</a>
     <header class="site-header">
         <div class="header-top">
             <div class="container">
@@ -149,6 +161,12 @@
                     <input type="text" id="searchInput" placeholder="ابحث..." autocomplete="off">
                     <span class="search-icon-btn">&#128269;</span>
                     <div class="search-results" id="searchResults"></div>
+                </div>
+                <div class="header-actions">
+                    <button type="button" class="theme-toggle" id="themeToggle" aria-pressed="false" aria-label="تبديل المظهر">
+                        <span class="theme-icon-moon" aria-hidden="true">&#9790;</span>
+                        <span class="theme-icon-sun" aria-hidden="true">&#9728;</span>
+                    </button>
                 </div>
                 <div class="nav-toggle" id="navToggle">
                     <span class="nav-toggle-open">&#9776;</span>
@@ -171,7 +189,7 @@
         </nav>
     </header>
 
-    <main class="translations-page">
+    <main id="main-content" class="translations-page">
         <h1>الترجمات</h1>
         
         <div class="filter-section">
@@ -251,6 +269,7 @@
         </div>
     </footer>
 
+    <script src="js/theme.js"></script>
     <script src="js/nav.js"></script>
     <script src="js/translations.js"></script>
     <script src="js/search.js"></script>

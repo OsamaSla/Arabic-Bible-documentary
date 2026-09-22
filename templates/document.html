@@ -16,8 +16,20 @@
     
     <!-- Favicon -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✝</text></svg>">
+    <script>
+    (function () {
+        try {
+            var t = localStorage.getItem('theme');
+            if (t !== 'dark' && t !== 'light') {
+                t = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+            }
+            if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+        } catch (e) {}
+    })();
+    </script>
 </head>
 <body>
+    <a class="skip-link" href="#main-content">تخطي إلى المحتوى الرئيسي</a>
     <!-- Header -->
     <header class="site-header">
         <div class="container">
@@ -31,11 +43,17 @@
                 <a href="../../index.html#new_testament">العهد الجديد</a>
                 <a href="../../index.html#topics">المواضيع</a>
             </nav>
+            <div class="header-actions">
+                <button type="button" class="theme-toggle" id="themeToggle" aria-pressed="false" aria-label="تبديل المظهر">
+                    <span class="theme-icon-moon" aria-hidden="true">&#9790;</span>
+                    <span class="theme-icon-sun" aria-hidden="true">&#9728;</span>
+                </button>
+            </div>
         </div>
     </header>
 
     <!-- Document Viewer -->
-    <main class="document-viewer">
+    <main id="main-content" class="document-viewer">
         <div class="container">
             <div class="document-header">
                 <div class="breadcrumb">
@@ -81,6 +99,7 @@
     </footer>
 
     <!-- Scripts -->
+    <script src="../../js/theme.js"></script>
     <script src="../../js/search.js"></script>
 </body>
 </html>

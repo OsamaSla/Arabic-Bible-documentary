@@ -1,8 +1,16 @@
 {
-  "_comment": "Override document settings. Changes take effect after rebuilding the site.",
-  "_instructions": {
-    "completed": "Set to true to mark a document as completed (shows checkmark, included in random articles)",
-    "hidden": "Set to true to completely hide a document from the website (not shown anywhere)"
-  },
-  "overrides": {}
+  "overrides": {
+    "doc_0516": {
+      "hidden": true
+    },
+    "doc_0519": {
+      "hidden": true
+    },
+    "doc_0520": {
+      "hidden": true
+    },
+    "doc_0522": {
+      "hidden": true
+    }
+  }
 }

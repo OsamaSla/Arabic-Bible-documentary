@@ -172,8 +172,20 @@ def create_document_page(title, content, doc_id, author_name, completed, prefix=
     <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{prefix}css/style.css">
     <link rel="stylesheet" href="{prefix}css/document.css">
+    <script>
+    (function () {{
+        try {{
+            var t = localStorage.getItem('theme');
+            if (t !== 'dark' && t !== 'light') {{
+                t = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+            }}
+            if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+        }} catch (e) {{}}
+    }})();
+    </script>
 </head>
 <body>
+    <a class="skip-link" href="#main-content">تخطي إلى المحتوى الرئيسي</a>
     <header class="site-header">
         <div class="container">
             <a href="{prefix}index.html" class="logo">
@@ -185,9 +197,15 @@ def create_document_page(title, content, doc_id, author_name, completed, prefix=
                 <a href="{prefix}authors.html">المؤلفون</a>
                 <a href="{prefix}index.html#other_docs">المؤلفون والمواضيع الأخرى</a>
             </nav>
+            <div class="header-actions">
+                <button type="button" class="theme-toggle" id="themeToggle" aria-pressed="false" aria-label="تبديل المظهر">
+                    <span class="theme-icon-moon" aria-hidden="true">&#9790;</span>
+                    <span class="theme-icon-sun" aria-hidden="true">&#9728;</span>
+                </button>
+            </div>
         </div>
     </header>
-    <main class="document-viewer">
+    <main id="main-content" class="document-viewer">
         <div class="container">
             <div class="document-header">
                 <div class="breadcrumb">
@@ -224,6 +242,7 @@ def create_document_page(title, content, doc_id, author_name, completed, prefix=
             <p class="footer-cross">&#10013;</p>
         </div>
     </footer>
+    <script src="{prefix}js/theme.js"></script>
     <script src="{prefix}js/search.js"></script>
 </body>
 </html>'''

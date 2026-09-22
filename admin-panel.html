@@ -8,6 +8,17 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
+    <script>
+    (function () {
+        try {
+            var t = localStorage.getItem('theme');
+            if (t !== 'dark' && t !== 'light') {
+                t = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+            }
+            if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+        } catch (e) {}
+    })();
+    </script>
     <style>
         .admin-container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
         .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding: 1rem; background: var(--bg-light); border-radius: var(--radius-md); flex-wrap: wrap; gap: 0.5rem; }
@@ -41,6 +52,7 @@
             user-select: none;
         }
         .toggle-word:hover { opacity: 0.8; }
+        .toggle-word:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
         .toggle-word.completed-word { background: #e9ecef; color: #495057; }
         .toggle-word.completed-word.on { background: #28a745; color: #fff; }
         .toggle-word.hidden-word { background: #e9ecef; color: #495057; }
@@ -48,16 +60,23 @@
     </style>
 </head>
 <body>
+    <a class="skip-link" href="#main-content">تخطي إلى المحتوى الرئيسي</a>
     <header class="site-header">
         <div class="header-top"><div class="container">
             <a href="index.html" class="logo">
                 <span class="cross">&#10013;</span>
                 <span class="logo-text">Arabic Christian Documentary Translations</span>
             </a>
+            <div class="header-actions">
+                <button type="button" class="theme-toggle" id="themeToggle" aria-pressed="false" aria-label="تبديل المظهر">
+                    <span class="theme-icon-moon" aria-hidden="true">&#9790;</span>
+                    <span class="theme-icon-sun" aria-hidden="true">&#9728;</span>
+                </button>
+            </div>
         </div></div>
     </header>
     
-    <main class="admin-container">
+    <main id="main-content" class="admin-container">
         <div class="admin-header">
             <h1>Admin Panel</h1>
             <div class="admin-header-actions">
@@ -92,21 +111,43 @@
         </div>
     </main>
     
+    <script src="js/theme.js"></script>
     <script>
             const storageKey = 'admin_logged_in';
             let currentSearchQuery = '';
             let overridesData = {};
             let filterCompletedActive = false;
             let filterHiddenActive = false;
+            let dirtyState = false;
 
             function isLoggedIn() {
-                return localStorage.getItem(storageKey) === 'true';
+                try {
+                    return localStorage.getItem(storageKey) === 'true';
+                } catch (e) {
+                    return false;
+                }
             }
-        
-        function logout() {
-            localStorage.removeItem(storageKey);
-            window.location.href = 'admin.html';
-        }
+
+            function isDirty() {
+                return dirtyState;
+            }
+
+            window.addEventListener('beforeunload', function(e) {
+                if (dirtyState) {
+                    e.preventDefault();
+                    e.returnValue = '';
+                }
+            });
+
+            function logout() {
+                if (dirtyState && !confirm('لديك تغييرات غير محفوظة. هل تريد المغادرة فعلاً؟')) {
+                    return;
+                }
+                try {
+                    localStorage.removeItem(storageKey);
+                } catch (e) {}
+                window.location.href = 'admin.html';
+            }
         
         function exportOverrides() {
             const overrides = {};
@@ -181,6 +222,7 @@
             .then(function(res) { return res.json(); })
             .then(function(data) {
                 if (data.ok) {
+                    dirtyState = false;
                     statusEl.className = 'save-status ok';
                     statusEl.textContent = 'Saved & rebuilt!';
                     setTimeout(function() { statusEl.textContent = ''; }, 3000);
@@ -346,9 +388,17 @@
             var el = document.querySelector('[data-doc-id="' + docId + '"] .toggle-word.' + field + '-word');
             if (!el) return;
             el.classList.toggle('on');
+            var isOn = el.classList.contains('on');
+            el.setAttribute('aria-checked', isOn ? 'true' : 'false');
 
             if (!overridesData[docId]) overridesData[docId] = {};
-            overridesData[docId][field] = el.classList.contains('on');
+            overridesData[docId][field] = isOn;
+            dirtyState = true;
+            var statusEl = document.getElementById('saveStatus');
+            if (statusEl && !statusEl.classList.contains('saving')) {
+                statusEl.className = 'save-status dirty';
+                statusEl.textContent = 'تغييرات غير محفوظة';
+            }
         }
 
         function openDoc(htmlPath) {
@@ -374,8 +424,8 @@
                     '<strong>Title:</strong> ' + (doc.title || 'N/A') + ' | ' +
                     '<strong>Author:</strong> ' + (doc.author || 'N/A') +
                     (isHidden ? ' <span style="color:#6c757d;font-size:0.8em;">[Hidden]</span>' : '') + '<br>' +
-                    '<span class="toggle-word completed-word' + (isCompleted ? ' on' : '') + '" onclick="event.stopPropagation(); toggleStatus(\'' + doc.id + '\', \'completed\')">Completed</span> ' +
-                    '<span class="toggle-word hidden-word' + (isHidden ? ' on' : '') + '" onclick="event.stopPropagation(); toggleStatus(\'' + doc.id + '\', \'hidden\')">Hidden</span>' +
+                    '<span class="toggle-word completed-word' + (isCompleted ? ' on' : '') + '" role="switch" aria-checked="' + (isCompleted ? 'true' : 'false') + '" tabindex="0" onclick="event.stopPropagation(); toggleStatus(\'' + doc.id + '\', \'completed\')" onkeydown="if(event.key===\' \'||event.key===\'Enter\'){event.preventDefault();event.stopPropagation();toggleStatus(\'' + doc.id + '\', \'completed\')}">Completed</span> ' +
+                    '<span class="toggle-word hidden-word' + (isHidden ? ' on' : '') + '" role="switch" aria-checked="' + (isHidden ? 'true' : 'false') + '" tabindex="0" onclick="event.stopPropagation(); toggleStatus(\'' + doc.id + '\', \'hidden\')" onkeydown="if(event.key===\' \'||event.key===\'Enter\'){event.preventDefault();event.stopPropagation();toggleStatus(\'' + doc.id + '\', \'hidden\')}">Hidden</span>' +
                     '</div>';
             });
             container.innerHTML = html;
