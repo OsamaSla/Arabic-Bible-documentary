@@ -77,11 +77,31 @@ python scripts/build.py
 
 ### 5. Preview locally
 
-Open `docs/index.html` in your browser.
+Open `docs/index.html` in your browser, or run the dev server:
+
+```bash
+python scripts/serve.py
+```
 
 ### 6. Deploy to GitHub Pages
 
+**Option A — watch + auto-push** (recommended while editing source folders):
+
 ```bash
+python scripts/watch.py --push
+```
+
+Every detected change rebuilds `docs/`, then commits and pushes.
+
+**Option B — Admin Deploy button** (requires `python scripts/serve.py`):
+
+1. Open `http://localhost:8000/admin.html` → login → **Admin Panel**
+2. Click **Deploy to GitHub** (rebuild + `git add` / `commit` / `push`)
+
+**Option C — manual:**
+
+```bash
+python scripts/build.py
 git add .
 git commit -m "Build site"
 git push origin main
@@ -111,7 +131,10 @@ Arabic-Bible-documentary/
 │   └── assets/              # Images and icons
 ├── scripts/
 │   ├── convert.py           # Word to HTML converter
-│   └── build.py             # Master build script
+│   ├── build.py             # Master build script
+│   ├── watch.py             # Poll source + optional --push auto-deploy
+│   ├── serve.py             # Local server + /api/rebuild + /api/deploy
+│   └── git_ops.py           # Shared git add/commit/push helper
 ├── templates/
 │   └── index.html           # Homepage template
 ├── css/
@@ -176,6 +199,7 @@ Access via the gear icon (&#9881;) in the footer, or navigate to `admin.html`.
 - View all documents including hidden ones
 - Search and filter by completed / hidden status
 - Open a document from its row
+- **Deploy to GitHub** button (local `serve.py` only): rebuild + push
 
 ---
 

@@ -28,8 +28,14 @@
         .doc-item:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
         .doc-item.hidden-doc { opacity: 0.65; border-style: dashed; }
         .admin-btn { padding: 0.5rem 1rem; border: none; border-radius: 4px; cursor: pointer; font-family: inherit; font-size: 0.95rem; }
+        .admin-btn:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
+        .admin-btn:disabled { opacity: 0.65; cursor: not-allowed; }
         .admin-btn-primary { background: #007bff; color: white; }
         .admin-btn-danger { background: #dc3545; color: white; }
+        .deploy-status { min-height: 1.5rem; margin-top: 0.75rem; font-size: 0.95rem; }
+        .deploy-status.is-ok { color: #28a745; }
+        .deploy-status.is-err { color: #dc3545; }
+        .deploy-status.is-busy { color: #007bff; }
         .login-form { max-width: 400px; margin: 50px auto; }
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 5px; }
@@ -74,9 +80,11 @@
         <div class="admin-header">
             <h1>Admin Panel</h1>
             <div class="admin-header-actions">
-                <button class="admin-btn admin-btn-danger" onclick="logout()">Logout</button>
+                <button type="button" class="admin-btn admin-btn-primary" id="deployBtn" aria-describedby="deployStatus">Deploy to GitHub</button>
+                <button type="button" class="admin-btn admin-btn-danger" onclick="logout()">Logout</button>
             </div>
         </div>
+        <div id="deployStatus" class="deploy-status" role="status" aria-live="polite"></div>
 
         <div id="loginSection" class="login-form" style="display: none;">
             <h2>Login Required</h2>
@@ -122,6 +130,53 @@
                     localStorage.removeItem(storageKey);
                 } catch (e) {}
                 window.location.href = 'admin.html';
+            }
+
+            function setDeployStatus(text, cls) {
+                var el = document.getElementById('deployStatus');
+                if (!el) return;
+                el.textContent = text || '';
+                el.className = 'deploy-status' + (cls ? ' ' + cls : '');
+            }
+
+            function setupDeployButton() {
+                var btn = document.getElementById('deployBtn');
+                if (!btn || btn._listenerAdded) return;
+                btn._listenerAdded = true;
+                btn.addEventListener('click', function() {
+                    if (btn.disabled) return;
+                    btn.disabled = true;
+                    var prevLabel = btn.textContent;
+                    btn.textContent = 'Deploying…';
+                    setDeployStatus('Building and pushing…', 'is-busy');
+
+                    fetch('/api/deploy', { method: 'POST' })
+                        .then(function(res) {
+                            return res.json().catch(function() {
+                                return { ok: false, message: 'Bad server response (HTTP ' + res.status + ').' };
+                            }).then(function(data) {
+                                return { status: res.status, data: data };
+                            });
+                        })
+                        .then(function(result) {
+                            var data = result.data || {};
+                            if (result.status === 200 && data.ok) {
+                                setDeployStatus(data.message || 'Deployed.', 'is-ok');
+                            } else {
+                                setDeployStatus(data.message || ('Deploy failed (HTTP ' + result.status + ').'), 'is-err');
+                            }
+                        })
+                        .catch(function(err) {
+                            setDeployStatus(
+                                'Cannot reach local server. Start it with: python scripts/serve.py (' + (err && err.message ? err.message : 'network error') + ')',
+                                'is-err'
+                            );
+                        })
+                        .then(function() {
+                            btn.disabled = false;
+                            btn.textContent = prevLabel;
+                        });
+                });
             }
 
         function loadDocuments() {
@@ -234,8 +289,11 @@
                 var isCompleted = !!(d.completed || false);
                 var isHidden = !!(d.hidden || false);
 
-                if (btnAllActive || (!filterCompletedActive && !filterHiddenActive)) {
+                if (btnAllActive) {
                     return true;
+                }
+                if (!filterCompletedActive && !filterHiddenActive) {
+                    return !isCompleted && !isHidden;
                 }
                 if (filterCompletedActive && filterHiddenActive) {
                     return isCompleted && isHidden;
@@ -246,7 +304,7 @@
                 if (filterHiddenActive) {
                     return isHidden;
                 }
-                return true;
+                return !isCompleted && !isHidden;
             });
 
             renderDocs(docs);
@@ -281,6 +339,7 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
+            setupDeployButton();
             if (isLoggedIn()) {
                 document.getElementById('loginSection').style.display = 'none';
                 document.getElementById('adminContent').style.display = 'block';

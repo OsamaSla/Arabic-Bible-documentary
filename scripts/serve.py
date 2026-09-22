@@ -9,10 +9,12 @@ Usage:
 Features:
   - Serves docs/ as a static site
   - POST /api/rebuild         -> triggers a full rebuild
+  - POST /api/deploy          -> rebuild + git add/commit/push
 """
 
 import sys
 import io
+import json
 import subprocess
 import argparse
 from pathlib import Path
@@ -24,6 +26,10 @@ sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='repla
 BASE_DIR = Path(__file__).parent.parent
 DOCS_DIR = BASE_DIR / 'docs'
 SCRIPT_DIR = BASE_DIR / 'scripts'
+if str(SCRIPT_DIR) not in sys.path:
+    sys.path.insert(0, str(SCRIPT_DIR))
+
+from git_ops import git_add_commit_push
 
 
 class DevHandler(SimpleHTTPRequestHandler):
@@ -35,6 +41,8 @@ class DevHandler(SimpleHTTPRequestHandler):
     def do_POST(self):
         if self.path == '/api/rebuild':
             self._handle_rebuild()
+        elif self.path == '/api/deploy':
+            self._handle_deploy()
         else:
             self.send_error(404, 'Not found')
 
@@ -45,6 +53,29 @@ class DevHandler(SimpleHTTPRequestHandler):
             self._json_response(200, {'ok': True, 'message': 'Site rebuilt.'})
         else:
             self._json_response(500, {'ok': False, 'message': 'Build failed.'})
+
+    def _handle_deploy(self):
+        """Rebuild, then commit and push to GitHub."""
+        if not self._run_build():
+            self._json_response(500, {'ok': False, 'message': 'Build failed.', 'pushed': False})
+            return
+
+        print('[SERVER] Pushing to GitHub...')
+        ok, detail = git_add_commit_push()
+        if ok:
+            self._json_response(200, {
+                'ok': True,
+                'pushed': True,
+                'message': detail,
+                'detail': detail,
+            })
+        else:
+            self._json_response(500, {
+                'ok': False,
+                'pushed': False,
+                'message': f'Push failed: {detail}',
+                'detail': detail,
+            })
 
     def _run_build(self):
         """Run build.py and return success/failure."""
@@ -106,6 +137,7 @@ def main():
     print(f'[SERVER] Serving docs/ at http://localhost:{args.port}')
     print(f'[SERVER] API endpoints:')
     print(f'  POST /api/rebuild         - Trigger rebuild')
+    print(f'  POST /api/deploy          - Rebuild + git push')
     print(f'[SERVER] Press Ctrl+C to stop.\n')
 
     try:

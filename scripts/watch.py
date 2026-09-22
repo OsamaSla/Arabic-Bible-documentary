@@ -6,6 +6,7 @@ No extra dependencies required (uses polling, not watchdog).
 Usage:
     python scripts/watch.py
     python scripts/watch.py --interval 5
+    python scripts/watch.py --push
 """
 
 import sys
@@ -18,9 +19,13 @@ from pathlib import Path
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
 sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
 
+SCRIPT_DIR = Path(__file__).parent
+if str(SCRIPT_DIR) not in sys.path:
+    sys.path.insert(0, str(SCRIPT_DIR))
+
+from git_ops import git_add_commit_push
 
 SOURCE_DIR = Path(r'D:\MegaDrive\ترجمات')
-SCRIPT_DIR = Path(__file__).parent
 BASE_DIR = SCRIPT_DIR.parent
 CONFIG_FILES = [
     BASE_DIR / 'categories.json',
@@ -62,17 +67,31 @@ def run_build():
     return result.returncode
 
 
+def maybe_push(do_push, label='change'):
+    """Commit and push after a successful build when --push is set."""
+    if not do_push:
+        return
+    print(f'[PUSH] Deploying after {label}...')
+    ok, detail = git_add_commit_push()
+    if ok:
+        print(f'[PUSH] {detail}')
+    else:
+        print(f'[PUSH] Failed: {detail}')
+
+
 def main():
     interval = 3
     if '--interval' in sys.argv:
         idx = sys.argv.index('--interval')
         if idx + 1 < len(sys.argv):
             interval = int(sys.argv[idx + 1])
+    do_push = '--push' in sys.argv
 
     print(f'[WATCH] Watching for changes every {interval}s...')
     print(f'[WATCH] Source: {SOURCE_DIR}')
     print(f'[WATCH] Config: {[str(f.name) for f in CONFIG_FILES]}')
     print(f'[WATCH] Templates: {TEMPLATE_DIR}')
+    print(f'[WATCH] Auto-push: {"on" if do_push else "off"}')
     print('[WATCH] Press Ctrl+C to stop.\n')
 
     # Initial hash snapshot
@@ -81,7 +100,8 @@ def main():
     prev_template_hash = get_dir_hash(TEMPLATE_DIR)
 
     # Run initial build
-    run_build()
+    if run_build() == 0:
+        maybe_push(do_push, 'startup')
 
     try:
         while True:
@@ -105,8 +125,12 @@ def main():
                 prev_template_hash = curr_template_hash
 
             if changes:
-                print(f'\n[WATCH] Changes detected: {", ".join(changes)}')
-                run_build()
+                label = ', '.join(changes)
+                print(f'\n[WATCH] Changes detected: {label}')
+                if run_build() == 0:
+                    maybe_push(do_push, label)
+                else:
+                    print('[WATCH] Skipping push because build failed.')
 
     except KeyboardInterrupt:
         print('\n[WATCH] Stopped.')
