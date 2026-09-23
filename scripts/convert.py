@@ -13,6 +13,8 @@ import hashlib
 import shutil
 from pathlib import Path
 from docx import Document
+from docx.oxml.ns import qn
+from docx.text.run import Run
 
 
 def slugify(text):
@@ -40,36 +42,111 @@ def escape_html(text):
     return text
 
 
-def process_runs(runs):
-    """Process formatting runs in a paragraph"""
+def format_run(run):
+    """Apply run-level formatting to text."""
+    text = run.text
+    if not text:
+        return ''
+    formatted = escape_html(text)
+    styles = []
+    if run.bold:
+        styles.append('font-weight:600')
+    if run.italic:
+        styles.append('font-style:italic')
+    if run.underline:
+        styles.append('text-decoration:underline')
+    if run.font.color and run.font.color.rgb:
+        color = str(run.font.color.rgb)
+        styles.append(f'color:#{color}')
+    if run.font.size:
+        size_pt = run.font.size.pt if hasattr(run.font.size, 'pt') else run.font.size / 12700
+        if size_pt > 14:
+            styles.append(f'font-size:{size_pt}pt')
+    if run.font.superscript:
+        formatted = f'<sup>{formatted}</sup>'
+    elif run.font.subscript:
+        formatted = f'<sub>{formatted}</sub>'
+    if styles:
+        formatted = f'<span style="{";".join(styles)}">{formatted}</span>'
+    return formatted
+
+
+def _rel_target(paragraph, rid):
+    if not rid:
+        return None
+    try:
+        rel = paragraph.part.rels[rid]
+    except KeyError:
+        return None
+    if rel.is_external:
+        return rel.target_ref
+    return None
+
+
+def _field_hyperlink_url(instr):
+    m = re.search(r'HYPERLINK\s+(?:\\l\s+)?"([^"]+)"', instr or '', re.I)
+    return m.group(1) if m else None
+
+
+def _runs_xml(container_el):
+    for el in container_el.iter():
+        if el.tag == qn('w:r'):
+            yield el
+
+
+def _render_hyperlink(paragraph, container, url):
+    inner = ''.join(format_run(Run(el, paragraph)) for el in _runs_xml(container))
+    if not inner:
+        return ''
+    if url:
+        return f'<a href="{escape_html(url)}" rel="noopener noreferrer">{inner}</a>'
+    return inner
+
+
+def _walk_children(paragraph, parent):
     parts = []
-    for run in runs:
-        text = run.text
-        if not text:
+    for child in parent:
+        tag = child.tag
+        if tag == qn('w:pPr') or tag == qn('w:hyperlink') or tag == qn('w:fldSimple'):
             continue
-        formatted = escape_html(text)
-        styles = []
-        if run.bold:
-            styles.append('font-weight:600')
-        if run.italic:
-            styles.append('font-style:italic')
-        if run.underline:
-            styles.append('text-decoration:underline')
-        if run.font.color and run.font.color.rgb:
-            color = str(run.font.color.rgb)
-            styles.append(f'color:#{color}')
-        if run.font.size:
-            size_pt = run.font.size.pt if hasattr(run.font.size, 'pt') else run.font.size / 12700
-            if size_pt > 14:
-                styles.append(f'font-size:{size_pt}pt')
-        if run.font.superscript:
-            formatted = f'<sup>{formatted}</sup>'
-        elif run.font.subscript:
-            formatted = f'<sub>{formatted}</sub>'
-        if styles:
-            formatted = f'<span style="{";".join(styles)}">{formatted}</span>'
-        parts.append(formatted)
+        if tag == qn('w:r'):
+            parts.append(format_run(Run(child, paragraph)))
+        elif tag == qn('w:sdt'):
+            for sub in child:
+                if sub.tag == qn('w:sdtContent'):
+                    parts.extend(_walk_children(paragraph, sub))
+        else:
+            parts.extend(_walk_children(paragraph, child))
+    return parts
+
+
+def process_paragraph(paragraph):
+    """Process formatting and hyperlinks in a paragraph (walks paragraph XML)."""
+    parts = []
+    for child in paragraph._p:
+        tag = child.tag
+        if tag == qn('w:pPr'):
+            continue
+        if tag == qn('w:r'):
+            parts.append(format_run(Run(child, paragraph)))
+        elif tag == qn('w:hyperlink'):
+            url = _rel_target(paragraph, child.get(qn('r:id')))
+            if not url:
+                anchor = child.get(qn('w:anchor'))
+                if anchor:
+                    url = f'#{anchor}'
+            parts.append(_render_hyperlink(paragraph, child, url))
+        elif tag == qn('w:fldSimple'):
+            url = _field_hyperlink_url(child.get(qn('w:instr')))
+            parts.append(_render_hyperlink(paragraph, child, url))
+        else:
+            parts.extend(_walk_children(paragraph, child))
     return ''.join(parts)
+
+
+def process_runs(runs):
+    """Process formatting runs (kept for compatibility)."""
+    return ''.join(format_run(run) for run in runs)
 
 
 def extract_text_from_docx(docx_path):
@@ -88,19 +165,19 @@ def extract_text_from_docx(docx_path):
                         break
                 if 'title' in style_name:
                     level = 1
-                formatted_text = process_runs(paragraph.runs)
+                formatted_text = process_paragraph(paragraph)
                 if formatted_text.strip():
                     html_parts.append(f'<h{level}>{formatted_text}</h{level}>')
                 continue
             if 'list' in style_name:
-                formatted_text = process_runs(paragraph.runs)
+                formatted_text = process_paragraph(paragraph)
                 if formatted_text.strip():
                     html_parts.append(f'<li>{formatted_text}</li>')
                 continue
             if not text:
                 html_parts.append('<p class="empty-line">&nbsp;</p>')
                 continue
-            formatted_text = process_runs(paragraph.runs)
+            formatted_text = process_paragraph(paragraph)
             if formatted_text.strip():
                 if re.match(r'^[\d\s]*\w+\s+\d+:\d+', text) or re.match(r'^[\u0600-\u06FF]+\s+\d+:\d+', text):
                     html_parts.append(f'<p class="verse-ref">{formatted_text}</p>')
@@ -156,10 +233,13 @@ def get_description_from_docx(docx_path, max_length=200):
         return ''
 
 
-def create_document_page(title, content, doc_id, author_name, completed, prefix="../"):
+def create_document_page(title, content, doc_id, author_name, completed, prefix="../", download_rel=None):
     """Create HTML page for a document"""
     author_slug = slugify(author_name)
-    download_url = f'downloads/{author_slug}/{doc_id}.docx' 
+    if download_rel:
+        download_url = download_rel
+    else:
+        download_url = f'downloads/{author_slug}/{doc_id}.docx'
     status_badge = '<span class="badge completed">مكتمل</span>' if completed else '<span class="badge in-progress">قيد الترجمة</span>'
     return f'''<!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -338,10 +418,11 @@ def main():
         # For docs/documents/author/file.html, parts = (author, file.html)
         # We need ../../ to get to docs/, so depth = len(parts)
         prefix = '../' * depth
-        doc_html = create_document_page(title, content, doc_id, source_doc['author'], source_doc['completed'], prefix)
+        download_path = dl_out_dir / f"{doc_id}.docx"
+        download_rel = str(download_path.relative_to(output_dir)).replace(os.sep, '/')
+        doc_html = create_document_page(title, content, doc_id, source_doc['author'], source_doc['completed'], prefix, download_rel)
         with open(doc_path, 'w', encoding='utf-8') as f:
             f.write(doc_html)
-        download_path = dl_out_dir / f"{doc_id}.docx"
         shutil.copy2(source_doc['filepath'], download_path)
         # Store relative paths from output dir (docs/)
         html_rel = str(doc_path.relative_to(output_dir)).replace(os.sep, '/')

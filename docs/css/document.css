@@ -84,6 +84,22 @@
     color: var(--color-accent);
 }
 
+.document-content a {
+    color: var(--color-primary);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.document-content a:hover {
+    color: var(--color-accent);
+}
+
+.document-content a:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 3px;
+    border-radius: 2px;
+}
+
 .document-content .error {
     color: var(--color-accent);
     background: #fff5f5;
