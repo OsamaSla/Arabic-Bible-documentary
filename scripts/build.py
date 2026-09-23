@@ -16,6 +16,8 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 from convert import main as convert_documents
 
+UMAMI_SNIPPET = '<script defer src="https://cloud.umami.is/script.js" data-website-id="4bf9e517-428f-466b-a83e-5873974e1e8f"></script>'
+
 
 def setup_directories(base_dir):
     """Create necessary output directories"""
@@ -329,6 +331,7 @@ def generate_minimal_index(output_path, index_data):
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ترجمات تعليقات الكتاب المقدس</title>
     <link rel="stylesheet" href="css/style.css">
+    {UMAMI_SNIPPET}
 </head>
 <body>
     <header>
@@ -384,6 +387,7 @@ def generate_document_index_pages(base_dir, docs_dir, index_data):
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{book} - ترجمات تعليقات الكتاب المقدس</title>
     <link rel="stylesheet" href="../../css/style.css">
+    {UMAMI_SNIPPET}
 </head>
 <body>
     <a class="skip-link" href="#main-content">تخطي إلى المحتوى الرئيسي</a>
@@ -521,6 +525,7 @@ def generate_author_pages(docs_dir, index_data):
         page.append('        .subfolder-section { margin: 1.5rem 0; padding: 1rem; background: var(--bg-light); border-radius: var(--radius-md); }')
         page.append('        .subfolder-title { color: var(--color-primary); font-size: 1.1rem; margin-bottom: 0.75rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--color-secondary); }')
         page.append('    </style>')
+        page.append(f'    {UMAMI_SNIPPET}')
         page.append('</head>')
         page.append('<body>')
         page.append('    <a class="skip-link" href="#main-content">تخطي إلى المحتوى الرئيسي</a>')
@@ -600,6 +605,7 @@ def generate_authors_page(docs_dir, index_data):
     html_parts.append('        } catch (e) {}')
     html_parts.append('    })();')
     html_parts.append('    </script>')
+    html_parts.append(f'    {UMAMI_SNIPPET}')
     html_parts.append('</head>')
     html_parts.append('<body>')
     html_parts.append('    <a class="skip-link" href="#main-content">تخطي إلى المحتوى الرئيسي</a>')
@@ -705,6 +711,7 @@ def generate_authors_page(docs_dir, index_data):
     html_parts.append('                <button type="button" onclick="window.location.href=\'index.html\'">\u0627\u0644\u0631\u0626\u064a\u0633\u064a\u0629</button>')
     html_parts.append('                <button type="button" onclick="window.location.href=\'translations.html\'">\u0627\u0644\u062a\u0631\u062c\u0645\u0627\u062a</button>')
     html_parts.append('                <button type="button" onclick="window.location.href=\'authors.html\'">\u0627\u0644\u0645\u0624\u0644\u0641\u0648\u0646</button>')
+    html_parts.append('                <button type="button" onclick="window.location.href=\'index.html#newsletterForm\'">\u0627\u0644\u0646\u0634\u0631\u0629 \u0627\u0644\u0628\u0631\u064a\u062f\u064a\u0629</button>')
     html_parts.append('            </div>')
     html_parts.append('        </div>')
     html_parts.append('        <div class="footer-bottom container">')

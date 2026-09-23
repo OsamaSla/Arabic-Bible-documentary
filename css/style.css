@@ -1746,9 +1746,12 @@ a:hover {
 
 .footer-grid button {
     background: transparent;
+    border: none;
+    outline-offset: 4px;
     color: #aeb4b9;
     padding: 4px 0;
     font-size: 11px;
+    cursor: pointer;
 }
 
 .footer-grid button:hover {
@@ -2883,9 +2886,9 @@ body {
     --surface-sunken: #151920;
     --focus-ring: #7eb3e0;
 
-    --color-primary: #1a3a5c;
-    --color-primary-light: #3d7ab0;
-    --color-primary-dark: #0d1f33;
+    --color-primary: #5b93c7;
+    --color-primary-light: #7eb3e0;
+    --color-primary-dark: #2a4a6a;
     --color-success: #4caf7a;
     --color-warning: #e0b040;
     --color-error: #e06b76;
@@ -2898,6 +2901,13 @@ body {
 [data-theme="dark"] body {
     background: var(--bg-cream);
     color: var(--text-primary);
+}
+
+[data-theme="dark"] .btn-download,
+[data-theme="dark"] .btn-download:hover,
+[data-theme="dark"] .author-page .doc-download,
+[data-theme="dark"] .author-page .doc-download:hover {
+    color: #0a1628;
 }
 
 [data-theme="dark"] .site-header {

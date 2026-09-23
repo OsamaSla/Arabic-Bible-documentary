@@ -19,6 +19,7 @@
         } catch (e) {}
     })();
     </script>
+    <script defer src="https://cloud.umami.is/script.js" data-website-id="4bf9e517-428f-466b-a83e-5873974e1e8f"></script>
     <style>
         .admin-container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
         .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding: 1rem; background: var(--bg-light); border-radius: var(--radius-md); flex-wrap: wrap; gap: 0.5rem; }
@@ -116,6 +117,18 @@
             <div id="docsContainer">
                 <p>Loading documents...</p>
             </div>
+
+            <section class="visits-panel" aria-labelledby="visitsHeading" style="min-height:160px;margin-top:2rem;padding:1rem;border:1px solid var(--border-light);border-radius:var(--radius-md);background:var(--bg-light);">
+                <h2 id="visitsHeading">الزيارات</h2>
+                <p class="muted" style="color:var(--text-muted);margin:0.5rem 0 1rem;">Stats collected via Umami Cloud (free Hobby). Open the Umami dashboard for charts and details.</p>
+                <div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;">
+                    <a class="admin-btn admin-btn-primary" href="https://cloud.umami.is/websites" target="_blank" rel="noopener noreferrer" style="text-decoration:none;display:inline-block;">فتح لوحة Umami</a>
+                    <span class="muted" style="color:var(--text-muted);font-size:0.9rem;">الموقع: osamasla.github.io</span>
+                </div>
+                <p style="margin-top:0.75rem;font-size:0.9rem;color:var(--text-muted);">
+                    Embedded chart/API requires Umami Pro ($20/mo). Free Hobby uses the dashboard link above.
+                </p>
+            </section>
         </div>
     </main>
 
