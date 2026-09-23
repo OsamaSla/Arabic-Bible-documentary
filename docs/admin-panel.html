@@ -91,6 +91,7 @@
             <div class="admin-header-actions">
                 <button type="button" class="admin-btn admin-btn-secondary" id="changesBtn" aria-describedby="deployStatus">Check changes</button>
                 <button type="button" class="admin-btn admin-btn-primary" id="deployBtn" aria-describedby="deployStatus">Deploy to GitHub</button>
+                <a class="admin-btn admin-btn-secondary" href="https://cloud.umami.is/login" target="_blank" rel="noopener noreferrer" style="text-decoration:none;display:inline-block;" title="فتح لوحة Umami">الزيارات</a>
                 <button type="button" class="admin-btn admin-btn-danger" onclick="logout()">Logout</button>
             </div>
         </div>
@@ -107,6 +108,17 @@
             <h2>Document Status</h2>
             <p>Read-only view. Status comes from source folders: <strong>تم</strong> = completed, <strong>hidden</strong> / <strong>مخفي</strong> = hidden.</p>
 
+            <section class="visits-panel" aria-labelledby="visitsHeading" style="min-height:0;margin:0 0 1rem;padding:0.75rem 1rem;border:1px solid var(--border-light);border-radius:var(--radius-md);background:var(--bg-light);">
+                <div style="display:flex;gap:0.75rem;flex-wrap:wrap;align-items:center;justify-content:space-between;">
+                    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;">
+                        <strong id="visitsHeading" style="margin:0;">الزيارات</strong>
+                        <span class="muted" style="color:var(--text-muted);font-size:0.9rem;">Umami Cloud (free Hobby)</span>
+                        <span class="muted" style="color:var(--text-muted);font-size:0.9rem;">الموقع: osamasla.github.io</span>
+                    </div>
+                    <a class="admin-btn admin-btn-primary" href="https://cloud.umami.is/login" target="_blank" rel="noopener noreferrer" style="text-decoration:none;display:inline-block;">فتح لوحة Umami</a>
+                </div>
+            </section>
+
             <input type="text" id="filterBox" placeholder="Search docs..." style="width:100%; padding:8px; margin-bottom:10px; border:1px solid #ddd; border-radius:4px;">
 
             <div class="filter-buttons">
@@ -118,18 +130,6 @@
             <div id="docsContainer">
                 <p>Loading documents...</p>
             </div>
-
-            <section class="visits-panel" aria-labelledby="visitsHeading" style="min-height:160px;margin-top:2rem;padding:1rem;border:1px solid var(--border-light);border-radius:var(--radius-md);background:var(--bg-light);">
-                <h2 id="visitsHeading">الزيارات</h2>
-                <p class="muted" style="color:var(--text-muted);margin:0.5rem 0 1rem;">Stats collected via Umami Cloud (free Hobby). Open the Umami dashboard for charts and details.</p>
-                <div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;">
-                    <a class="admin-btn admin-btn-primary" href="https://cloud.umami.is/websites" target="_blank" rel="noopener noreferrer" style="text-decoration:none;display:inline-block;">فتح لوحة Umami</a>
-                    <span class="muted" style="color:var(--text-muted);font-size:0.9rem;">الموقع: osamasla.github.io</span>
-                </div>
-                <p style="margin-top:0.75rem;font-size:0.9rem;color:var(--text-muted);">
-                    Embedded chart/API requires Umami Pro ($20/mo). Free Hobby uses the dashboard link above.
-                </p>
-            </section>
         </div>
     </main>
 
