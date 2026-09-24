@@ -1,4 +1,881 @@
 {
-  "_comment": "Map document IDs or filenames to category slugs. See list above.",
-  "assignments": {}
+  "_comment": "Map document IDs or filenames to arrays of category slugs. Managed by scripts/autocategorize.py + admin panel.",
+  "assignments": {
+    "doc_0000": [
+      "yuanna",
+      "bible-study"
+    ],
+    "doc_0002": [
+      "tassaluniki-awwal",
+      "bible-study"
+    ],
+    "doc_0003": [
+      "prophecy"
+    ],
+    "doc_0004": [
+      "prophecy"
+    ],
+    "doc_0005": [
+      "zakariya",
+      "bible-study"
+    ],
+    "doc_0006": [
+      "nahum",
+      "bible-study"
+    ],
+    "doc_0007": [
+      "nashid",
+      "bible-study"
+    ],
+    "doc_0008": [
+      "gospel",
+      "jesus-christ"
+    ],
+    "doc_0009": [
+      "matta"
+    ],
+    "doc_0011": [
+      "hizqiyal"
+    ],
+    "doc_0015": [
+      "gospel",
+      "jesus-christ"
+    ],
+    "doc_0016": [
+      "yuanna-awwal",
+      "bible-study"
+    ],
+    "doc_0022": [
+      "holy-spirit"
+    ],
+    "doc_0023": [
+      "takwin"
+    ],
+    "doc_0024": [
+      "tathniya"
+    ],
+    "doc_0025": [
+      "yaqub"
+    ],
+    "doc_0026": [
+      "kharuj"
+    ],
+    "doc_0027": [
+      "adad"
+    ],
+    "doc_0028": [
+      "lawiyyun"
+    ],
+    "doc_0029": [
+      "scripture"
+    ],
+    "doc_0031": [
+      "lawiyyun"
+    ],
+    "doc_0064": [
+      "faith-life"
+    ],
+    "doc_0067": [
+      "faith-life"
+    ],
+    "doc_0083": [
+      "hizqiyal"
+    ],
+    "doc_0085": [
+      "ibranin"
+    ],
+    "doc_0090": [
+      "ibranin"
+    ],
+    "doc_0091": [
+      "ayyub"
+    ],
+    "doc_0103": [
+      "nahumya"
+    ],
+    "doc_0106": [
+      "gospel"
+    ],
+    "doc_0107": [
+      "yuanna"
+    ],
+    "doc_0111": [
+      "gospel"
+    ],
+    "doc_0112": [
+      "scripture"
+    ],
+    "doc_0117": [
+      "rumiyaya",
+      "bible-study"
+    ],
+    "doc_0120": [
+      "matta",
+      "gospel"
+    ],
+    "doc_0123": [
+      "ubadiya"
+    ],
+    "doc_0124": [
+      "mukashafa"
+    ],
+    "doc_0130": [
+      "luqa",
+      "gospel"
+    ],
+    "doc_0132": [
+      "daniyal"
+    ],
+    "doc_0135": [
+      "faith-life"
+    ],
+    "doc_0139": [
+      "faith-life"
+    ],
+    "doc_0145": [
+      "faith-life"
+    ],
+    "doc_0147": [
+      "ghalatiya"
+    ],
+    "doc_0148": [
+      "mukashafa"
+    ],
+    "doc_0152": [
+      "matta"
+    ],
+    "doc_0158": [
+      "ibranin"
+    ],
+    "doc_0165": [
+      "jesus-christ"
+    ],
+    "doc_0187": [
+      "mukashafa"
+    ],
+    "doc_0188": [
+      "malakhi"
+    ],
+    "doc_0189": [
+      "malakhi"
+    ],
+    "doc_0190": [
+      "mazamir"
+    ],
+    "doc_0194": [
+      "mazamir"
+    ],
+    "doc_0204": [
+      "samuil-awwal"
+    ],
+    "doc_0208": [
+      "rauth"
+    ],
+    "doc_0209": [
+      "daniyal"
+    ],
+    "doc_0212": [
+      "mazamir"
+    ],
+    "doc_0214": [
+      "tassaluniki-thani"
+    ],
+    "doc_0215": [
+      "tits"
+    ],
+    "doc_0216": [
+      "timuthawus-awwal"
+    ],
+    "doc_0217": [
+      "timuthawus-thani"
+    ],
+    "doc_0218": [
+      "rumiyaya"
+    ],
+    "doc_0219": [
+      "yahuda"
+    ],
+    "doc_0221": [
+      "daniyal"
+    ],
+    "doc_0223": [
+      "samuil-awwal"
+    ],
+    "doc_0233": [
+      "butrus-awwal"
+    ],
+    "doc_0236": [
+      "ubadiya"
+    ],
+    "doc_0238": [
+      "kurunthus-awwal"
+    ],
+    "doc_0239": [
+      "ezra"
+    ],
+    "doc_0240": [
+      "yuil"
+    ],
+    "doc_0241": [
+      "hizqiyal"
+    ],
+    "doc_0242": [
+      "tassaluniki-awwal"
+    ],
+    "doc_0243": [
+      "timuthawus-awwal"
+    ],
+    "doc_0244": [
+      "rumiyaya"
+    ],
+    "doc_0245": [
+      "jesus-christ"
+    ],
+    "doc_0251": [
+      "church",
+      "gospel"
+    ],
+    "doc_0254": [
+      "ishaiya"
+    ],
+    "doc_0255": [
+      "irmiya"
+    ],
+    "doc_0257": [
+      "hizqiyal"
+    ],
+    "doc_0262": [
+      "yishu"
+    ],
+    "doc_0273": [
+      "luqa",
+      "gospel"
+    ],
+    "doc_0274": [
+      "matta",
+      "gospel"
+    ],
+    "doc_0276": [
+      "faith-life"
+    ],
+    "doc_0279": [
+      "ezra"
+    ],
+    "doc_0280": [
+      "jesus-christ"
+    ],
+    "doc_0281": [
+      "jesus-christ"
+    ],
+    "doc_0282": [
+      "jesus-christ"
+    ],
+    "doc_0283": [
+      "jesus-christ"
+    ],
+    "doc_0284": [
+      "jesus-christ"
+    ],
+    "doc_0286": [
+      "mukashafa"
+    ],
+    "doc_0287": [
+      "faith-life"
+    ],
+    "doc_0289": [
+      "scripture"
+    ],
+    "doc_0290": [
+      "church"
+    ],
+    "doc_0291": [
+      "daniyal"
+    ],
+    "doc_0295": [
+      "marqus"
+    ],
+    "doc_0299": [
+      "jesus-christ"
+    ],
+    "doc_0302": [
+      "ibranin"
+    ],
+    "doc_0308": [
+      "gospel"
+    ],
+    "doc_0309": [
+      "church"
+    ],
+    "doc_0313": [
+      "yuanna"
+    ],
+    "doc_0314": [
+      "yuanna"
+    ],
+    "doc_0315": [
+      "yuanna"
+    ],
+    "doc_0316": [
+      "yuanna"
+    ],
+    "doc_0317": [
+      "yuanna"
+    ],
+    "doc_0318": [
+      "yuanna"
+    ],
+    "doc_0323": [
+      "church"
+    ],
+    "doc_0334": [
+      "rumiyaya"
+    ],
+    "doc_0336": [
+      "tits"
+    ],
+    "doc_0341": [
+      "lawiyyun"
+    ],
+    "doc_0347": [
+      "timuthawus-awwal"
+    ],
+    "doc_0348": [
+      "filemun"
+    ],
+    "doc_0361": [
+      "mukashafa"
+    ],
+    "doc_0367": [
+      "mazamir"
+    ],
+    "doc_0375": [
+      "filippi"
+    ],
+    "doc_0376": [
+      "irmiya"
+    ],
+    "doc_0377": [
+      "luqa",
+      "gospel"
+    ],
+    "doc_0378": [
+      "marqus",
+      "gospel"
+    ],
+    "doc_0379": [
+      "yuanna",
+      "gospel"
+    ],
+    "doc_0380": [
+      "butrus-awwal"
+    ],
+    "doc_0381": [
+      "butrus-awwal"
+    ],
+    "doc_0382": [
+      "aamal-rusul"
+    ],
+    "doc_0383": [
+      "tassaluniki-awwal"
+    ],
+    "doc_0384": [
+      "ghalatiya"
+    ],
+    "doc_0385": [
+      "kurunthus-awwal"
+    ],
+    "doc_0386": [
+      "yuanna-awwal"
+    ],
+    "doc_0387": [
+      "mukashafa"
+    ],
+    "doc_0388": [
+      "mukashafa"
+    ],
+    "doc_0389": [
+      "mukashafa"
+    ],
+    "doc_0390": [
+      "kharuj"
+    ],
+    "doc_0391": [
+      "samuil-awwal"
+    ],
+    "doc_0392": [
+      "samuil-thani"
+    ],
+    "doc_0393": [
+      "muluk-thani"
+    ],
+    "doc_0394": [
+      "qudah"
+    ],
+    "doc_0395": [
+      "muluk-awwal"
+    ],
+    "doc_0396": [
+      "yishu"
+    ],
+    "doc_0397": [
+      "mazamir"
+    ],
+    "doc_0398": [
+      "amthal"
+    ],
+    "doc_0399": [
+      "haqquq"
+    ],
+    "doc_0400": [
+      "mikha"
+    ],
+    "doc_0401": [
+      "nahum"
+    ],
+    "doc_0402": [
+      "ubadiya"
+    ],
+    "doc_0403": [
+      "nahumya"
+    ],
+    "doc_0404": [
+      "husha"
+    ],
+    "doc_0405": [
+      "yunan"
+    ],
+    "doc_0406": [
+      "zakariya"
+    ],
+    "doc_0407": [
+      "ishaiya"
+    ],
+    "doc_0408": [
+      "hizqiyal"
+    ],
+    "doc_0409": [
+      "hizqiyal"
+    ],
+    "doc_0410": [
+      "husha"
+    ],
+    "doc_0411": [
+      "ibranin"
+    ],
+    "doc_0412": [
+      "marathi"
+    ],
+    "doc_0413": [
+      "rauth"
+    ],
+    "doc_0414": [
+      "butrus-thani"
+    ],
+    "doc_0415": [
+      "timuthawus-thani"
+    ],
+    "doc_0416": [
+      "kulusi"
+    ],
+    "doc_0417": [
+      "yaqub"
+    ],
+    "doc_0418": [
+      "yahuda"
+    ],
+    "doc_0419": [
+      "nashid"
+    ],
+    "doc_0420": [
+      "ghalatiya"
+    ],
+    "doc_0422": [
+      "church"
+    ],
+    "doc_0425": [
+      "holy-spirit"
+    ],
+    "doc_0426": [
+      "faith-life"
+    ],
+    "doc_0427": [
+      "faith-life"
+    ],
+    "doc_0430": [
+      "church"
+    ],
+    "doc_0431": [
+      "church"
+    ],
+    "doc_0432": [
+      "church"
+    ],
+    "doc_0434": [
+      "ibranin"
+    ],
+    "doc_0437": [
+      "mazamir"
+    ],
+    "doc_0438": [
+      "mazamir"
+    ],
+    "doc_0439": [
+      "mazamir"
+    ],
+    "doc_0440": [
+      "mazamir"
+    ],
+    "doc_0441": [
+      "mazamir"
+    ],
+    "doc_0442": [
+      "muluk-thani"
+    ],
+    "doc_0443": [
+      "ishaiya"
+    ],
+    "doc_0444": [
+      "ishaiya"
+    ],
+    "doc_0445": [
+      "rumiyaya"
+    ],
+    "doc_0446": [
+      "filippi"
+    ],
+    "doc_0447": [
+      "yuanna"
+    ],
+    "doc_0448": [
+      "filippi"
+    ],
+    "doc_0449": [
+      "scripture"
+    ],
+    "doc_0454": [
+      "yaqub"
+    ],
+    "doc_0460": [
+      "holy-spirit",
+      "faith-life"
+    ],
+    "doc_0463": [
+      "kharuj"
+    ],
+    "doc_0466": [
+      "matta",
+      "jesus-christ"
+    ],
+    "doc_0475": [
+      "ibranin"
+    ],
+    "doc_0479": [
+      "akhbar-ayyam-thani"
+    ],
+    "doc_0481": [
+      "butrus-thani"
+    ],
+    "doc_0482": [
+      "yuanna-awwal"
+    ],
+    "doc_0483": [
+      "yuanna-awwal"
+    ],
+    "doc_0484": [
+      "jesus-christ"
+    ],
+    "doc_0485": [
+      "jesus-christ"
+    ],
+    "doc_0487": [
+      "safaniya"
+    ],
+    "doc_0490": [
+      "zakariya"
+    ],
+    "doc_0491": [
+      "zakariya"
+    ],
+    "doc_0492": [
+      "butrus-thani"
+    ],
+    "doc_0493": [
+      "qudah"
+    ],
+    "doc_0494": [
+      "rauth"
+    ],
+    "doc_0496": [
+      "church"
+    ],
+    "doc_0497": [
+      "luqa",
+      "gospel"
+    ],
+    "doc_0500": [
+      "yahuda"
+    ],
+    "doc_0502": [
+      "ibranin"
+    ],
+    "doc_0503": [
+      "yuanna-awwal"
+    ],
+    "doc_0504": [
+      "mazamir"
+    ],
+    "doc_0506": [
+      "takwin"
+    ],
+    "doc_0507": [
+      "church"
+    ],
+    "doc_0510": [
+      "butrus-awwal"
+    ],
+    "doc_0516": [
+      "ibranin"
+    ],
+    "doc_0518": [
+      "afsus"
+    ],
+    "doc_0519": [
+      "rumiyaya"
+    ],
+    "doc_0520": [
+      "rumiyaya"
+    ],
+    "doc_0521": [
+      "rumiyaya"
+    ],
+    "doc_0522": [
+      "ghalatiya"
+    ],
+    "doc_0534": [
+      "gospel"
+    ],
+    "doc_0537": [
+      "yuanna",
+      "jesus-christ"
+    ],
+    "doc_0539": [
+      "tassaluniki-awwal"
+    ],
+    "doc_0540": [
+      "astar"
+    ],
+    "doc_0548": [
+      "takwin"
+    ],
+    "doc_0552": [
+      "prophecy"
+    ],
+    "doc_0553": [
+      "prophecy"
+    ],
+    "doc_0556": [
+      "holy-spirit"
+    ],
+    "doc_0560": [
+      "yuanna"
+    ],
+    "doc_0561": [
+      "butrus-awwal"
+    ],
+    "doc_0562": [
+      "butrus-thani"
+    ],
+    "doc_0563": [
+      "tassaluniki-thani"
+    ],
+    "doc_0564": [
+      "rumiyaya"
+    ],
+    "doc_0565": [
+      "yaqub"
+    ],
+    "doc_0566": [
+      "mukashafa"
+    ],
+    "doc_0567": [
+      "ezra"
+    ],
+    "doc_0568": [
+      "marqus",
+      "gospel"
+    ],
+    "doc_0570": [
+      "safaniya"
+    ],
+    "doc_0571": [
+      "samuil-thani"
+    ],
+    "doc_0572": [
+      "marqus",
+      "gospel"
+    ],
+    "doc_0573": [
+      "yuanna",
+      "gospel"
+    ],
+    "doc_0574": [
+      "ibranin"
+    ],
+    "doc_0575": [
+      "nashid"
+    ],
+    "doc_0576": [
+      "timuthawus-thani"
+    ],
+    "doc_0577": [
+      "aamal-rusul"
+    ],
+    "doc_0578": [
+      "luqa",
+      "gospel"
+    ],
+    "doc_0579": [
+      "matta",
+      "gospel"
+    ],
+    "doc_0580": [
+      "tits"
+    ],
+    "doc_0581": [
+      "kulusi"
+    ],
+    "doc_0582": [
+      "nashid"
+    ],
+    "doc_0588": [
+      "aamal-rusul"
+    ],
+    "doc_0589": [
+      "yuanna"
+    ],
+    "doc_0590": [
+      "holy-spirit"
+    ],
+    "doc_0594": [
+      "church"
+    ],
+    "doc_0601": [
+      "samuil-awwal"
+    ],
+    "doc_0603": [
+      "church"
+    ],
+    "doc_0605": [
+      "church"
+    ],
+    "doc_0606": [
+      "filippi"
+    ],
+    "doc_0613": [
+      "mukashafa",
+      "church"
+    ],
+    "doc_0616": [
+      "prophecy"
+    ],
+    "doc_0619": [
+      "jesus-christ"
+    ],
+    "doc_0627": [
+      "yaqub"
+    ],
+    "doc_0628": [
+      "holy-spirit"
+    ],
+    "doc_0637": [
+      "church"
+    ],
+    "doc_0643": [
+      "church"
+    ],
+    "doc_0645": [
+      "nahumya"
+    ],
+    "doc_0651": [
+      "gospel"
+    ],
+    "doc_0654": [
+      "kharuj"
+    ],
+    "doc_0670": [
+      "prophecy"
+    ],
+    "doc_0672": [
+      "yuanna",
+      "gospel"
+    ],
+    "doc_0674": [
+      "gospel"
+    ],
+    "doc_0675": [
+      "gospel"
+    ],
+    "doc_0676": [
+      "church"
+    ],
+    "doc_0677": [
+      "prophecy"
+    ],
+    "doc_0680": [
+      "church"
+    ],
+    "doc_0685": [
+      "mukashafa",
+      "church"
+    ],
+    "doc_0693": [
+      "afsus"
+    ],
+    "doc_0694": [
+      "yuanna",
+      "gospel"
+    ],
+    "doc_0695": [
+      "nashid"
+    ],
+    "doc_0712": [
+      "rumiyaya"
+    ],
+    "doc_0727": [
+      "ibranin"
+    ],
+    "doc_0728": [
+      "filemun"
+    ],
+    "doc_0738": [
+      "mazamir"
+    ],
+    "doc_0743": [
+      "butrus-awwal"
+    ],
+    "doc_0744": [
+      "ayyub"
+    ],
+    "doc_0745": [
+      "yishu"
+    ],
+    "doc_0755": [
+      "mazamir"
+    ],
+    "doc_0758": [
+      "yuanna"
+    ],
+    "doc_0759": [
+      "church"
+    ],
+    "doc_0761": [
+      "prophecy"
+    ],
+    "doc_0762": [
+      "prophecy"
+    ],
+    "doc_0770": [
+      "mazamir"
+    ]
+  }
 }

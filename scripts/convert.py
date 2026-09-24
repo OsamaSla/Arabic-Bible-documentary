@@ -524,6 +524,7 @@ def main():
             'author_slug': author_slug,
             'completed': source_doc['completed'],
             'hidden': is_hidden,
+            'categories': [],
             'category': 'uncategorized',
             'filename': source_doc['filename'],
             'rel_path': rel_path,
@@ -536,6 +537,17 @@ def main():
             print(f'  [{status}] {title[:50]}')
         except UnicodeEncodeError:
             print(f'  [{status}] Document {doc_id} converted')
+
+    def _as_category_list(value):
+        """Normalize assignment value: str | list | None -> list of slugs."""
+        if value is None:
+            return []
+        if isinstance(value, str):
+            return [value] if value and value != 'uncategorized' else []
+        if isinstance(value, list):
+            return [str(v) for v in value if v and v != 'uncategorized']
+        return []
+
     # Load category assignments
     cat_file = base_dir / 'doc_categories.json'
     cat_assignments = {}
@@ -545,12 +557,14 @@ def main():
             cat_assignments = cat_data.get('assignments', {})
         print(f'[CAT] Loaded {len(cat_assignments)} category assignments')
 
-    # Apply categories to documents
+    # Apply categories to documents (multi: categories[] + legacy category string)
     for doc in documents:
         doc_id = doc['id']
         filename = doc['filename']
-        cat = cat_assignments.get(doc_id, cat_assignments.get(filename, 'uncategorized'))
-        doc['category'] = cat
+        raw = cat_assignments.get(doc_id, cat_assignments.get(filename))
+        cats = _as_category_list(raw)
+        doc['categories'] = cats
+        doc['category'] = cats[0] if cats else 'uncategorized'
 
     hidden_count = sum(1 for d in documents if d.get('hidden'))
     if hidden_count:

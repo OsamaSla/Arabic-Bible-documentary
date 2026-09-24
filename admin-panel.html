@@ -13,7 +13,7 @@
         .admin-container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
         .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding: 1rem; background: var(--bg-light); border-radius: var(--radius-md); flex-wrap: wrap; gap: 0.5rem; }
         .admin-header-actions { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
-        .doc-item { min-height: 72px; padding: 14px; border: 1px solid #ddd; margin: 8px 0; border-radius: 6px; background: #fff; cursor: pointer; }
+        .doc-item { min-height: 72px; padding: 14px; border: 1px solid #ddd; margin: 8px 0; border-radius: 6px; background: #fff; cursor: pointer; position: relative; }
         .doc-item:hover { border-color: var(--color-primary); }
         .doc-item:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
         .doc-item.hidden-doc { opacity: 0.65; border-style: dashed; }
@@ -50,6 +50,202 @@
         .status-badge.hidden-on { background: #6c757d; color: #fff; }
         .status-badge.hidden-off { background: #e9ecef; color: #495057; opacity: 0.55; }
         .local-note { padding: 0.75rem 1rem; margin-bottom: 1rem; border: 1px solid var(--color-secondary, #b8860b); border-radius: var(--radius-md); background: var(--bg-light); font-size: 0.95rem; }
+        .doc-meta { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; margin-top: 8px; min-height: 36px; }
+        .cat-select {
+            min-height: 36px;
+            min-width: 14rem;
+            max-width: 100%;
+            padding: 4px 8px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            background: #fff;
+            color: #212529;
+            font-family: inherit;
+            font-size: 0.92rem;
+            cursor: pointer;
+        }
+        .cat-select:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
+        .cat-select:disabled { opacity: 0.65; cursor: not-allowed; }
+        .cat-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            background: #e9ecef;
+            color: #495057;
+            user-select: none;
+        }
+        .cat-badge.assigned { background: #007bff; color: #fff; }
+        .cat-badge.unassigned { background: #fff3cd; color: #856404; }
+        .cat-save-status { font-size: 0.85rem; color: #6c757d; min-height: 1.2em; }
+        .cat-save-status.ok { color: #28a745; }
+        .cat-save-status.err { color: #dc3545; }
+        .cat-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            align-items: center;
+            margin-bottom: 1rem;
+            min-height: 40px;
+        }
+        .cat-toolbar label { font-size: 0.92rem; }
+
+        /* Multi-category chips + inline tray (option 1) */
+        .cat-chips {
+            display: inline-flex;
+            flex-wrap: wrap;
+            gap: 0.3rem;
+            align-items: center;
+            min-height: 36px;
+            min-width: 6rem;
+            max-width: 100%;
+        }
+        .cat-chip {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 999px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            line-height: 1.3;
+            user-select: none;
+            white-space: nowrap;
+        }
+        .cat-chip.assigned { background: #007bff; color: #fff; }
+        .cat-chip.empty { background: #fff3cd; color: #856404; }
+        .cat-multi { display: flex; flex-direction: column; gap: 0.35rem; min-height: 36px; flex: 1 1 100%; }
+        .cat-trigger {
+            min-height: 36px;
+            min-width: 8rem;
+            max-width: 14rem;
+            padding: 4px 10px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            background: #fff;
+            color: #212529;
+            font-family: inherit;
+            font-size: 0.92rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.4rem;
+            align-self: flex-start;
+        }
+        .cat-trigger:hover { border-color: var(--color-primary, #007bff); }
+        .cat-trigger:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
+        .cat-trigger:disabled { opacity: 0.65; cursor: not-allowed; }
+        .cat-trigger-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .cat-trigger-caret { font-size: 0.8em; opacity: 0.7; }
+        .cat-trigger.is-open .cat-trigger-caret { transform: rotate(180deg); }
+        .cat-tray {
+            display: none;
+            flex-direction: column;
+            width: 100%;
+            max-height: 22rem;
+            min-height: 8rem;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            background: #fff;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+        .cat-tray.open { display: flex; }
+        .cat-tray-body {
+            overflow-y: auto;
+            padding: 0.5rem;
+            flex: 1 1 auto;
+            min-height: 7rem;
+        }
+        .cat-tray-group { margin-bottom: 0.75rem; }
+        .cat-tray-group:last-child { margin-bottom: 0.25rem; }
+        .cat-tray-group-title {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #6c757d;
+            margin: 0.25rem 0 0.3rem;
+            padding: 0 0.2rem;
+        }
+        .cat-tray-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.3rem;
+        }
+        .cat-opt {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            min-height: 32px;
+            min-width: 0;
+            padding: 4px 8px;
+            border: 1px solid #e9ecef;
+            border-radius: 999px;
+            background: #f8f9fa;
+            color: #212529;
+            font-family: inherit;
+            font-size: 0.88rem;
+            text-align: right;
+            cursor: pointer;
+        }
+        .cat-opt::before {
+            content: '';
+            width: 12px;
+            height: 12px;
+            flex: 0 0 12px;
+            border: 1.5px solid #adb5bd;
+            border-radius: 3px;
+            background: #fff;
+        }
+        .cat-opt:hover { background: #f1f3f5; }
+        .cat-opt:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
+        .cat-opt.selected {
+            background: #e7f1ff;
+            border-color: #b6d4fe;
+            color: #084298;
+            font-weight: 600;
+        }
+        .cat-opt.selected::before {
+            background: #007bff;
+            border-color: #007bff;
+            box-shadow: inset 0 0 0 2px #fff;
+        }
+        .cat-tray-footer {
+            display: flex;
+            justify-content: space-between;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            border-top: 1px solid #e9ecef;
+            background: #f8f9fa;
+            min-height: 44px;
+        }
+        .cat-clear, .cat-done {
+            min-height: 34px;
+            padding: 0.3rem 0.8rem;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            background: #fff;
+            font-family: inherit;
+            font-size: 0.88rem;
+            cursor: pointer;
+        }
+        .cat-done {
+            background: #007bff;
+            border-color: #007bff;
+            color: #fff;
+            font-weight: 600;
+        }
+        .cat-clear:focus-visible, .cat-done:focus-visible {
+            outline: 3px solid var(--focus-ring);
+            outline-offset: 2px;
+        }
+        .dark .cat-trigger, .dark .cat-tray, .dark .cat-clear, .dark .cat-opt {
+            background: #1e1e1e;
+            border-color: #444;
+            color: #eee;
+        }
+        .dark .cat-opt.selected { background: #0b2a4a; border-color: #1a4a7a; color: #9ecbff; }
+        .dark .cat-tray-footer, .dark .cat-tray-group-title { background: #161616; }
+        .dark .cat-tray-footer { border-top-color: #333; }
     </style>
 </head>
 <body>
@@ -82,7 +278,7 @@
         <div id="changesPanel" class="changes-panel" hidden></div>
 
         <div id="adminContent">
-            <p class="local-note">Local-only panel: reachable via <code>python scripts/serve.py</code> on 127.0.0.1. Never published to the live site. Status comes from source folders: <strong>تم</strong> = completed, <strong>hidden</strong> / <strong>مخفي</strong> = hidden.</p>
+            <p class="local-note">Local-only panel: double-click <code>Open Admin.bat</code>, or run <code>python scripts/serve.py</code> (auto-opens this page on 127.0.0.1). Never published to the live site. Status comes from source folders: <strong>تم</strong> = completed, <strong>hidden</strong> / <strong>مخفي</strong> = hidden.</p>
 
             <section class="visits-panel" aria-labelledby="visitsHeading" style="min-height:0;margin:0 0 1rem;padding:0.75rem 1rem;border:1px solid var(--border-light);border-radius:var(--radius-md);background:var(--bg-light);">
                 <div style="display:flex;gap:0.75rem;flex-wrap:wrap;align-items:center;justify-content:space-between;">
@@ -101,6 +297,16 @@
                 <button class="filter-btn active" data-filter="all" id="btnAll">الكل (All)</button>
                 <button class="filter-btn" data-filter="completed" id="btnCompleted">مكتمل (Completed)</button>
                 <button class="filter-btn" data-filter="hidden" id="btnHidden">مخفي (Hidden)</button>
+                <button class="filter-btn" data-filter="uncategorized" id="btnUncat">بدون فئة (Uncategorized)</button>
+            </div>
+
+            <div class="cat-toolbar">
+                <label for="categoryFilter">تصفية بالفئة:</label>
+                <select id="categoryFilter" class="cat-select" style="min-width:16rem;" aria-label="تصفية المستندات حسب الفئة">
+                    <option value="">كل الفئات</option>
+                    <option value="uncategorized">بدون فئة فقط</option>
+                </select>
+                <span id="categoryCounts" class="muted" style="font-size:0.9rem;color:#6c757d;"></span>
             </div>
 
             <div id="docsContainer">

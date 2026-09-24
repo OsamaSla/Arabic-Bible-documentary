@@ -86,8 +86,22 @@ async function loadAllData() {
         const bookName = book.name_ar.toLowerCase();
         const bookSlug = book.slug.toLowerCase();
         return allDocs.filter(d => {
+            // Multi-category: prefer categories[]; fall back to legacy category
+            let cats;
+            if (Array.isArray(d.categories)) {
+                cats = d.categories;
+            } else if (d.category && d.category !== 'uncategorized') {
+                cats = [d.category];
+            } else {
+                cats = [];
+            }
+            if (cats.length) {
+                // Membership: show under EVERY assigned category (no exclusivity)
+                return cats.some(c => String(c || '').toLowerCase() === bookSlug);
+            }
+            // Fallback: title match for uncategorized docs
             const title = (d.title || '').toLowerCase();
-            return title.includes(bookName) || title.includes(bookSlug);
+            return title.includes(bookName);
         });
     }
     

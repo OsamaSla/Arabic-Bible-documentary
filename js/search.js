@@ -194,12 +194,18 @@ class Search {
             const title = (doc.title || '').toLowerCase();
             const description = (doc.description || '').toLowerCase();
             const author = (doc.author || '').toLowerCase();
-            const category = (doc.category || '').toLowerCase();
+            // Array-safe: search across all assigned categories
+            let catStr = '';
+            if (Array.isArray(doc.categories)) {
+                catStr = doc.categories.join(' ').toLowerCase();
+            } else {
+                catStr = String(doc.category || '').toLowerCase();
+            }
 
             return title.includes(normalizedQuery) ||
                    description.includes(normalizedQuery) ||
                    author.includes(normalizedQuery) ||
-                   category.includes(normalizedQuery);
+                   catStr.includes(normalizedQuery);
         });
         return { all: matched, shown: matched.slice(0, 20) };
     }
