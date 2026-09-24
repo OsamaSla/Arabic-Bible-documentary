@@ -22,8 +22,8 @@ A static website hosting **774 Arabic translations** of Christian Bible commenta
 - **🌐 Arabic RTL** — Full right-to-left support
 - **👤 Author pages** — 108 author profiles with document listings
 - **📊 Completion tracking** — 342 completed, 432 in progress
-- **🎛️ Admin panel** — Web-based document management with login
 - **🎲 Random articles** — Homepage shows 10 random completed articles
+- **🔒 Hardened static site** — CSP, self-hosted fonts/analytics, no admin files published
 
 ## Stats
 
@@ -95,11 +95,12 @@ Every detected change rebuilds `docs/`, then commits and pushes.
 
 **Option B — Admin panel** (requires `python scripts/serve.py`):
 
-1. Open `http://localhost:8000/admin-panel.html` → login
+1. Open `http://localhost:8000/admin-panel.html` (no password; bound to `127.0.0.1` only)
 2. **Check changes** — source `.docx` + git changes since last build
 3. **Deploy to GitHub** — same as one watch cycle: scan source → rebuild → push
 
 > Deploy only works on `http://localhost:8000/...`. Opening the file directly (`file://`) or GitHub Pages cannot run local scripts.
+> API routes (`/api/changes`, `/api/documents`, `/api/rebuild`, `/api/deploy`) require the per-run `X-Serve-Token` header injected into the local admin page.
 
 **Option C — manual:**
 
@@ -120,35 +121,40 @@ Your site will be live at: `https://osamasla.github.io/Arabic-Bible-documentary/
 
 ```
 Arabic-Bible-documentary/
-├── docs-input/              # Source Word documents
-├── docs/                    # Generated site (GitHub Pages root)
+├── docs/                    # Generated site (GitHub Pages root — public only)
 │   ├── index.html           # Homepage
 │   ├── translations.html    # Translations page with book categories
 │   ├── authors.html         # All authors page
-│   ├── admin.html           # Admin login
-│   ├── admin-panel.html     # Admin document management
-│   ├── documents/           # Generated HTML documents
+│   ├── documents/           # Generated HTML (visible docs only; index.json is visible-only)
 │   ├── authors/             # Author profile pages
-│   ├── css/                 # Stylesheets
-│   ├── js/                  # JavaScript files
+│   ├── css/                 # Stylesheets (incl. fonts.css)
+│   ├── fonts/               # Self-hosted Noto Naskh Arabic woff2
+│   ├── js/                  # Public JavaScript (no admin scripts)
 │   └── assets/              # Images and icons
+├── local-hidden/            # Hidden docs + full admin index (gitignored, never published)
+├── admin-panel.html         # Local-only admin (served by serve.py, not copied to docs/)
 ├── scripts/
 │   ├── convert.py           # Word to HTML converter
 │   ├── build.py             # Master build script
 │   ├── watch.py             # Poll source + optional --push auto-deploy
-│   ├── serve.py             # Local server + /api/changes + rebuild/deploy
+│   ├── serve.py             # Localhost-only server + token-gated /api/*
 │   └── git_ops.py           # Shared git add/commit/push helper
 ├── templates/
 │   └── index.html           # Homepage template
 ├── css/
 │   ├── style.css            # Main site styles
+│   ├── fonts.css            # Self-hosted @font-face
 │   └── document.css         # Document viewer styles
 ├── js/
 │   ├── app.js               # Main app (search, articles, filters)
 │   ├── nav.js               # Navigation and mobile menu
 │   ├── search.js            # Search functionality
 │   ├── translations.js      # Translations page logic
-│   └── admin-auth.js        # Admin authentication
+│   ├── ui.js                # Delegated CSP-safe click/submit handlers
+│   ├── dom.js               # escapeHtml / safePath helpers
+│   ├── theme-init.js        # FOUC-safe theme bootstrap
+│   ├── admin-ui.js          # Local admin logic (not copied to docs/)
+│   └── vendor/umami.js      # Self-hosted analytics snippet
 ├── categories.json          # Book/category definitions
 ├── doc_categories.json      # Document-to-category assignments
 └── README.md
@@ -182,24 +188,25 @@ Status is controlled only by folders under each author directory (no JSON overri
 | Folder | Effect |
 |--------|--------|
 | `تم/` | Marks documents inside as **completed** |
-| `hidden/` or `مخفي/` | Marks documents inside as **hidden** (excluded from the site) |
+| `hidden/` or `مخفي/` | Marks documents inside as **hidden** — written to gitignored `local-hidden/`, never published |
 
 Nesting works: `hidden/تم/` = completed **and** hidden. Move a file out of the folder and rebuild to revert.
 
+Hidden documents are **not** listed in public `docs/documents/index.json` and their HTML/`.docx` are never written under `docs/`.
+
 ---
 
-## Admin Panel
+## Admin Panel (local only)
 
-Access via the gear icon (&#9881;) in the footer, or navigate to `admin.html`.
+Open `http://localhost:8000/admin-panel.html` while `python scripts/serve.py` is running.
 
-**Default credentials:**
-- Username: `admin`
-- Password: `admin123`
-
-> ⚠️ **Change the password** in `js/admin-auth.js` before deploying!
+- Server binds to `127.0.0.1` only; no CORS headers.
+- There is **no password** (and none is embedded in the site). The panel gets a random per-run `window.__SERVE_TOKEN__` injected by `serve.py`.
+- `/api/changes`, `/api/documents`, `/api/rebuild`, `/api/deploy` reject requests without that token (and check `Origin`).
+- `admin.html`, `admin-panel.html`, `admin-auth.js`, `admin-ui.js` are **never** copied into `docs/` (GitHub Pages cannot serve them).
 
 ### Admin features (read-only + local deploy):
-- View all documents including hidden ones
+- View all documents including hidden ones (via `local-hidden/documents-index.json`)
 - Search and filter by completed / hidden status
 - Open a document from its row
 - **Check changes** — what changed in source/git since last build
@@ -247,18 +254,40 @@ Access via the gear icon (&#9881;) in the footer, or navigate to `admin.html`.
 
 The `build.py` script:
 
-1. **Converts** all `.docx` files in `docs-input/` to HTML
-2. **Generates** `index.json` with document metadata
-3. **Injects** inline data for offline/file:// compatibility
-4. **Creates** author profile pages (108 authors)
-5. **Builds** homepage, translations, and authors pages
-6. **Copies** admin panel files
-7. **Outputs** everything to `docs/`
+1. **Converts** all `.docx` files to HTML (hidden ones → `local-hidden/`)
+2. **Generates** `docs/documents/index.json` (visible docs only) + `local-hidden/documents-index.json` (full list)
+3. **Writes** `docs/js/data-visible.js` (external JSON — CSP-safe, no inline `<script>` breakout)
+4. **Creates** author profile pages
+5. **Builds** homepage, translations, and authors pages with CSP + local fonts/analytics
+6. **Copies** `css/`, `fonts/`, `js/` (excluding `admin-*`), `assets/`
+7. **Removes** any stale admin/hidden files from `docs/`
+8. **Outputs** everything to `docs/`
 
 Run with:
 ```bash
 python scripts/build.py
 ```
+
+---
+
+## Security
+
+**Already implemented in the site/build:**
+
+- Content-Security-Policy meta on generated pages: `default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://gateway.umami.is; object-src 'none'; base-uri 'self'; form-action 'self'`
+- Self-hosted fonts (`css/fonts.css` + `fonts/*.woff2`) and Umami (`js/vendor/umami.js` → `https://gateway.umami.is`)
+- All dynamic titles/authors/paths HTML-escaped; link URLs sanitized (`http`/`https`/`mailto`/`#` only); Word HTML stripped of script/iframe/`on*`
+- No inline event handlers; delegated handlers in `js/ui.js`
+- Hidden documents and admin tooling never published under `docs/`
+
+**GitHub-side checklist (do once):**
+
+1. Enable **2FA** for your GitHub account (Settings → Password and authentication).
+2. Repo **Settings → Branches**: require pull request reviews before merging to `main`.
+3. Repo **Settings → Code security**: enable Secret scanning + Push protection (if available on your plan).
+4. Do not commit tokens/keys; only `docs/` is published (Pages source: `main` → `/docs`).
+5. Prefer a fine-grained PAT or deploy key with `contents:write` limited to this repo if automating pushes.
+6. Review Actions/workflows for arbitrary `pull_request_target` + checkout of untrusted PRs if you add CI later.
 
 ---
 

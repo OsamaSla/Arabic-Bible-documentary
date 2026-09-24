@@ -3,27 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://gateway.umami.is; object-src 'none'; base-uri 'self'; form-action 'self'">
     <title>Achim Zöfelt - ترجمات تعليقات الكتاب المقدس</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/fonts.css">
     <link rel="stylesheet" href="../../css/style.css">
-    <script>
-    (function () {
-        try {
-            var t = localStorage.getItem('theme');
-            if (t !== 'dark' && t !== 'light') {
-                t = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
-            }
-            if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
-        } catch (e) {}
-    })();
-    </script>
+    <link rel="stylesheet" href="../../css/fonts.css">
+    <script src="../../js/theme-init.js"></script>
     <style>
         .subfolder-section { margin: 1.5rem 0; padding: 1rem; background: var(--bg-light); border-radius: var(--radius-md); }
         .subfolder-title { color: var(--color-primary); font-size: 1.1rem; margin-bottom: 0.75rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--color-secondary); }
     </style>
-<script defer src="https://cloud.umami.is/script.js" data-website-id="4bf9e517-428f-466b-a83e-5873974e1e8f"></script>
+    <script defer src="../../js/vendor/umami.js" data-website-id="4bf9e517-428f-466b-a83e-5873974e1e8f"></script>
 </head>
 <body>
     <a class="skip-link" href="#main-content">تخطي إلى المحتوى الرئيسي</a>
@@ -52,7 +42,7 @@
             <p class="author-count">3 مستند</p>
             <p class="author-status partial">1 مكتمل من 3</p>
             <div class="documents-list">
-<div class="document-item"><a href="../../documents/achim-zöfelt/doc_0000.html" class="doc-title">إنجيل يوحنا <span class="badge in-progress">قيد الترجمة</span></a><p class="doc-desc">Achim Zöfelt (19) يوحنا 6: 14 – 33 "فَلَمَّا رَأَى النَّاسُ الآيَةَ الَّتِي صَنَعَهَا يَسُوعُ قَالُوا:«إِنَّ هذَا هُوَ بِالْحَقِيقَةِ النَّبِيُّ الآتِ...</p><a href="../../downloads/achim-zöfelt/doc_0000.docx" class="doc-download" download>تحميل</a></div>
+<div class="document-item"><a href="../../documents/achim-zöfelt/doc_0000.html" class="doc-title">إنجيل يوحنا <span class="badge in-progress">قيد الترجمة</span></a><p class="doc-desc">Achim Zöfelt (19) يوحنا 6: 14 – 33 &quot;فَلَمَّا رَأَى النَّاسُ الآيَةَ الَّتِي صَنَعَهَا يَسُوعُ قَالُوا:«إِنَّ هذَا هُوَ بِالْحَقِيقَةِ النَّبِيُّ الآتِ...</p><a href="../../downloads/achim-zöfelt/doc_0000.docx" class="doc-download" download>تحميل</a></div>
 <div class="document-item"><a href="../../documents/achim-zöfelt/doc_0002.html" class="doc-title">رسالة تسالونيكي الأولى <span class="badge in-progress">قيد الترجمة</span></a><p class="doc-desc">Achim Zöfelt الإصحاح 1 تسجيلات تأمل في رسالة تسالونيكي الأولى في رسالة تسالونيكي الأولى نأتي إلى رسالة من نوع آخر كليًا عن رسالة كولوسي التي تأملناها ...</p><a href="../../downloads/achim-zöfelt/doc_0002.docx" class="doc-download" download>تحميل</a></div>
 <div class="subfolder-section"><h3 class="subfolder-title">تم</h3><div class="document-item"><a href="../../documents/achim-zöfelt/تم/doc_0001.html" class="doc-title">ثلاثة أيام أحد في العهد الجديد: أورشليم – ترواس – بطمس <span class="badge completed">✓ مكتمل</span></a><p class="doc-desc">Achim Zöfelt في المقاطع الثلاثة المذكورة في العهد الجديد نجد في كل منها ثلاث مؤمنين في يوم أحد – والروح القدس يشدد بصورة خاصة على تصرف أو حالة كل واحد...</p><a href="../../downloads/achim-zöfelt/تم/doc_0001.docx" class="doc-download" download>تحميل</a></div>
 </div>
@@ -68,6 +58,8 @@
             <p class="footer-cross">✝</p>
         </div>
     </footer>
+    <script src="../../js/dom.js"></script>
     <script src="../../js/theme.js"></script>
+    <script src="../../js/ui.js"></script>
 </body>
 </html>

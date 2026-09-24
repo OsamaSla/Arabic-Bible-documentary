@@ -98,11 +98,11 @@ async function loadAllData() {
             
             let docsList = '';
             if (count > 0) {
-                docsList = '<div class="book-docs" id="docs-' + book.slug + '">';
+                docsList = '<div class="book-docs" id="docs-' + escapeHtml(book.slug) + '">';
                 docs.forEach(doc => {
-                    const title = doc.title || '\u0628\u062f\u0648\u0646 \u0639\u0646\u0648\u0627\u0646';
-                    const author = doc.author || '';
-                    const path = doc.html_path || '#';
+                    const title = escapeHtml(doc.title || '\u0628\u062f\u0648\u0646 \u0639\u0646\u0648\u0627\u0646');
+                    const author = escapeHtml(doc.author || '');
+                    const path = escapeHtml(safePath(doc.html_path || '#'));
                     const isCompleted = doc.completed;
                     const icon = isCompleted ? '&#10003;' : '&#9679;';
                     const cls = isCompleted ? 'completed' : 'in-progress';
@@ -115,13 +115,18 @@ async function loadAllData() {
                 docsList += '</div>';
             }
             
-            return '<div class="book-item" data-book="' + book.slug + '" onclick="toggleBook(\'' + book.slug + '\')">' +
-                '<span class="book-name">' + book.name_ar + '</span>' +
+            return '<div class="book-item" data-book="' + escapeHtml(book.slug) + '">' +
+                '<span class="book-name">' + escapeHtml(book.name_ar) + '</span>' +
                 '<span class="book-count">' + count + ' \u0645\u0633\u062a\u0646\u062f</span>' +
                 '</div>' +
                 docsList;
         }).join('');
     }
+
+    document.addEventListener('click', function(e) {
+        const item = e.target && e.target.closest ? e.target.closest('.book-item[data-book]') : null;
+        if (item) toggleBook(item.getAttribute('data-book'));
+    });
     
     if (cats.old_testament) {
         const otList = document.getElementById('otBooksList');

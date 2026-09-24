@@ -35,11 +35,61 @@ def get_file_hash(filepath):
 
 
 def escape_html(text):
-    """Escape HTML special characters"""
+    """Escape HTML special characters (including quotes for attribute safety)."""
+    text = str(text)
     text = text.replace('&', '&amp;')
     text = text.replace('<', '&lt;')
     text = text.replace('>', '&gt;')
+    text = text.replace('"', '&quot;')
+    text = text.replace("'", '&#39;')
     return text
+
+
+_SAFE_URL_RE = re.compile(r'^(https?://|mailto:|#)', re.I)
+
+
+def safe_url(url):
+    """Allow only http(s), mailto, and fragment URLs; reject everything else."""
+    if not url:
+        return None
+    url = str(url).strip()
+    if not url:
+        return None
+    if _SAFE_URL_RE.match(url):
+        return url
+    return None
+
+
+def sanitize_html(html):
+    """Strip active content (scripts, event handlers, dangerous URLs) from generated HTML."""
+    try:
+        from bs4 import BeautifulSoup
+    except ImportError:
+        return html
+    soup = BeautifulSoup(html, 'html.parser')
+    for tag in soup(['script', 'iframe', 'object', 'embed', 'form', 'base', 'link', 'meta']):
+        tag.decompose()
+    for tag in soup.find_all(True):
+        for attr in list(tag.attrs):
+            if attr.lower().startswith('on'):
+                del tag[attr]
+        if tag.name == 'a':
+            href = tag.get('href')
+            if href is not None:
+                cleaned = safe_url(href if isinstance(href, str) else (href[0] if href else ''))
+                if cleaned is None:
+                    del tag['href']
+                else:
+                    tag['href'] = cleaned
+            tag['rel'] = ['noopener', 'noreferrer']
+        if tag.name in ('img', 'source', 'video', 'audio'):
+            for attr in ('src', 'srcset'):
+                if attr in tag.attrs:
+                    val = tag[attr]
+                    val = val if isinstance(val, str) else (val[0] if val else '')
+                    if not val.startswith(('http://', 'https://', 'data:image/', '/')) and not val.startswith('../'):
+                        del tag[attr]
+    return str(soup)
 
 
 def format_run(run):
@@ -99,7 +149,9 @@ def _render_hyperlink(paragraph, container, url):
     if not inner:
         return ''
     if url:
-        return f'<a href="{escape_html(url)}" rel="noopener noreferrer">{inner}</a>'
+        cleaned = safe_url(url)
+        if cleaned:
+            return f'<a href="{escape_html(cleaned)}" rel="noopener noreferrer">{inner}</a>'
     return inner
 
 
@@ -188,16 +240,16 @@ def extract_text_from_docx(docx_path):
             for i, row in enumerate(table.rows):
                 html_parts.append('<tr>')
                 for cell in row.cells:
-                    cell_text = ' '.join(p.text.strip() for p in cell.paragraphs if p.text.strip())
+                    cell_text = ' '.join(p.text.strip() for p in row.paragraphs if p.text.strip())
                     tag = 'th' if i == 0 else 'td'
-                    html_parts.append(f'<{tag}>{cell_text}</{tag}>')
+                    html_parts.append(f'<{tag}>{escape_html(cell_text)}</{tag}>')
                 html_parts.append('</tr>')
             html_parts.append('</table></div>')
         result = '\n'.join(html_parts)
         result = re.sub(r'(<p class="empty-line">&nbsp;</p>\s*){2,}', '<p class="empty-line">&nbsp;</p>', result)
-        return result
+        return sanitize_html(result)
     except Exception as e:
-        return f'<p class="error">خطأ في قراءة الملف: {str(e)}</p>'
+        return f'<p class="error">خطأ في قراءة الملف: {escape_html(str(e))}</p>'
 
 
 def get_title_from_docx(docx_path):
@@ -233,6 +285,28 @@ def get_description_from_docx(docx_path, max_length=200):
         return ''
 
 
+CSP_CONTENT = (
+    "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; "
+    "img-src 'self' data:; font-src 'self'; connect-src 'self' https://gateway.umami.is; "
+    "object-src 'none'; base-uri 'self'; form-action 'self'"
+)
+
+
+def csp_meta():
+    return f'<meta http-equiv="Content-Security-Policy" content="{CSP_CONTENT}">'
+
+
+def umami_tag(prefix=''):
+    return (
+        f'<script defer src="{prefix}js/vendor/umami.js" '
+        'data-website-id="4bf9e517-428f-466b-a83e-5873974e1e8f"></script>'
+    )
+
+
+def fonts_tag(prefix=''):
+    return f'<link rel="stylesheet" href="{prefix}css/fonts.css">'
+
+
 def create_document_page(title, content, doc_id, author_name, completed, prefix="../", download_rel=None):
     """Create HTML page for a document"""
     author_slug = slugify(author_name)
@@ -241,29 +315,20 @@ def create_document_page(title, content, doc_id, author_name, completed, prefix=
     else:
         download_url = f'downloads/{author_slug}/{doc_id}.docx'
     status_badge = '<span class="badge completed">مكتمل</span>' if completed else '<span class="badge in-progress">قيد الترجمة</span>'
+    safe_title = escape_html(title)
+    safe_author = escape_html(author_name)
     return f'''<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{title} - ترجمات تعليقات الكتاب المقدس</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+    {csp_meta()}
+    <title>{safe_title} - ترجمات تعليقات الكتاب المقدس</title>
+    {fonts_tag(prefix)}
     <link rel="stylesheet" href="{prefix}css/style.css">
     <link rel="stylesheet" href="{prefix}css/document.css">
-    <script>
-    (function () {{
-        try {{
-            var t = localStorage.getItem('theme');
-            if (t !== 'dark' && t !== 'light') {{
-                t = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
-            }}
-            if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
-        }} catch (e) {{}}
-    }})();
-    </script>
-    <script defer src="https://cloud.umami.is/script.js" data-website-id="4bf9e517-428f-466b-a83e-5873974e1e8f"></script>
+    <script src="{prefix}js/theme-init.js"></script>
+    {umami_tag(prefix)}
 </head>
 <body>
     <a class="skip-link" href="#main-content">تخطي إلى المحتوى الرئيسي</a>
@@ -292,16 +357,16 @@ def create_document_page(title, content, doc_id, author_name, completed, prefix=
                 <div class="breadcrumb">
                     <a href="{prefix}index.html">الرئيسية</a>
                     <span class="separator">&larr;</span>
-                    <a href="{prefix}authors/{author_slug}/index.html">{author_name}</a>
+                    <a href="{prefix}authors/{author_slug}/index.html">{safe_author}</a>
                 </div>
-                <h1 class="document-title">{title} {status_badge}</h1>
-                <p class="document-author">المؤلف: {author_name}</p>
+                <h1 class="document-title">{safe_title} {status_badge}</h1>
+                <p class="document-author">المؤلف: {safe_author}</p>
                 <div class="document-actions">
-                    <a href="{prefix}{download_url}" class="btn btn-download" download>
+                    <a href="{escape_html(prefix + download_url)}" class="btn btn-download" download>
                         <span class="btn-icon">&#128229;</span>
                         <span class="btn-text">تحميل الملف الأصلي</span>
                     </a>
-                    <button onclick="window.print()" class="btn btn-print">
+                    <button type="button" data-action="print" class="btn btn-print">
                         <span class="btn-icon">&#128424;</span>
                         <span class="btn-text">طباعة</span>
                     </button>
@@ -323,13 +388,19 @@ def create_document_page(title, content, doc_id, author_name, completed, prefix=
             <p class="footer-cross">&#10013;</p>
         </div>
     </footer>
+    <script src="{prefix}js/dom.js"></script>
     <script src="{prefix}js/theme.js"></script>
+    <script src="{prefix}js/ui.js"></script>
     <script src="{prefix}js/search.js"></script>
 </body>
 </html>'''
 
 
 HIDDEN_FOLDER_NAMES = {'hidden', 'مخفي'}
+
+
+def _is_hidden_folder(name: str) -> bool:
+    return name.lower() in HIDDEN_FOLDER_NAMES or name in HIDDEN_FOLDER_NAMES
 
 
 def scan_source_directory(input_dir):
@@ -355,11 +426,11 @@ def _scan_recursive(current_path, author_root, author_name, documents, is_done, 
         if os.path.isdir(item_path):
             if item == 'تم':
                 _scan_recursive(item_path, author_root, author_name, documents, True, is_hidden)
-            elif item in HIDDEN_FOLDER_NAMES:
+            elif _is_hidden_folder(item):
                 _scan_recursive(item_path, author_root, author_name, documents, is_done, True)
             else:
                 sub_is_done = is_done or ('تم' in item and item != 'تم')
-                sub_is_hidden = is_hidden or item in HIDDEN_FOLDER_NAMES
+                sub_is_hidden = is_hidden or _is_hidden_folder(item)
                 _scan_recursive(item_path, author_root, author_name, documents, sub_is_done, sub_is_hidden)
         elif item.lower().endswith('.docx') and not item.startswith('~'):
             rel_path = os.path.relpath(current_path, author_root)
@@ -379,13 +450,18 @@ def main():
     base_dir = Path(__file__).parent.parent
     input_dir = Path('D:\\MegaDrive\\ترجمات')
     output_dir = base_dir / 'docs'
+    local_hidden_dir = base_dir / 'local-hidden'
     if not input_dir.exists():
         print(f'[ERROR] Input directory not found: {input_dir}')
         sys.exit(1)
     docs_dir = output_dir / 'documents'
     downloads_dir = output_dir / 'downloads'
+    hidden_docs_dir = local_hidden_dir / 'documents'
+    hidden_dl_dir = local_hidden_dir / 'downloads'
     docs_dir.mkdir(parents=True, exist_ok=True)
     downloads_dir.mkdir(parents=True, exist_ok=True)
+    hidden_docs_dir.mkdir(parents=True, exist_ok=True)
+    hidden_dl_dir.mkdir(parents=True, exist_ok=True)
     print('[SCAN] Scanning source directory...')
     source_docs = scan_source_directory(input_dir)
     print(f'[SCAN] Found {len(source_docs)} documents ({sum(1 for d in source_docs if d["completed"])} completed, {sum(1 for d in source_docs if d.get("hidden"))} hidden)')
@@ -399,35 +475,47 @@ def main():
         description = get_description_from_docx(source_doc['filepath'])
         author_slug = slugify(source_doc['author'])
         rel_path = source_doc['rel_path']
+        is_hidden = bool(source_doc.get('hidden', False))
+        # Hidden docs are written OUTSIDE docs/ so they are never published
+        if is_hidden:
+            page_root = local_hidden_dir
+            docs_root = hidden_docs_dir
+            dls_root = hidden_dl_dir
+        else:
+            page_root = output_dir
+            docs_root = docs_dir
+            dls_root = downloads_dir
         # Build output paths preserving subfolder structure
         if rel_path:
             rel_path_slug = slugify(rel_path.replace(os.sep, '-'))
-            doc_out_dir = docs_dir / author_slug / rel_path_slug
-            dl_out_dir = downloads_dir / author_slug / rel_path_slug
+            doc_out_dir = docs_root / author_slug / rel_path_slug
+            dl_out_dir = dls_root / author_slug / rel_path_slug
         else:
-            doc_out_dir = docs_dir / author_slug
-            dl_out_dir = downloads_dir / author_slug
+            doc_out_dir = docs_root / author_slug
+            dl_out_dir = dls_root / author_slug
         doc_out_dir.mkdir(parents=True, exist_ok=True)
         dl_out_dir.mkdir(parents=True, exist_ok=True)
         doc_filename = f"{doc_id}.html"
         doc_path = doc_out_dir / doc_filename
-        # Calculate depth for relative paths in HTML
-        # doc_path is like docs/documents/author/file.html
-        # We need to get back to docs/ (2 levels up from author/)
-        rel_to_docs = doc_path.relative_to(docs_dir)
-        depth = len(rel_to_docs.parts)  # includes filename, so subtract 0 for dir depth
-        # For docs/documents/author/file.html, parts = (author, file.html)
-        # We need ../../ to get to docs/, so depth = len(parts)
-        prefix = '../' * depth
+        rel_to_root = doc_path.relative_to(page_root)
+        depth = len(rel_to_root.parts)
+        if is_hidden:
+            # URL is /local-hidden/... so one extra level up to reach site root
+            prefix = '../' * (depth + 1)
+        else:
+            prefix = '../' * depth
         download_path = dl_out_dir / f"{doc_id}.docx"
-        download_rel = str(download_path.relative_to(output_dir)).replace(os.sep, '/')
+        download_rel = str(download_path.relative_to(page_root)).replace(os.sep, '/')
         doc_html = create_document_page(title, content, doc_id, source_doc['author'], source_doc['completed'], prefix, download_rel)
         with open(doc_path, 'w', encoding='utf-8') as f:
             f.write(doc_html)
         shutil.copy2(source_doc['filepath'], download_path)
-        # Store relative paths from output dir (docs/)
-        html_rel = str(doc_path.relative_to(output_dir)).replace(os.sep, '/')
-        dl_rel = str(download_path.relative_to(output_dir)).replace(os.sep, '/')
+        # Public paths are relative to docs/; hidden paths are served under /local-hidden/
+        html_rel = str(doc_path.relative_to(page_root)).replace(os.sep, '/')
+        dl_rel = str(download_path.relative_to(page_root)).replace(os.sep, '/')
+        if is_hidden:
+            html_rel = 'local-hidden/' + html_rel
+            dl_rel = 'local-hidden/' + dl_rel
         documents.append({
             'id': doc_id,
             'title': title,
@@ -435,7 +523,7 @@ def main():
             'author': source_doc['author'],
             'author_slug': author_slug,
             'completed': source_doc['completed'],
-            'hidden': source_doc.get('hidden', False),
+            'hidden': is_hidden,
             'category': 'uncategorized',
             'filename': source_doc['filename'],
             'rel_path': rel_path,
@@ -466,32 +554,51 @@ def main():
 
     hidden_count = sum(1 for d in documents if d.get('hidden'))
     if hidden_count:
-        print(f'[SCAN] {hidden_count} documents in hidden folders')
+        print(f'[SCAN] {hidden_count} documents in hidden folders (written to local-hidden/)')
 
-    # Filter out hidden documents (keep them in index.json with hidden flag for admin panel)
+    # Public index.json: VISIBLE documents only (hidden docs never listed)
     visible_documents = [d for d in documents if not d.get('hidden', False)]
 
+    def build_authors(docs_list):
+        authors = {}
+        for doc in docs_list:
+            author = doc['author']
+            if author not in authors:
+                authors[author] = {
+                    'slug': doc['author_slug'],
+                    'total': 0,
+                    'completed': 0
+                }
+            authors[author]['total'] += 1
+            if doc['completed']:
+                authors[author]['completed'] += 1
+        return authors
+
     index_data = {
-        'documents': documents,
-        'total_count': len(documents),
+        'documents': visible_documents,
+        'total_count': len(visible_documents),
         'completed_count': sum(1 for d in visible_documents if d['completed']),
-        'authors': {}
+        'authors': build_authors(visible_documents)
     }
-    for doc in visible_documents:
-        author = doc['author']
-        if author not in index_data['authors']:
-            index_data['authors'][author] = {
-                'slug': doc['author_slug'],
-                'total': 0,
-                'completed': 0
-            }
-        index_data['authors'][author]['total'] += 1
-        if doc['completed']:
-            index_data['authors'][author]['completed'] += 1
     index_path = docs_dir / 'index.json'
     with open(index_path, 'w', encoding='utf-8') as f:
         json.dump(index_data, f, ensure_ascii=False, indent=2)
+
+    # Local-only full index (incl. hidden) for the admin panel — never published
+    admin_index = {
+        'documents': documents,
+        'total_count': len(documents),
+        'completed_count': sum(1 for d in documents if d['completed']),
+        'authors': build_authors(documents),
+        'hidden_count': hidden_count,
+    }
+    admin_index_path = local_hidden_dir / 'documents-index.json'
+    with open(admin_index_path, 'w', encoding='utf-8') as f:
+        json.dump(admin_index, f, ensure_ascii=False, indent=2)
+
     print(f'\n[DONE] Converted {len(documents)} documents successfully')
-    print(f'[DONE] {index_data["completed_count"]} completed, {len(documents) - index_data["completed_count"]} in progress')
+    print(f'[DONE] Public index: {len(visible_documents)} visible ({hidden_count} hidden excluded)')
+    print(f'[DONE] {index_data["completed_count"]} completed, {len(visible_documents) - index_data["completed_count"]} in progress')
     print(f'[DONE] Files at: {output_dir}')
+    print(f'[DONE] Hidden files at: {local_hidden_dir}')
     return documents

@@ -4,12 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="الترجمات - تعليقات الكتاب المقدس">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://gateway.umami.is; object-src 'none'; base-uri 'self'; form-action 'self'">
     <title>الترجمات - تعليقات الكتاب المقدس</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/fonts.css">
     <link rel="stylesheet" href="css/style.css">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✝</text></svg>">
+    <script src="js/theme-init.js"></script>
     <style>
         .translations-page {
             max-width: 1200px;
@@ -136,18 +136,7 @@
             }
         }
     </style>
-    <script>
-    (function () {
-        try {
-            var t = localStorage.getItem('theme');
-            if (t !== 'dark' && t !== 'light') {
-                t = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
-            }
-            if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
-        } catch (e) {}
-    })();
-    </script>
-    <script defer src="https://cloud.umami.is/script.js" data-website-id="4bf9e517-428f-466b-a83e-5873974e1e8f"></script>
+    <script defer src="js/vendor/umami.js" data-website-id="4bf9e517-428f-466b-a83e-5873974e1e8f"></script>
 </head>
 <body>
     <a class="skip-link" href="#main-content">تخطي إلى المحتوى الرئيسي</a>
@@ -203,7 +192,7 @@
         
         <div class="categories-grid">
             <div class="category-section open" id="otSection">
-                <div class="category-header" onclick="toggleSection('otSection')">
+                <div class="category-header">
                     <h2>العهد القديم</h2>
                     <span class="toggle-icon">&#9660;</span>
                 </div>
@@ -215,7 +204,7 @@
             </div>
 
             <div class="category-section open" id="ntSection">
-                <div class="category-header" onclick="toggleSection('ntSection')">
+                <div class="category-header">
                     <h2>العهد الجديد</h2>
                     <span class="toggle-icon">&#9660;</span>
                 </div>
@@ -227,7 +216,7 @@
             </div>
 
             <div class="category-section open" id="topicsSection">
-                <div class="category-header" onclick="toggleSection('topicsSection')">
+                <div class="category-header">
                     <h2>مواضيع أخرى</h2>
                     <span class="toggle-icon">&#9660;</span>
                 </div>
@@ -247,14 +236,14 @@
             </div>
             <div>
                 <h3>المحتوى</h3>
-                <button type="button" onclick="window.location.href='index.html'">الرئيسية</button>
-                <button type="button" onclick="window.location.href='translations.html'">الترجمات</button>
-                <button type="button" onclick="window.location.href='authors.html'">المؤلفون</button>
+                <button type="button" data-href="index.html">الرئيسية</button>
+                <button type="button" data-href="translations.html">الترجمات</button>
+                <button type="button" data-href="authors.html">المؤلفون</button>
             </div>
             <div>
                 <h3>الخدمات</h3>
                 <button type="button">آخر التحديثات</button>
-                <button type="button" onclick="window.location.href='index.html#newsletterForm'">النشرة البريدية</button>
+                <button type="button" data-href="index.html#newsletterForm">النشرة البريدية</button>
                 <button type="button">التحميل</button>
             </div>
             <div>
@@ -270,8 +259,11 @@
         </div>
     </footer>
 
+    <script src="js/data-visible.js"></script>
+    <script src="js/dom.js"></script>
     <script src="js/theme.js"></script>
     <script src="js/nav.js"></script>
+    <script src="js/ui.js"></script>
     <script src="js/translations.js"></script>
     <script src="js/search.js"></script>
 </body>

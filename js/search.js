@@ -41,7 +41,12 @@ class Search {
             return;
         }
 
-        const paths = ['documents/index.json', '../documents/index.json'];
+        const paths = [
+            'documents/index.json',
+            '../documents/index.json',
+            '../../documents/index.json',
+            '../../../documents/index.json'
+        ];
         for (const path of paths) {
             try {
                 const response = await fetch(path);
@@ -217,11 +222,11 @@ class Search {
                 ? `<div class="search-result-more">عرض ${results.length} من ${total} نتيجة</div>`
                 : '';
             this.searchResults.innerHTML = results.map((doc, i) => {
-                const path = doc.html_path || '#';
-                const author = doc.author || '';
+                const path = safePath(doc.html_path || '#');
+                const author = escapeHtml(doc.author || '');
                 const title = doc.title || 'بدون عنوان';
                 return `
-                <a href="${path}" class="search-result-item" role="option" id="search-result-${i}" aria-selected="false">
+                <a href="${escapeHtml(path)}" class="search-result-item" role="option" id="search-result-${i}" aria-selected="false">
                     <div class="search-result-title">${this.highlightText(title, query)}</div>
                     <div class="search-result-category">${author}</div>
                 </a>
@@ -238,10 +243,10 @@ class Search {
     }
 
     highlightText(text, query) {
-        const safe = String(text || 'بدون عنوان');
+        const safe = escapeHtml(String(text || 'بدون عنوان'));
         if (!query) return safe;
         try {
-            const regex = new RegExp(`(${this.escapeRegex(query)})`, 'gi');
+            const regex = new RegExp(`(${this.escapeRegex(escapeHtml(query))})`, 'gi');
             return safe.replace(regex, '<strong>$1</strong>');
         } catch (e) {
             return safe;

@@ -3,27 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://gateway.umami.is; object-src 'none'; base-uri 'self'; form-action 'self'">
     <title>البشير بالخلاص في المسيح 1865 - ترجمات تعليقات الكتاب المقدس</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/fonts.css">
     <link rel="stylesheet" href="../../css/style.css">
-    <script>
-    (function () {
-        try {
-            var t = localStorage.getItem('theme');
-            if (t !== 'dark' && t !== 'light') {
-                t = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
-            }
-            if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
-        } catch (e) {}
-    })();
-    </script>
+    <link rel="stylesheet" href="../../css/fonts.css">
+    <script src="../../js/theme-init.js"></script>
     <style>
         .subfolder-section { margin: 1.5rem 0; padding: 1rem; background: var(--bg-light); border-radius: var(--radius-md); }
         .subfolder-title { color: var(--color-primary); font-size: 1.1rem; margin-bottom: 0.75rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--color-secondary); }
     </style>
-<script defer src="https://cloud.umami.is/script.js" data-website-id="4bf9e517-428f-466b-a83e-5873974e1e8f"></script>
+    <script defer src="../../js/vendor/umami.js" data-website-id="4bf9e517-428f-466b-a83e-5873974e1e8f"></script>
 </head>
 <body>
     <a class="skip-link" href="#main-content">تخطي إلى المحتوى الرئيسي</a>
@@ -66,6 +56,8 @@
             <p class="footer-cross">✝</p>
         </div>
     </footer>
+    <script src="../../js/dom.js"></script>
     <script src="../../js/theme.js"></script>
+    <script src="../../js/ui.js"></script>
 </body>
 </html>

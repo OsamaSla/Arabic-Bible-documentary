@@ -42,3 +42,6 @@ desktop.ini
 
 # Local build timestamp
 .last_build
+
+# Local-only hidden documents and admin index (never publish)
+local-hidden/

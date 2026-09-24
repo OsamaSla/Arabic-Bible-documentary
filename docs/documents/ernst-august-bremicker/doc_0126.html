@@ -3,37 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://gateway.umami.is; object-src 'none'; base-uri 'self'; form-action 'self'">
     <title>وديعة تتحول إلى نداء - ترجمات تعليقات الكتاب المقدس</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../../css/style.css">
-    <link rel="stylesheet" href="../../css/document.css">
-    <script>
-    (function () {
-        try {
-            var t = localStorage.getItem('theme');
-            if (t !== 'dark' && t !== 'light') {
-                t = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
-            }
-            if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
-        } catch (e) {}
-    })();
-    </script>
-<script defer src="https://cloud.umami.is/script.js" data-website-id="4bf9e517-428f-466b-a83e-5873974e1e8f"></script>
+    <link rel="stylesheet" href="../../../css/fonts.css">
+    <link rel="stylesheet" href="../../../css/style.css">
+    <link rel="stylesheet" href="../../../css/document.css">
+    <script src="../../../js/theme-init.js"></script>
+    <script defer src="../../../js/vendor/umami.js" data-website-id="4bf9e517-428f-466b-a83e-5873974e1e8f"></script>
 </head>
 <body>
     <a class="skip-link" href="#main-content">تخطي إلى المحتوى الرئيسي</a>
     <header class="site-header">
         <div class="container">
-            <a href="../../index.html" class="logo">
+            <a href="../../../index.html" class="logo">
                 <span class="cross">✝</span>
                 <span class="logo-text">ترجمات تعليقات الكتاب المقدس</span>
             </a>
             <nav class="main-nav">
-                <a href="../../index.html">الرئيسية</a>
-                <a href="../../authors.html">المؤلفون</a>
-                <a href="../../index.html#other_docs">المؤلفون والمواضيع الأخرى</a>
+                <a href="../../../index.html">الرئيسية</a>
+                <a href="../../../authors.html">المؤلفون</a>
+                <a href="../../../index.html#other_docs">المؤلفون والمواضيع الأخرى</a>
             </nav>
             <div class="header-actions">
                 <button type="button" class="theme-toggle" id="themeToggle" aria-pressed="false" aria-label="تبديل المظهر">
@@ -47,18 +36,18 @@
         <div class="container">
             <div class="document-header">
                 <div class="breadcrumb">
-                    <a href="../../index.html">الرئيسية</a>
+                    <a href="../../../index.html">الرئيسية</a>
                     <span class="separator">&larr;</span>
-                    <a href="../../authors/ernst-august-bremicker/index.html">Ernst-August Bremicker</a>
+                    <a href="../../../authors/ernst-august-bremicker/index.html">Ernst-August Bremicker</a>
                 </div>
                 <h1 class="document-title">وديعة تتحول إلى نداء <span class="badge in-progress">قيد الترجمة</span></h1>
                 <p class="document-author">المؤلف: Ernst-August Bremicker</p>
                 <div class="document-actions">
-                    <a href="../../downloads/ernst-august-bremicker/doc_0126.docx" class="btn btn-download" download>
+                    <a href="../../../downloads/ernst-august-bremicker/doc_0126.docx" class="btn btn-download" download>
                         <span class="btn-icon">&#128229;</span>
                         <span class="btn-text">تحميل الملف الأصلي</span>
                     </a>
-                    <button onclick="window.print()" class="btn btn-print">
+                    <button type="button" data-action="print" class="btn btn-print">
                         <span class="btn-icon">&#128424;</span>
                         <span class="btn-text">طباعة</span>
                     </button>
@@ -120,13 +109,13 @@
 <li>لقد اختبر بولس بعض خيبات أمل. جميع الذين كانوا في آسيا تركوه. هذا آلمه جدًا. لذا شجّعه الله تشجيعًا خاصًا بما تصرفه أونيسيفورس.</li>
 <li>إن التفاصيل غنية بالتعليم وهي مفيدة لنا. إننا نتعلم من الكلام الموجّه لتيموثاوس كما وأيضًا من مثال بولس.</li>
 <p>رسولية بولس</p>
-<p class="empty-line">&nbsp;</p>
+<p class="empty-line"> </p>
 <p><a href="https://www.bibelkommentare.de/kommentare/k-3945/ein-vermaechtnis-wird-zum-appell/kapitel-2" rel="noopener noreferrer">البيت الكبير</a></p>
 <p>تمهيد</p>
 <p>الإصحاح الثاني هو قلب كل الرسالة. فمن جانب يرينا الارتداد والانحطاط وسط الاعتراف المسيحي. إن تطور الأحداث الذي أظهره بولس كان قد ابتدأ، حينما كان لا يزال على قيد الحياة. إنه من الملفت بأن تيموثاوس في الوقت الذي كُتبت فيه الرسالة كان في أفسس. إن رسالة أفسس ترينا الحالة الجيدة التي كانت فيها هذه الكنيسة لبضع سنوات قبل ذلك. لكن بولس كان قد حذّر في أعمال الرسل 20 شيوخ هذه الكنيسة من مخاطر في الخارج ومن مخاطر من الداخل (أعمال الرسل 20: 29، 30). إن هذا التطور السلبي قد ابتدأ الآن.</p>
 <p>إن كان بولس لا زال في رسالته الأولى يتكلم عن "بيت الله" والتصرف فيه (1. تيموثاوس 3: 15)، ففي هذا الإصحاح هو يتكلم فقط عن "بيت كبير". وبذلك المقصود هو المسيحية الاسمية التي فيها معترفون صادقون وغير صادقين.</p>
 <p>لكن بولس لم يبقى صامتًا. هو يري في هذا الإصحاح من الجانب الآخر، الطريق الذي يجب أن يسلكه المعترف الصادق (المسيحي المولود ثانية) في زمن من التراجع والانحطاط. هذا الطريق يتميز بأمرين: أولاً بتجنب الشر والانفصال عنه؛ ثانيًا باشتياق مشترك مع المؤمنين الذين يدعون الرب من قلب نقي. إنه لا توجد ولا أي لحظة أو حال في حياة أولاد الله لا يوجد فيها طريق يمكنهم أن يسلكوه لمجد ربنا وإكرامه.</p>
-<p class="empty-line">&nbsp;</p>
+<p class="empty-line"> </p>
 <p>يمكننا أن نقوم بهذا التقسيم لهذا الإصحاح:</p>
 <p>1. الأعداد 1 – 13: تشجيع على الخدمة</p>
 <p>يعرض بولس لتيموثاوس صورًا مختلفة ليوضح له ما هي واجباته وبأنه ليس له أن يتخلى عنها. الله يريد بأن تستمر كلمته في الانتشار أيضًا في أيام الارتداد وأن تحقق الغاية التي سلمها من أجلها. بالأخص عند المقاومة والألم – الرب يبقى أمينًا.</p>
@@ -220,7 +209,7 @@
             </article>
             <div class="document-footer">
                 <div class="back-link">
-                    <a href="../../authors/ernst-august-bremicker/index.html">العودة إلى المؤلف</a>
+                    <a href="../../../authors/ernst-august-bremicker/index.html">العودة إلى المؤلف</a>
                 </div>
             </div>
         </div>
@@ -231,7 +220,9 @@
             <p class="footer-cross">&#10013;</p>
         </div>
     </footer>
-    <script src="../../js/theme.js"></script>
-    <script src="../../js/search.js"></script>
+    <script src="../../../js/dom.js"></script>
+    <script src="../../../js/theme.js"></script>
+    <script src="../../../js/ui.js"></script>
+    <script src="../../../js/search.js"></script>
 </body>
 </html>

@@ -15,8 +15,9 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 
 from convert import main as convert_documents
+from convert import escape_html, csp_meta, umami_tag, fonts_tag
 
-UMAMI_SNIPPET = '<script defer src="https://cloud.umami.is/script.js" data-website-id="4bf9e517-428f-466b-a83e-5873974e1e8f"></script>'
+UMAMI_SNIPPET = umami_tag()
 
 
 def setup_directories(base_dir):
@@ -40,7 +41,7 @@ def setup_directories(base_dir):
 
 
 def copy_static_files(base_dir, docs_dir):
-    """Copy CSS, JS, and assets to docs/"""
+    """Copy CSS, JS, fonts, and assets to docs/ (never admin-only files)."""
     # Copy CSS
     css_src = base_dir / 'css'
     css_dst = docs_dir / 'css'
@@ -49,16 +50,25 @@ def copy_static_files(base_dir, docs_dir):
             shutil.rmtree(css_dst)
         shutil.copytree(css_src, css_dst)
         print(f'  [OK] CSS copied')
-    
-    # Copy JS
+
+    # Copy JS (exclude local-only admin scripts)
     js_src = base_dir / 'js'
     js_dst = docs_dir / 'js'
     if js_src.exists():
         if js_dst.exists():
             shutil.rmtree(js_dst)
-        shutil.copytree(js_src, js_dst)
-        print(f'  [OK] JS copied')
-    
+        shutil.copytree(js_src, js_dst, ignore=shutil.ignore_patterns('admin-*'))
+        print(f'  [OK] JS copied (admin scripts excluded)')
+
+    # Copy self-hosted fonts
+    fonts_src = base_dir / 'fonts'
+    fonts_dst = docs_dir / 'fonts'
+    if fonts_src.exists():
+        if fonts_dst.exists():
+            shutil.rmtree(fonts_dst)
+        shutil.copytree(fonts_src, fonts_dst)
+        print(f'  [OK] Fonts copied')
+
     # Copy assets
     assets_src = base_dir / 'assets'
     assets_dst = docs_dir / 'assets'
@@ -96,12 +106,13 @@ def generate_random_articles(index_data):
     html_parts.append('<div class="articles-grid">')
     
     for doc in selected:
-        title = doc.get('title', 'بدون عنوان')
-        author = doc.get('author', 'غير معروف')
-        path = doc.get('html_path', '#')
+        title = escape_html(doc.get('title', 'بدون عنوان'))
+        author = escape_html(doc.get('author', 'غير معروف'))
+        path = escape_html(doc.get('html_path', '#'))
         desc = doc.get('description', '')
         if desc and len(desc) > 150:
             desc = desc[:150] + '...'
+        desc = escape_html(desc)
         
         html_parts.append(f'<a href="{path}" class="article-card">')
         html_parts.append(f'    <div class="article-title">{title}</div>')
@@ -149,15 +160,15 @@ def generate_authors_section(index_data):
             status_class = 'in-progress'
             status_text = f'{total} \u0642\u064a\u062f \u0627\u0644\u062a\u0631\u062c\u0645\u0629'
 
-        html_parts.append(f'<a href="authors/{slug}/index.html" class="author-card">')
-        html_parts.append(f'    <h3 class="author-name">{author_name}</h3>')
-        html_parts.append(f'    <span class="author-count">{total} \u0645\u0633\u062a\u0646\u062f</span>')
-        html_parts.append(f'    <span class="author-status {status_class}">{status_text}</span>')
+        html_parts.append(f'<a href="authors/{escape_html(slug)}/index.html" class="author-card">')
+        html_parts.append(f'    <h3 class="author-name">{escape_html(author_name)}</h3>')
+        html_parts.append(f'    <span class="author-count">{total} مستند</span>')
+        html_parts.append(f'    <span class="author-status {status_class}">{escape_html(status_text)}</span>')
         html_parts.append('    <div class="author-docs">')
 
         for doc in author_docs:
             completed_class = 'completed' if doc.get('completed') else 'in-progress'
-            doc_title = doc.get('title', 'بدون عنوان')
+            doc_title = escape_html(doc.get('title', 'بدون عنوان'))
             html_parts.append(f'        <span class="doc-link {completed_class}">{doc_title}</span>')
 
         if total > 5:
@@ -329,7 +340,9 @@ def generate_minimal_index(output_path, index_data):
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {csp_meta()}
     <title>ترجمات تعليقات الكتاب المقدس</title>
+    {fonts_tag()}
     <link rel="stylesheet" href="css/style.css">
     {UMAMI_SNIPPET}
 </head>
@@ -342,6 +355,7 @@ def generate_minimal_index(output_path, index_data):
         <p>تم العثور على {total_count} مستند.</p>
         <div id="documents-list"></div>
     </main>
+    <script src="js/dom.js"></script>
     <script src="js/app.js"></script>
 </body>
 </html>'''
@@ -385,9 +399,11 @@ def generate_document_index_pages(base_dir, docs_dir, index_data):
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{book} - ترجمات تعليقات الكتاب المقدس</title>
+    {csp_meta()}
+    <title>{escape_html(book)} - ترجمات تعليقات الكتاب المقدس</title>
+    {fonts_tag('../../')}
     <link rel="stylesheet" href="../../css/style.css">
-    {UMAMI_SNIPPET}
+    {umami_tag('../../')}
 </head>
 <body>
     <a class="skip-link" href="#main-content">تخطي إلى المحتوى الرئيسي</a>
@@ -406,8 +422,8 @@ def generate_document_index_pages(base_dir, docs_dir, index_data):
             for doc in book_docs:
                 index_html += f'''
             <div class="document-item">
-                <a href="{doc['id']}.html">{doc['title']}</a>
-                <p>{doc.get('description', '')[:100]}...</p>
+                <a href="{escape_html(doc['id'])}.html">{escape_html(doc['title'])}</a>
+                <p>{escape_html(doc.get('description', '')[:100])}...</p>
             </div>
 '''
             
@@ -469,10 +485,10 @@ def generate_author_pages(docs_dir, index_data):
                 docs_html += f'<h3 class="subfolder-title">{folder_display}</h3>'
             
             for doc in sorted(docs, key=lambda d: d.get('title', '')):
-                title = doc.get('title', 'بدون عنوان')
-                desc = doc.get('description', '')[:150]
-                html_path = doc.get('html_path', '#')
-                download_path = doc.get('download_path', '#')
+                title = escape_html(doc.get('title', 'بدون عنوان'))
+                desc = escape_html(doc.get('description', '')[:150])
+                html_path = escape_html(doc.get('html_path', '#'))
+                download_path = escape_html(doc.get('download_path', '#'))
                 is_completed = doc.get('completed', False)
 
                 if is_completed:
@@ -505,27 +521,17 @@ def generate_author_pages(docs_dir, index_data):
         page.append('<head>')
         page.append('    <meta charset="UTF-8">')
         page.append('    <meta name="viewport" content="width=device-width, initial-scale=1.0">')
-        page.append(f'    <title>{author_name} - \u062a\u0631\u062c\u0645\u0627\u062a \u062a\u0639\u0644\u064a\u0642\u0627\u062a \u0627\u0644\u0643\u062a\u0627\u0628 \u0627\u0644\u0645\u0642\u062f\u0633</title>')
-        page.append('    <link rel="preconnect" href="https://fonts.googleapis.com">')
-        page.append('    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>')
-        page.append('    <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">')
+        page.append(f'    {csp_meta()}')
+        page.append(f'    <title>{escape_html(author_name)} - ترجمات تعليقات الكتاب المقدس</title>')
+        page.append(f'    {fonts_tag("../../")}')
         page.append('    <link rel="stylesheet" href="../../css/style.css">')
-        page.append('    <script>')
-        page.append('    (function () {')
-        page.append('        try {')
-        page.append('            var t = localStorage.getItem(\'theme\');')
-        page.append('            if (t !== \'dark\' && t !== \'light\') {')
-        page.append('                t = (window.matchMedia && window.matchMedia(\'(prefers-color-scheme: dark)\').matches) ? \'dark\' : \'light\';')
-        page.append('            }')
-        page.append('            if (t === \'dark\') document.documentElement.setAttribute(\'data-theme\', \'dark\');')
-        page.append('        } catch (e) {}')
-        page.append('    })();')
-        page.append('    </script>')
+        page.append('    <link rel="stylesheet" href="../../css/fonts.css">')
+        page.append('    <script src="../../js/theme-init.js"></script>')
         page.append('    <style>')
         page.append('        .subfolder-section { margin: 1.5rem 0; padding: 1rem; background: var(--bg-light); border-radius: var(--radius-md); }')
         page.append('        .subfolder-title { color: var(--color-primary); font-size: 1.1rem; margin-bottom: 0.75rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--color-secondary); }')
         page.append('    </style>')
-        page.append(f'    {UMAMI_SNIPPET}')
+        page.append(f'    {umami_tag("../../")}')
         page.append('</head>')
         page.append('<body>')
         page.append('    <a class="skip-link" href="#main-content">تخطي إلى المحتوى الرئيسي</a>')
@@ -548,9 +554,9 @@ def generate_author_pages(docs_dir, index_data):
         page.append('            <div class="breadcrumb">')
         page.append('                <a href="../../index.html">\u0627\u0644\u0631\u0626\u064a\u0633\u064a\u0629</a>')
         page.append('                <span class="separator">&larr;</span>')
-        page.append(f'                <span class="current">{author_name}</span>')
+        page.append(f'                <span class="current">{escape_html(author_name)}</span>')
         page.append('            </div>')
-        page.append(f'            <h1 class="author-title">{author_name}</h1>')
+        page.append(f'            <h1 class="author-title">{escape_html(author_name)}</h1>')
         page.append(f'            <p class="author-count">{total} \u0645\u0633\u062a\u0646\u062f</p>')
         page.append(f'            <p class="author-status {status_class}">{status_text}</p>')
         page.append('            <div class="documents-list">')
@@ -567,7 +573,9 @@ def generate_author_pages(docs_dir, index_data):
         page.append('            <p class="footer-cross">\u271d</p>')
         page.append('        </div>')
         page.append('    </footer>')
+        page.append('    <script src="../../js/dom.js"></script>')
         page.append('    <script src="../../js/theme.js"></script>')
+        page.append('    <script src="../../js/ui.js"></script>')
         page.append('</body>')
         page.append('</html>')
 
@@ -588,23 +596,13 @@ def generate_authors_page(docs_dir, index_data):
     html_parts.append('<head>')
     html_parts.append('    <meta charset="UTF-8">')
     html_parts.append('    <meta name="viewport" content="width=device-width, initial-scale=1.0">')
-    html_parts.append('    <title>\u0627\u0644\u0645\u0624\u0644\u0641\u0648\u0646 - \u062a\u0631\u062c\u0645\u0627\u062a \u062a\u0639\u0644\u064a\u0642\u0627\u062a \u0627\u0644\u0643\u062a\u0627\u0628 \u0627\u0644\u0645\u0642\u062f\u0633</title>')
-    html_parts.append('    <link rel="preconnect" href="https://fonts.googleapis.com">')
-    html_parts.append('    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>')
-    html_parts.append('    <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">')
+    html_parts.append(f'    {csp_meta()}')
+    html_parts.append('    <title>المؤلفون - ترجمات تعليقات الكتاب المقدس</title>')
+    html_parts.append(f'    {fonts_tag()}')
+    html_parts.append('    <link rel="stylesheet" href="css/fonts.css">')
     html_parts.append('    <link rel="stylesheet" href="css/style.css">')
-    html_parts.append('    <link rel="icon" href="data:image/svg+xml,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'><text y=\'.9em\' font-size=\'90\'>\u271d</text></svg>">')
-    html_parts.append('    <script>')
-    html_parts.append('    (function () {')
-    html_parts.append('        try {')
-    html_parts.append('            var t = localStorage.getItem(\'theme\');')
-    html_parts.append('            if (t !== \'dark\' && t !== \'light\') {')
-    html_parts.append('                t = (window.matchMedia && window.matchMedia(\'(prefers-color-scheme: dark)\').matches) ? \'dark\' : \'light\';')
-    html_parts.append('            }')
-    html_parts.append('            if (t === \'dark\') document.documentElement.setAttribute(\'data-theme\', \'dark\');')
-    html_parts.append('        } catch (e) {}')
-    html_parts.append('    })();')
-    html_parts.append('    </script>')
+    html_parts.append('    <link rel="icon" href="data:image/svg+xml,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'><text y=\'.9em\' font-size=\'90\'>✝</text></svg>">')
+    html_parts.append('    <script src="js/theme-init.js"></script>')
     html_parts.append(f'    {UMAMI_SNIPPET}')
     html_parts.append('</head>')
     html_parts.append('<body>')
@@ -682,7 +680,7 @@ def generate_authors_page(docs_dir, index_data):
         if author_docs:
             docs_preview = '<div class="author-docs-preview">'
             for d in author_docs:
-                doc_title = d.get('title', 'بدون عنوان')
+                doc_title = escape_html(d.get('title', 'بدون عنوان'))
                 is_done = d.get('completed', False)
                 icon = '&#10003;' if is_done else '&#9679;'
                 cls = 'completed' if is_done else 'in-progress'
@@ -691,10 +689,10 @@ def generate_authors_page(docs_dir, index_data):
                 docs_preview += f'<span class="doc-preview-more">و {total - 3} مستندات أخرى...</span>'
             docs_preview += '</div>'
         
-        html_parts.append(f'            <a href="authors/{slug}/index.html" class="author-card" data-status="{status_class}">')
-        html_parts.append(f'                <h3 class="author-name">{author_name}</h3>')
-        html_parts.append(f'                <span class="author-count">{total} \u0645\u0633\u062a\u0646\u062f</span>')
-        html_parts.append(f'                <span class="author-status {status_class}">{status_text}</span>')
+        html_parts.append(f'            <a href="authors/{escape_html(slug)}/index.html" class="author-card" data-status="{status_class}">')
+        html_parts.append(f'                <h3 class="author-name">{escape_html(author_name)}</h3>')
+        html_parts.append(f'                <span class="author-count">{total} مستند</span>')
+        html_parts.append(f'                <span class="author-status {status_class}">{escape_html(status_text)}</span>')
         html_parts.append(f'                {docs_preview}')
         html_parts.append('            </a>')
     
@@ -707,19 +705,22 @@ def generate_authors_page(docs_dir, index_data):
     html_parts.append('                <p>\u062a\u0631\u062c\u0645\u0627\u062a \u062a\u0639\u0644\u064a\u0642\u0627\u062a \u0627\u0644\u0643\u062a\u0627\u0628 \u0627\u0644\u0645\u0642\u062f\u0633</p>')
     html_parts.append('            </div>')
     html_parts.append('            <div>')
-    html_parts.append('                <h3>\u0627\u0644\u0645\u062d\u062a\u0648\u0649</h3>')
-    html_parts.append('                <button type="button" onclick="window.location.href=\'index.html\'">\u0627\u0644\u0631\u0626\u064a\u0633\u064a\u0629</button>')
-    html_parts.append('                <button type="button" onclick="window.location.href=\'translations.html\'">\u0627\u0644\u062a\u0631\u062c\u0645\u0627\u062a</button>')
-    html_parts.append('                <button type="button" onclick="window.location.href=\'authors.html\'">\u0627\u0644\u0645\u0624\u0644\u0641\u0648\u0646</button>')
-    html_parts.append('                <button type="button" onclick="window.location.href=\'index.html#newsletterForm\'">\u0627\u0644\u0646\u0634\u0631\u0629 \u0627\u0644\u0628\u0631\u064a\u062f\u064a\u0629</button>')
+    html_parts.append('                <h3>المحتوى</h3>')
+    html_parts.append('                <button type="button" data-href="index.html">الرئيسية</button>')
+    html_parts.append('                <button type="button" data-href="translations.html">الترجمات</button>')
+    html_parts.append('                <button type="button" data-href="authors.html">المؤلفون</button>')
+    html_parts.append('                <button type="button" data-href="index.html#newsletterForm">النشرة البريدية</button>')
     html_parts.append('            </div>')
     html_parts.append('        </div>')
     html_parts.append('        <div class="footer-bottom container">')
-    html_parts.append('            <span>\u00a9 2024 - 2026 \u062a\u0631\u062c\u0645\u0627\u062a \u062a\u0639\u0644\u064a\u0642\u0627\u062a \u0627\u0644\u0643\u062a\u0627\u0628 \u0627\u0644\u0645\u0642\u062f\u0633</span>')
+    html_parts.append('            <span>© 2024 - 2026 ترجمات تعليقات الكتاب المقدس</span>')
     html_parts.append('        </div>')
     html_parts.append('    </footer>')
+    html_parts.append('    <script src="js/data-visible.js"></script>')
+    html_parts.append('    <script src="js/dom.js"></script>')
     html_parts.append('    <script src="js/theme.js"></script>')
     html_parts.append('    <script src="js/nav.js"></script>')
+    html_parts.append('    <script src="js/ui.js"></script>')
     html_parts.append('    <script src="js/app.js"></script>')
     html_parts.append('    <script src="js/search.js"></script>')
     html_parts.append('</body>')
@@ -743,68 +744,52 @@ def copy_translations_page(base_dir, docs_dir):
         print(f'  [WARNING] translations.html not found in templates')
 
 
-def copy_admin_files(base_dir, docs_dir):
-    """Copy admin HTML files to docs"""
-    admin_files = ['admin.html', 'admin-panel.html']
-    for fname in admin_files:
-        src = base_dir / fname
-        dst = docs_dir / fname
-        if src.exists():
-            shutil.copy2(src, dst)
-            print(f'  [OK] {fname} copied')
-
-
-def inject_inline_data(html_path, index_data):
-    """Inject documents and categories data as inline script for file:// compatibility"""
-    with open(html_path, 'r', encoding='utf-8') as f:
-        content = f.read()
-    
-    docs_json = json.dumps(index_data.get('documents', []), ensure_ascii=False)
-    
-    script_tag = f'<script>window.__DOCUMENTS_DATA__ = {docs_json};</script>\n    '
-    
-    content = content.replace('<script src="js/', script_tag + '<script src="js/', 1)
-    
-    with open(html_path, 'w', encoding='utf-8') as f:
-        f.write(content)
-
-
-def inject_translations_data(html_path, index_data):
-    """Inject categories + documents data for translations page"""
-    with open(html_path, 'r', encoding='utf-8') as f:
-        content = f.read()
-    
+def write_site_data(docs_dir, index_data):
+    """Write external data file (CSP-safe replacement for inline <script> JSON)."""
     base_dir = Path(__file__).parent.parent
-    cat_path = base_dir / 'categories.json'
-    if cat_path.exists():
-        with open(cat_path, 'r', encoding='utf-8') as f:
+    cats_path = base_dir / 'categories.json'
+    categories = {}
+    if cats_path.exists():
+        with open(cats_path, 'r', encoding='utf-8') as f:
             categories = json.load(f)
-    else:
-        categories = {}
-    
+
     docs_json = json.dumps(index_data.get('documents', []), ensure_ascii=False)
     cats_json = json.dumps(categories, ensure_ascii=False)
-    
-    script_tag = f'<script>window.__DOCUMENTS_DATA__ = {docs_json}; window.__CATEGORIES_DATA__ = {cats_json};</script>\n    '
-    
-    content = content.replace('<script src="js/', script_tag + '<script src="js/', 1)
-    
-    with open(html_path, 'w', encoding='utf-8') as f:
+    # Escape JS line separators for maximum compatibility
+    docs_json = docs_json.replace('\u2028', '\\u2028').replace('\u2029', '\\u2029')
+    cats_json = cats_json.replace('\u2028', '\\u2028').replace('\u2029', '\\u2029')
+
+    content = (
+        '/* Generated by build.py - do not edit */\n'
+        f'window.__DOCUMENTS_DATA__ = {docs_json};\n'
+        f'window.__CATEGORIES_DATA__ = {cats_json};\n'
+    )
+    out = docs_dir / 'js' / 'data-visible.js'
+    out.parent.mkdir(parents=True, exist_ok=True)
+    with open(out, 'w', encoding='utf-8') as f:
         f.write(content)
+    print(f'  [OK] js/data-visible.js written ({len(content)} bytes)')
+    return out
 
 
-def inject_admin_data(html_path, index_data, base_dir):
-    """Inject documents data for admin panel"""
+def inject_data_script_tag(html_path):
+    """Ensure the page loads js/data-visible.js before other scripts."""
+    if not html_path.exists():
+        return False
     with open(html_path, 'r', encoding='utf-8') as f:
         content = f.read()
-
-    docs_json = json.dumps(index_data.get('documents', []), ensure_ascii=False)
-    script_tag = f'<script>window.__DOCUMENTS_DATA__ = {docs_json};</script>\n    '
-
-    content = content.replace('<script', script_tag + '<script', 1)
-
+    if 'js/data-visible.js' in content:
+        return False
+    if '<script src="js/' not in content:
+        return False
+    content = content.replace(
+        '<script src="js/',
+        '<script src="js/data-visible.js"></script>\n    <script src="js/',
+        1,
+    )
     with open(html_path, 'w', encoding='utf-8') as f:
         f.write(content)
+    return True
 
 
 def main():
@@ -860,14 +845,18 @@ def main():
     # Copy static files
     print('\n[BUILD] Copying static files...')
     copy_static_files(base_dir, docs_dir)
+
+    # Write external data file (visible docs only) for CSP-safe loading
+    print('\n[BUILD] Writing site data file...')
+    write_site_data(docs_dir, visible_index_data)
     
     # Generate index.html (uses visible docs only)
     print('\n[BUILD] Generating index.html...')
     generate_index_html(base_dir, docs_dir, visible_index_data)
     
-    # Inject inline data into index.html (visible docs only)
-    inject_inline_data(docs_dir / 'index.html', visible_index_data)
-    print(f'  [OK] Injected inline data into index.html')
+    # Ensure index.html loads data file
+    if inject_data_script_tag(docs_dir / 'index.html'):
+        print(f'  [OK] data script tag added to index.html')
     
     # Generate document index pages
     print('\n[BUILD] Generating document index pages...')
@@ -881,25 +870,25 @@ def main():
     print('\n[BUILD] Generating authors.html...')
     generate_authors_page(docs_dir, visible_index_data)
     
-    # Inject inline data into authors.html (visible docs only)
-    inject_inline_data(docs_dir / 'authors.html', visible_index_data)
-    print(f'  [OK] Injected inline data into authors.html')
-    
     # Copy translations page
     print('\n[BUILD] Copying translations page...')
     copy_translations_page(base_dir, docs_dir)
     
-    # Inject inline data into translations.html (visible docs only)
-    inject_translations_data(docs_dir / 'translations.html', visible_index_data)
-    print(f'  [OK] Injected inline data into translations.html')
-    
-    # Copy admin files
-    print('\n[BUILD] Copying admin files...')
-    copy_admin_files(base_dir, docs_dir)
-    
-    # Inject ALL data into admin-panel.html (includes hidden docs for admin management)
-    inject_admin_data(docs_dir / 'admin-panel.html', index_data, base_dir)
-    print(f'  [OK] Injected data into admin-panel.html (all {len(all_documents)} docs)')
+    # Ensure translations.html loads data file
+    if inject_data_script_tag(docs_dir / 'translations.html'):
+        print(f'  [OK] data script tag added to translations.html')
+
+    # Remove any previously-published admin files from docs/
+    for stale in ('admin.html', 'admin-panel.html'):
+        stale_path = docs_dir / stale
+        if stale_path.exists():
+            stale_path.unlink()
+            print(f'  [OK] removed stale {stale} from docs/')
+    for stale_js in ('admin-auth.js', 'admin-panel.js', 'admin-ui.js'):
+        stale_path = docs_dir / 'js' / stale_js
+        if stale_path.exists():
+            stale_path.unlink()
+            print(f'  [OK] removed stale js/{stale_js} from docs/')
     
     print('\n[BUILD] Site build completed successfully!')
     print(f'[BUILD] Site ready at: docs/')

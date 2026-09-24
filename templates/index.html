@@ -4,24 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="ترجمات عربية لتعليقات الكتاب المقدس">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://gateway.umami.is; object-src 'none'; base-uri 'self'; form-action 'self'">
     <title>ترجمات تعليقات الكتاب المقدس</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/fonts.css">
     <link rel="stylesheet" href="css/style.css">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✝</text></svg>">
-    <script>
-    (function () {
-        try {
-            var t = localStorage.getItem('theme');
-            if (t !== 'dark' && t !== 'light') {
-                t = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
-            }
-            if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
-        } catch (e) {}
-    })();
-    </script>
-    <script defer src="https://cloud.umami.is/script.js" data-website-id="4bf9e517-428f-466b-a83e-5873974e1e8f"></script>
+    <script src="js/theme-init.js"></script>
+    <script defer src="js/vendor/umami.js" data-website-id="4bf9e517-428f-466b-a83e-5873974e1e8f"></script>
 </head>
 <body>
     <a class="skip-link" href="#main-content">تخطي إلى المحتوى الرئيسي</a>
@@ -93,7 +82,7 @@
                 </div>
                 <div class="sidebar-section">
                     <h3>النشرة البريدية</h3>
-                    <form class="newsletter-form" id="newsletterForm" onsubmit="return false;">
+                    <form class="newsletter-form" id="newsletterForm">
                         <input type="email" placeholder="بريدك الإلكتروني" dir="ltr">
                         <button type="submit">اشترك</button>
                     </form>
@@ -110,7 +99,7 @@
                     <p class="eyebrow light">حول هذا الموقع</p>
                     <h2>الكتاب المقدس في المقام الأول</h2>
                     <p>هدفنا هو تعزيز فهم الكتاب المقدس. النصوص من مؤلفين موثوقين تساعد في دراسة كلمة الله بشكل شامل ومترابط.</p>
-                    <button type="button" onclick="window.location.href='authors.html'">المؤلفون ←</button>
+                    <button type="button" data-href="authors.html">المؤلفون ←</button>
                 </div>
             </div>
         </section>
@@ -123,14 +112,14 @@
             </div>
             <div>
                 <h3>المحتوى</h3>
-                <button type="button" onclick="window.location.href='index.html'">الرئيسية</button>
-                <button type="button" onclick="window.location.href='translations.html'">الترجمات</button>
-                <button type="button" onclick="window.location.href='authors.html'">المؤلفون</button>
+                <button type="button" data-href="index.html">الرئيسية</button>
+                <button type="button" data-href="translations.html">الترجمات</button>
+                <button type="button" data-href="authors.html">المؤلفون</button>
             </div>
             <div>
                 <h3>الخدمات</h3>
                 <button type="button">آخر التحديثات</button>
-                <button type="button" onclick="var f=document.getElementById('newsletterForm'); if(f){f.scrollIntoView({behavior:'smooth',block:'center'}); var i=f.querySelector('input[type=email]'); if(i)i.focus();}">النشرة البريدية</button>
+                <button type="button" data-action="newsletter-focus">النشرة البريدية</button>
                 <button type="button">التحميل</button>
                 <button type="button">اتصل بنا</button>
             </div>
@@ -143,12 +132,15 @@
         </div>
         <div class="footer-bottom container">
             <span>© 2024 - 2026 ترجمات تعليقات الكتاب المقدس</span>
-            <span><a href="admin.html" style="color:inherit;text-decoration:none;opacity:0.5;font-size:1em" title="لوحة التحكم">&#9881;</a> العربية</span>
+            <span>العربية</span>
         </div>
     </footer>
 
+    <script src="js/data-visible.js"></script>
+    <script src="js/dom.js"></script>
     <script src="js/theme.js"></script>
     <script src="js/nav.js"></script>
+    <script src="js/ui.js"></script>
     <script src="js/app.js"></script>
     <script src="js/search.js"></script>
 </body>

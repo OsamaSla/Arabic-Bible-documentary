@@ -3,23 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex,nofollow">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
     <title>لوحة التحكم - إدارة المستندات</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/fonts.css">
     <link rel="stylesheet" href="css/style.css">
-    <script>
-    (function () {
-        try {
-            var t = localStorage.getItem('theme');
-            if (t !== 'dark' && t !== 'light') {
-                t = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
-            }
-            if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
-        } catch (e) {}
-    })();
-    </script>
-    <script defer src="https://cloud.umami.is/script.js" data-website-id="4bf9e517-428f-466b-a83e-5873974e1e8f"></script>
+    <script src="js/theme-init.js"></script>
     <style>
         .admin-container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
         .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding: 1rem; background: var(--bg-light); border-radius: var(--radius-md); flex-wrap: wrap; gap: 0.5rem; }
@@ -33,7 +22,6 @@
         .admin-btn:disabled { opacity: 0.65; cursor: not-allowed; }
         .admin-btn-primary { background: #007bff; color: white; }
         .admin-btn-secondary { background: #6c757d; color: white; }
-        .admin-btn-danger { background: #dc3545; color: white; }
         .deploy-status { min-height: 1.5rem; margin-top: 0.75rem; font-size: 0.95rem; }
         .deploy-status.is-ok { color: #28a745; }
         .deploy-status.is-err { color: #dc3545; }
@@ -44,10 +32,6 @@
         .changes-panel li { margin: 0.15rem 0; word-break: break-all; }
         .changes-panel .muted { color: #6c757d; }
         .changes-panel code { font-size: 0.88em; }
-        .login-form { max-width: 400px; margin: 50px auto; }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; }
-        .form-group input { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
         .filter-buttons { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
         .filter-btn { padding: 0.4rem 0.8rem; border: 1px solid #ddd; background: #f8f9fa; border-radius: 4px; cursor: pointer; font-family: inherit; font-size: 0.9rem; }
         .filter-btn:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
@@ -65,6 +49,7 @@
         .status-badge.completed-off { background: #e9ecef; color: #495057; }
         .status-badge.hidden-on { background: #6c757d; color: #fff; }
         .status-badge.hidden-off { background: #e9ecef; color: #495057; opacity: 0.55; }
+        .local-note { padding: 0.75rem 1rem; margin-bottom: 1rem; border: 1px solid var(--color-secondary, #b8860b); border-radius: var(--radius-md); background: var(--bg-light); font-size: 0.95rem; }
     </style>
 </head>
 <body>
@@ -91,21 +76,13 @@
                 <button type="button" class="admin-btn admin-btn-secondary" id="changesBtn" aria-describedby="deployStatus">Check changes</button>
                 <button type="button" class="admin-btn admin-btn-primary" id="deployBtn" aria-describedby="deployStatus">Deploy to GitHub</button>
                 <a class="admin-btn admin-btn-secondary" href="https://cloud.umami.is/login" target="_blank" rel="noopener noreferrer" style="text-decoration:none;display:inline-block;" title="فتح لوحة Umami">الزيارات</a>
-                <button type="button" class="admin-btn admin-btn-danger" onclick="logout()">Logout</button>
             </div>
         </div>
         <div id="deployStatus" class="deploy-status" role="status" aria-live="polite"></div>
         <div id="changesPanel" class="changes-panel" hidden></div>
 
-        <div id="loginSection" class="login-form" style="display: none;">
-            <h2>Login Required</h2>
-            <p>You must login to access the admin panel.</p>
-            <button class="admin-btn admin-btn-primary" onclick="window.location.href='admin.html'">Go to Login</button>
-        </div>
-
-        <div id="adminContent" style="display: none;">
-            <h2>Document Status</h2>
-            <p>Read-only view. Status comes from source folders: <strong>تم</strong> = completed, <strong>hidden</strong> / <strong>مخفي</strong> = hidden.</p>
+        <div id="adminContent">
+            <p class="local-note">Local-only panel: reachable via <code>python scripts/serve.py</code> on 127.0.0.1. Never published to the live site. Status comes from source folders: <strong>تم</strong> = completed, <strong>hidden</strong> / <strong>مخفي</strong> = hidden.</p>
 
             <section class="visits-panel" aria-labelledby="visitsHeading" style="min-height:0;margin:0 0 1rem;padding:0.75rem 1rem;border:1px solid var(--border-light);border-radius:var(--radius-md);background:var(--bg-light);">
                 <div style="display:flex;gap:0.75rem;flex-wrap:wrap;align-items:center;justify-content:space-between;">
@@ -127,399 +104,13 @@
             </div>
 
             <div id="docsContainer">
-                <p>Loading documents...</p>
+                <p style="min-height:72px;">Loading documents...</p>
             </div>
         </div>
     </main>
 
     <script src="js/theme.js"></script>
-    <script>
-            const storageKey = 'admin_logged_in';
-            let currentSearchQuery = '';
-            let filterCompletedActive = false;
-            let filterHiddenActive = false;
-
-            function isLoggedIn() {
-                try {
-                    return localStorage.getItem(storageKey) === 'true';
-                } catch (e) {
-                    return false;
-                }
-            }
-
-            function logout() {
-                try {
-                    localStorage.removeItem(storageKey);
-                } catch (e) {}
-                window.location.href = 'admin.html';
-            }
-
-            function setDeployStatus(text, cls) {
-                var el = document.getElementById('deployStatus');
-                if (!el) return;
-                el.textContent = text || '';
-                el.className = 'deploy-status' + (cls ? ' ' + cls : '');
-            }
-
-            function escapeHtml(s) {
-                return String(s == null ? '' : s)
-                    .replace(/&/g, '&amp;')
-                    .replace(/</g, '&lt;')
-                    .replace(/>/g, '&gt;')
-                    .replace(/"/g, '&quot;');
-            }
-
-            function getLocalApiError() {
-                if (location.protocol === 'file:') {
-                    return 'This page is open as a file (file://). Deploy needs the local server:\n' +
-                        '1) python scripts\\serve.py\n' +
-                        '2) Open http://localhost:8000/admin-panel.html';
-                }
-                var host = location.hostname || '';
-                var isLocal = host === 'localhost' || host === '127.0.0.1' || host === '::1' || host === '[::1]';
-                if (!isLocal) {
-                    return 'You are on ' + location.origin + ' — Deploy only works on the local server.\n' +
-                        'Run: python scripts\\serve.py\n' +
-                        'Then open: http://localhost:8000/admin-panel.html';
-                }
-                return null;
-            }
-
-            function postApi(path) {
-                return fetch(path, { method: 'POST' }).then(function(res) {
-                    return res.json().catch(function() {
-                        return { ok: false, message: 'Bad server response (HTTP ' + res.status + ').' };
-                    }).then(function(data) {
-                        return { status: res.status, data: data };
-                    });
-                });
-            }
-
-            function getApi(path) {
-                return fetch(path, { method: 'GET' }).then(function(res) {
-                    return res.json().catch(function() {
-                        return { ok: false, message: 'Bad server response (HTTP ' + res.status + ').' };
-                    }).then(function(data) {
-                        return { status: res.status, data: data };
-                    });
-                });
-            }
-
-            function renderChanges(data) {
-                var panel = document.getElementById('changesPanel');
-                if (!panel) return;
-                var html = '<h3>Changes since last build</h3>';
-                html += '<p class="muted">Last build: <code>' + escapeHtml(data.lastBuild || 'never') + '</code>' +
-                    ' · Checked: <code>' + escapeHtml(data.checkedAt || '') + '</code></p>';
-
-                html += '<p><strong>Source (.docx):</strong> ' + (data.sourceCount || 0) + ' changed</p>';
-                if (data.sourceNote) {
-                    html += '<p class="muted">' + escapeHtml(data.sourceNote) + '</p>';
-                }
-                if (data.sourceChanges && data.sourceChanges.length) {
-                    html += '<ul>';
-                    data.sourceChanges.slice(0, 50).forEach(function(item) {
-                        html += '<li><code>' + escapeHtml(item.path) + '</code> <span class="muted">(' +
-                            escapeHtml(item.modified) + ')</span></li>';
-                    });
-                    html += '</ul>';
-                    if (data.sourceChanges.length > 50) {
-                        html += '<p class="muted">…and ' + (data.sourceChanges.length - 50) + ' more</p>';
-                    }
-                }
-
-                var git = data.gitChanges || [];
-                html += '<p><strong>Git working tree:</strong> ' + git.length + ' path(s)</p>';
-                if (git.length) {
-                    html += '<ul>';
-                    git.slice(0, 50).forEach(function(line) {
-                        html += '<li><code>' + escapeHtml(line) + '</code></li>';
-                    });
-                    html += '</ul>';
-                }
-
-                var commits = data.recentCommits || [];
-                if (commits.length) {
-                    html += '<p><strong>Recent commits:</strong></p><ul>';
-                    commits.forEach(function(c) {
-                        html += '<li><code>' + escapeHtml(c.sha) + '</code> ' + escapeHtml(c.date) +
-                            ' — ' + escapeHtml(c.subject) + '</li>';
-                    });
-                    html += '</ul>';
-                }
-
-                if (!git.length && !(data.sourceChanges && data.sourceChanges.length)) {
-                    html += '<p class="muted">Nothing pending since last build.</p>';
-                }
-
-                panel.innerHTML = html;
-                panel.hidden = false;
-            }
-
-            function setupDeployButton() {
-                var btn = document.getElementById('deployBtn');
-                if (!btn || btn._listenerAdded) return;
-                btn._listenerAdded = true;
-                btn.addEventListener('click', function() {
-                    if (btn.disabled) return;
-
-                    var originErr = getLocalApiError();
-                    if (originErr) {
-                        setDeployStatus(originErr, 'is-err');
-                        return;
-                    }
-
-                    btn.disabled = true;
-                    var prevLabel = btn.textContent;
-                    btn.textContent = 'Deploying…';
-                    setDeployStatus('Scanning source, rebuilding, then pushing…', 'is-busy');
-
-                    postApi('/api/deploy')
-                        .then(function(result) {
-                            var data = result.data || {};
-                            if (result.status === 200 && data.ok) {
-                                setDeployStatus(data.message || 'Deployed.', 'is-ok');
-                            } else {
-                                setDeployStatus(data.message || ('Deploy failed (HTTP ' + result.status + ').'), 'is-err');
-                            }
-                        })
-                        .catch(function(err) {
-                            setDeployStatus(
-                                'Cannot reach local server at ' + location.origin +
-                                '. Start it with: python scripts\\serve.py then open http://localhost:8000/admin-panel.html (' +
-                                (err && err.message ? err.message : 'network error') + ')',
-                                'is-err'
-                            );
-                        })
-                        .then(function() {
-                            btn.disabled = false;
-                            btn.textContent = prevLabel;
-                        });
-                });
-            }
-
-            function setupChangesButton() {
-                var btn = document.getElementById('changesBtn');
-                if (!btn || btn._listenerAdded) return;
-                btn._listenerAdded = true;
-                btn.addEventListener('click', function() {
-                    if (btn.disabled) return;
-
-                    var originErr = getLocalApiError();
-                    if (originErr) {
-                        setDeployStatus(originErr, 'is-err');
-                        return;
-                    }
-
-                    btn.disabled = true;
-                    var prevLabel = btn.textContent;
-                    btn.textContent = 'Checking…';
-                    setDeployStatus('Checking source and git changes…', 'is-busy');
-
-                    getApi('/api/changes')
-                        .then(function(result) {
-                            var data = result.data || {};
-                            if (result.status === 200 && data.ok) {
-                                renderChanges(data);
-                                setDeployStatus(
-                                    (data.sourceCount || 0) + ' source change(s), ' +
-                                    ((data.gitChanges || []).length) + ' git path(s) since last build.',
-                                    'is-ok'
-                                );
-                            } else {
-                                setDeployStatus(data.message || ('Check failed (HTTP ' + result.status + ').'), 'is-err');
-                            }
-                        })
-                        .catch(function(err) {
-                            setDeployStatus(
-                                'Cannot reach local server at ' + location.origin +
-                                '. Start it with: python scripts\\serve.py then open http://localhost:8000/admin-panel.html (' +
-                                (err && err.message ? err.message : 'network error') + ')',
-                                'is-err'
-                            );
-                        })
-                        .then(function() {
-                            btn.disabled = false;
-                            btn.textContent = prevLabel;
-                        });
-                });
-            }
-
-        function loadDocuments() {
-            if (window.__DOCUMENTS_DATA__) {
-                var docs = window.__DOCUMENTS_DATA__;
-                window.__allDocs = docs;
-                applyFiltersAndRender();
-                setupControls();
-                return;
-            }
-
-            var xhr = new XMLHttpRequest();
-            xhr.open('GET', 'documents/index.json', false);
-            try {
-                xhr.send();
-            } catch (e) {
-                document.getElementById('docsContainer').innerHTML = '<p>Error loading documents: ' + e.message + '</p>';
-                return;
-            }
-
-            if (xhr.status !== 200 && xhr.status !== 0) {
-                document.getElementById('docsContainer').innerHTML = '<p>Error loading documents (Status: ' + xhr.status + ')</p>';
-                return;
-            }
-
-            try {
-                var data = JSON.parse(xhr.responseText);
-                var docs = data.documents || [];
-                window.__allDocs = docs;
-                applyFiltersAndRender();
-                setupControls();
-            } catch (err) {
-                document.getElementById('docsContainer').innerHTML = '<p>Error parsing documents: ' + err.message + '</p>';
-            }
-        }
-
-        function setupControls() {
-            var filterBox = document.getElementById('filterBox');
-            if (!filterBox._listenerAdded) {
-                filterBox._listenerAdded = true;
-                filterBox.addEventListener('input', function(e) {
-                    currentSearchQuery = e.target.value.toLowerCase();
-                    applyFiltersAndRender();
-                });
-            }
-
-            var btnAll = document.getElementById('btnAll');
-            var btnCompleted = document.getElementById('btnCompleted');
-            var btnHidden = document.getElementById('btnHidden');
-
-            if (!btnAll._listenerAdded) {
-                btnAll._listenerAdded = true;
-                btnAll.addEventListener('click', function() {
-                    if (btnAll.classList.contains('active')) {
-                        btnAll.classList.remove('active');
-                    } else {
-                        btnAll.classList.add('active');
-                        filterCompletedActive = false;
-                        filterHiddenActive = false;
-                        btnCompleted.classList.remove('active');
-                        btnHidden.classList.remove('active');
-                    }
-                    applyFiltersAndRender();
-                });
-            }
-
-            if (!btnCompleted._listenerAdded) {
-                btnCompleted._listenerAdded = true;
-                btnCompleted.addEventListener('click', function() {
-                    filterCompletedActive = !filterCompletedActive;
-                    if (filterCompletedActive) {
-                        btnCompleted.classList.add('active');
-                        btnAll.classList.remove('active');
-                    } else {
-                        btnCompleted.classList.remove('active');
-                    }
-                    applyFiltersAndRender();
-                });
-            }
-
-            if (!btnHidden._listenerAdded) {
-                btnHidden._listenerAdded = true;
-                btnHidden.addEventListener('click', function() {
-                    filterHiddenActive = !filterHiddenActive;
-                    if (filterHiddenActive) {
-                        btnHidden.classList.add('active');
-                        btnAll.classList.remove('active');
-                    } else {
-                        btnHidden.classList.remove('active');
-                    }
-                    applyFiltersAndRender();
-                });
-            }
-        }
-
-        function applyFiltersAndRender() {
-            var docs = window.__allDocs || [];
-
-            if (currentSearchQuery) {
-                docs = docs.filter(function(d) {
-                    return (d.title && d.title.toLowerCase().includes(currentSearchQuery)) ||
-                           (d.id && d.id.toLowerCase().includes(currentSearchQuery)) ||
-                           (d.author && d.author.toLowerCase().includes(currentSearchQuery));
-                });
-            }
-
-            var btnAllActive = document.getElementById('btnAll').classList.contains('active');
-
-            docs = docs.filter(function(d) {
-                var isCompleted = !!(d.completed || false);
-                var isHidden = !!(d.hidden || false);
-
-                if (btnAllActive) {
-                    return true;
-                }
-                if (!filterCompletedActive && !filterHiddenActive) {
-                    return !isCompleted && !isHidden;
-                }
-                if (filterCompletedActive && filterHiddenActive) {
-                    return isCompleted && isHidden;
-                }
-                if (filterCompletedActive) {
-                    return isCompleted;
-                }
-                if (filterHiddenActive) {
-                    return isHidden;
-                }
-                return !isCompleted && !isHidden;
-            });
-
-            renderDocs(docs);
-        }
-
-        function openDoc(htmlPath) {
-            if (htmlPath) window.open(htmlPath, '_blank');
-        }
-
-        function renderDocs(docs) {
-            var container = document.getElementById('docsContainer');
-            if (docs.length === 0) {
-                container.innerHTML = '<p>No documents found.</p>';
-                return;
-            }
-
-            var html = '';
-            docs.forEach(function(doc) {
-                var isCompleted = !!(doc.completed || false);
-                var isHidden = !!(doc.hidden || false);
-                var link = doc.html_path || '';
-
-                html += '<div class="doc-item' + (isHidden ? ' hidden-doc' : '') + '" data-doc-id="' + doc.id + '" role="link" tabindex="0" onclick="openDoc(\'' + link + '\')" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();openDoc(\'' + link + '\')}">' +
-                    '<strong>ID:</strong> ' + doc.id + ' | ' +
-                    '<strong>Title:</strong> ' + (doc.title || 'N/A') + ' | ' +
-                    '<strong>Author:</strong> ' + (doc.author || 'N/A') + '<br>' +
-                    '<span class="status-badge ' + (isCompleted ? 'completed-on">✓ مكتمل' : 'completed-off">○ قيد الترجمة') + '</span> ' +
-                    '<span class="status-badge ' + (isHidden ? 'hidden-on">Hidden' : 'hidden-off">Visible') + '</span>' +
-                    '</div>';
-            });
-            container.innerHTML = html;
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            setupDeployButton();
-            setupChangesButton();
-            if (isLoggedIn()) {
-                document.getElementById('loginSection').style.display = 'none';
-                document.getElementById('adminContent').style.display = 'block';
-                if (window.__DOCUMENTS_DATA__) {
-                    loadDocuments();
-                } else {
-                    setTimeout(loadDocuments, 100);
-                }
-            } else {
-                document.getElementById('loginSection').style.display = 'block';
-                document.getElementById('adminContent').style.display = 'none';
-            }
-        });
-    </script>
+    <script src="js/dom.js"></script>
+    <script src="js/admin-ui.js"></script>
 </body>
 </html>

@@ -46,10 +46,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         articlesGrid.innerHTML = selected.map(function(doc) {
-            var title = doc.title || '\u0628\u062f\u0648\u0646 \u0639\u0646\u0648\u0627\u0646';
-            var author = doc.author || '\u063a\u064a\u0631 \u0645\u0639\u0631\u0648\u0641';
-            var path = doc.html_path || '#';
-            var desc = doc.description ? doc.description.substring(0, 150) + '...' : '';
+            var title = escapeHtml(doc.title || '\u0628\u062f\u0648\u0646 \u0639\u0646\u0648\u0627\u0646');
+            var author = escapeHtml(doc.author || '\u063a\u064a\u0631 \u0645\u0639\u0631\u0648\u0641');
+            var path = escapeHtml(safePath(doc.html_path || '#'));
+            var desc = doc.description ? escapeHtml(doc.description.substring(0, 150) + '...') : '';
             return '<a href="' + path + '" class="article-card">' +
                 '<div class="article-title">' + title + '</div>' +
                 '<div class="article-author">' + author + '</div>' +
@@ -63,8 +63,8 @@ document.addEventListener('DOMContentLoaded', function() {
     if (recentList) {
         var recent = allDocuments.slice(-5).reverse();
         recentList.innerHTML = recent.map(function(doc) {
-            var title = doc.title || '\u0628\u062f\u0648\u0646 \u0639\u0646\u0648\u0627\u0646';
-            var path = doc.html_path || '#';
+            var title = escapeHtml(doc.title || '\u0628\u062f\u0648\u0646 \u0639\u0646\u0648\u0627\u0646');
+            var path = escapeHtml(safePath(doc.html_path || '#'));
             return '<li><a href="' + path + '" class="update-title">' + title + '</a></li>';
         }).join('');
     }
