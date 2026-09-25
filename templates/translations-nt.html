@@ -22,105 +22,142 @@
             color: var(--color-primary);
         }
         .filter-section {
-            margin-bottom: 30px;
+            margin-bottom: 18px;
+            background: transparent;
+            border-bottom: none;
+            padding: 0;
         }
-        .category-section {
+        .books-list {
+            display: flex;
+            flex-direction: column;
             background: var(--bg-white);
             border: 1px solid var(--border-light);
             border-radius: var(--radius-lg);
             overflow: hidden;
         }
-        .category-header {
+        .book-item {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 14px 16px;
-            background: var(--color-primary);
-            color: white;
+            gap: 16px;
+            min-height: 64px;
+            padding: 14px 24px;
+            background: var(--bg-white);
+            border-top: 1px solid var(--border-light);
+            color: var(--text-primary);
+            text-decoration: none;
             cursor: pointer;
             transition: background var(--transition-fast);
         }
-        .category-header:hover {
-            background: var(--color-primary-light);
+        .books-list > .book-item:first-child {
+            border-top: none;
         }
-        .category-header h2 {
-            margin: 0;
-            font-size: 16px;
-            color: white;
-        }
-        .toggle-icon {
-            font-size: 18px;
-            transition: transform var(--transition-fast);
-        }
-        .category-section.open .toggle-icon {
-            transform: rotate(180deg);
-        }
-        .category-content {
-            padding: 12px;
-            max-height: 500px;
-            overflow-y: auto;
-        }
-        .books-list {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-        .book-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 12px;
+        .book-item:hover,
+        .book-item.active {
             background: var(--bg-light);
-            border: 1px solid var(--border-light);
-            border-radius: var(--radius-md);
-            text-decoration: none;
-            color: var(--text-primary);
-            transition: all var(--transition-fast);
-            cursor: pointer;
         }
-        .book-item:hover {
-            background: var(--color-primary);
-            color: white;
-            border-color: var(--color-primary);
-        }
-        .book-item:focus-visible {
-            outline: 2px solid var(--color-secondary);
-            outline-offset: 2px;
+        .book-item:focus-visible,
+        .book-doc-link:focus-visible {
+            outline: 3px solid var(--focus-ring);
+            outline-offset: -3px;
         }
         .book-item .book-name {
-            font-weight: 600;
-            font-size: 13px;
+            font-size: var(--font-size-xl);
+            font-weight: 700;
+        }
+        .book-badges {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-shrink: 0;
         }
         .book-item .book-count {
-            font-size: 11px;
-            color: var(--text-muted);
-            background: var(--bg-white);
-            padding: 2px 6px;
-            border-radius: 10px;
+            min-width: 92px;
+            text-align: center;
+            margin-top: 0;
+            font-size: var(--font-size-sm);
+            font-weight: 600;
+            color: var(--text-secondary);
+            background: var(--bg-light);
+            border: 1px solid var(--border-light);
+            border-radius: 999px;
+            padding: 4px 10px;
         }
-        .book-item:hover .book-count {
+        .book-item:hover .book-count,
+        .book-item.active .book-count {
             color: var(--color-primary);
-            background: rgba(255,255,255,0.9);
+            border-color: var(--color-primary);
+        }
+        .book-chevron {
+            font-size: 14px;
+            color: var(--text-muted);
+            transition: transform var(--transition-fast);
+        }
+        .book-item.active .book-chevron {
+            transform: rotate(180deg);
         }
         .book-docs {
             display: none;
-            padding: 8px 12px;
             background: var(--bg-light);
             border-top: 1px solid var(--border-light);
+            border-radius: 0;
+            margin-top: 0;
+            padding: 4px 0;
         }
-        .book-docs a {
-            display: block;
-            padding: 6px 10px;
+        .book-docs .book-doc-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-height: 44px;
+            padding: 10px 28px;
+            font-size: var(--font-size-base);
             color: var(--text-primary);
             text-decoration: none;
-            font-size: 12px;
             border-bottom: 1px solid var(--border-light);
         }
-        .book-docs a:last-child {
+        .book-docs .book-doc-link:last-child {
             border-bottom: none;
         }
-        .book-docs a:hover {
-            color: var(--color-secondary);
+        .book-doc-link:hover {
+            color: var(--color-primary);
+        }
+        .book-docs .book-doc-link .doc-icon {
+            flex-shrink: 0;
+            font-size: 15px;
+        }
+        .book-docs .book-doc-link.in-progress .doc-icon {
+            font-size: 9px;
+        }
+        .book-docs .book-doc-link .doc-title {
+            flex: 1;
+            min-width: 0;
+        }
+        .book-docs .book-doc-link .doc-author {
+            flex-shrink: 0;
+            font-size: var(--font-size-sm);
+            color: var(--text-muted);
+        }
+        @media (max-width: 640px) {
+            .book-item {
+                min-height: 56px;
+                padding: 12px 16px;
+                gap: 10px;
+            }
+            .book-item .book-name {
+                font-size: var(--font-size-lg);
+            }
+            .book-item .book-count {
+                min-width: 76px;
+            }
+            .book-docs .book-doc-link {
+                padding: 10px 18px;
+            }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .book-item,
+            .book-chevron {
+                transition: none;
+            }
         }
         .translations-stats {
             text-align: center;
@@ -177,27 +214,28 @@
         </nav>
     </header>
 
+    <nav class="category-tabs" aria-label="أقسام الترجمات">
+        <div class="container tabs-container">
+            <a href="translations.html" class="tab-btn">الترجمات</a>
+            <a href="translations-ot.html" class="tab-btn">العهد القديم</a>
+            <a href="translations-nt.html" class="tab-btn active" aria-current="page">العهد الجديد</a>
+            <a href="translations-subjects.html" class="tab-btn">المواضيع</a>
+        </div>
+    </nav>
+
     <main id="main-content" class="translations-page">
         <h1>العهد الجديد</h1>
 
         <div class="filter-section">
-            <div class="filter-container" style="justify-content: center; display: flex; gap: 8px;">
+            <div class="filter-container">
                 <button class="filter-btn active" data-filter="all">الكل</button>
                 <button class="filter-btn" data-filter="completed">&#10003; مكتمل</button>
                 <button class="filter-btn" data-filter="in-progress">قيد الترجمة</button>
             </div>
         </div>
 
-        <div class="category-section open" id="ntSection">
-            <div class="category-header">
-                <h2>كتب العهد الجديد</h2>
-                <span class="toggle-icon">&#9660;</span>
-            </div>
-            <div class="category-content">
-                <div class="books-list" id="ntBooksList">
-                    <!-- OT books injected by JS -->
-                </div>
-            </div>
+        <div class="books-list" id="ntBooksList">
+            <!-- NT books injected by JS -->
         </div>
     </main>
 

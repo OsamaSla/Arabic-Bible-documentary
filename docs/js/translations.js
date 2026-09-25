@@ -9,23 +9,22 @@ document.addEventListener('DOMContentLoaded', function() {
     loadAllData();
 });
 
-function toggleSection(sectionId) {
-    var section = document.getElementById(sectionId);
-    if (section) {
-        section.classList.toggle('open');
-    }
-}
-
 function toggleBook(bookSlug) {
     var docsDiv = document.getElementById('docs-' + bookSlug);
     var bookItem = document.querySelector('[data-book="' + bookSlug + '"]');
     if (docsDiv) {
         var isOpen = docsDiv.style.display === 'block';
         document.querySelectorAll('.book-docs').forEach(d => d.style.display = 'none');
-        document.querySelectorAll('.book-item').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.book-item').forEach(b => {
+            b.classList.remove('active');
+            if (b.hasAttribute('aria-expanded')) b.setAttribute('aria-expanded', 'false');
+        });
         if (!isOpen) {
             docsDiv.style.display = 'block';
-            if (bookItem) bookItem.classList.add('active');
+            if (bookItem) {
+                bookItem.classList.add('active');
+                bookItem.setAttribute('aria-expanded', 'true');
+            }
         }
     }
 }
@@ -129,9 +128,17 @@ async function loadAllData() {
                 docsList += '</div>';
             }
             
-            return '<div class="book-item" data-book="' + escapeHtml(book.slug) + '">' +
+            const interactive = count > 0;
+            const rowAttrs = interactive
+                ? ' role="button" tabindex="0" aria-expanded="false" aria-controls="docs-' + escapeHtml(book.slug) + '"'
+                : '';
+
+            return '<div class="book-item" data-book="' + escapeHtml(book.slug) + '"' + rowAttrs + '>' +
                 '<span class="book-name">' + escapeHtml(book.name_ar) + '</span>' +
+                '<span class="book-badges">' +
                 '<span class="book-count">' + count + ' \u0645\u0633\u062a\u0646\u062f</span>' +
+                (interactive ? '<span class="book-chevron" aria-hidden="true">&#9662;</span>' : '') +
+                '</span>' +
                 '</div>' +
                 docsList;
         }).join('');
@@ -140,6 +147,16 @@ async function loadAllData() {
     document.addEventListener('click', function(e) {
         const item = e.target && e.target.closest ? e.target.closest('.book-item[data-book]') : null;
         if (item) toggleBook(item.getAttribute('data-book'));
+    });
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key !== 'Enter' && e.key !== ' ' && e.key !== 'Spacebar') return;
+        const item = e.target && e.target.closest
+            ? e.target.closest('.book-item[data-book][role="button"]')
+            : null;
+        if (!item) return;
+        e.preventDefault();
+        toggleBook(item.getAttribute('data-book'));
     });
     
     if (cats.old_testament) {
