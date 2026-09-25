@@ -202,3 +202,48 @@ document.addEventListener('DOMContentLoaded', function () {
 
     findItem();
 });
+
+// Floating scroll-to-top button (loaded on every page via ui.js)
+(function () {
+    document.addEventListener('DOMContentLoaded', function () {
+        if (document.querySelector('.scroll-top')) return;
+
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'scroll-top';
+        btn.setAttribute('aria-label', 'العودة إلى أعلى الصفحة');
+        btn.innerHTML = '&#8593;';
+        document.body.appendChild(btn);
+
+        var threshold = 300;
+        var update = function () {
+            btn.classList.toggle('is-visible', window.scrollY > threshold);
+        };
+
+        var ticking = false;
+        window.addEventListener('scroll', function () {
+            if (ticking) return;
+            ticking = true;
+            requestAnimationFrame(function () {
+                update();
+                ticking = false;
+            });
+        }, { passive: true });
+        update();
+
+        btn.addEventListener('click', function () {
+            window.scrollTo(0, 0);
+            var main = document.getElementById('main-content');
+            if (main) {
+                main.setAttribute('tabindex', '-1');
+                try {
+                    main.focus({ preventScroll: true });
+                } catch (e) {
+                    main.focus();
+                }
+            } else {
+                btn.blur();
+            }
+        });
+    });
+})();

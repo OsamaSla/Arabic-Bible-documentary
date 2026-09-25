@@ -4731,3 +4731,68 @@ body.page-redesign .search-result-more {
         scroll-behavior: auto !important;
     }
 }
+
+/* ========================================
+   Scroll to Top
+   ======================================== */
+
+.scroll-top {
+    position: fixed;
+    bottom: 24px;
+    inset-inline-end: 24px;
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: var(--color-primary);
+    color: var(--text-light);
+    font-family: var(--font-arabic);
+    font-size: 24px;
+    line-height: 48px;
+    text-align: center;
+    cursor: pointer;
+    box-shadow: var(--shadow-md);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(12px);
+    transition: opacity var(--transition-fast), transform var(--transition-fast),
+        visibility var(--transition-fast), background var(--transition-fast);
+    z-index: 900;
+}
+
+.scroll-top.is-visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.scroll-top:hover {
+    background: var(--color-primary-dark);
+}
+
+.scroll-top:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+}
+
+[data-theme="dark"] .scroll-top {
+    background: var(--color-primary-light);
+    color: #fff;
+}
+
+@media (max-width: 600px) {
+    .scroll-top {
+        bottom: 16px;
+        inset-inline-end: 16px;
+        width: 44px;
+        height: 44px;
+        line-height: 44px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .scroll-top {
+        transition: none;
+    }
+}
