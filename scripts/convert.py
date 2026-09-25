@@ -163,6 +163,10 @@ def _walk_children(paragraph, parent):
             continue
         if tag == qn('w:r'):
             parts.append(format_run(Run(child, paragraph)))
+        elif tag == qn('w:bookmarkStart'):
+            name = child.get(qn('w:name'))
+            if name:
+                parts.append(f'<span id="{escape_html(name)}"></span>')
         elif tag == qn('w:sdt'):
             for sub in child:
                 if sub.tag == qn('w:sdtContent'):
@@ -191,6 +195,11 @@ def process_paragraph(paragraph):
         elif tag == qn('w:fldSimple'):
             url = _field_hyperlink_url(child.get(qn('w:instr')))
             parts.append(_render_hyperlink(paragraph, child, url))
+        elif tag == qn('w:bookmarkStart'):
+            # Keep Word bookmark targets so in-document #anchor links resolve
+            name = child.get(qn('w:name'))
+            if name:
+                parts.append(f'<span id="{escape_html(name)}"></span>')
         else:
             parts.extend(_walk_children(paragraph, child))
     return ''.join(parts)
@@ -340,8 +349,9 @@ def create_document_page(title, content, doc_id, author_name, completed, prefix=
             </a>
             <nav class="main-nav">
                 <a href="{prefix}index.html">الرئيسية</a>
+                <a href="{prefix}bibles.html">الكتاب المقدس</a>
+                <!-- MEGA_MAIN prefix="{prefix}" -->
                 <a href="{prefix}authors.html">المؤلفون</a>
-                <a href="{prefix}index.html#other_docs">المؤلفون والمواضيع الأخرى</a>
             </nav>
             <div class="header-actions">
                 <button type="button" class="theme-toggle" id="themeToggle" aria-pressed="false" aria-label="تبديل المظهر">
@@ -372,9 +382,12 @@ def create_document_page(title, content, doc_id, author_name, completed, prefix=
                     </button>
                 </div>
             </div>
-            <article class="document-content">
-                {content}
-            </article>
+            <div class="document-layout">
+                <article class="document-content">
+                    {content}
+                </article>
+                <!-- RELATED_SIDEBAR -->
+            </div>
             <div class="document-footer">
                 <div class="back-link">
                     <a href="{prefix}authors/{author_slug}/index.html">العودة إلى المؤلف</a>
@@ -392,6 +405,7 @@ def create_document_page(title, content, doc_id, author_name, completed, prefix=
     <script src="{prefix}js/theme.js"></script>
     <script src="{prefix}js/ui.js"></script>
     <script src="{prefix}js/search.js"></script>
+    <script src="{prefix}js/nav.js"></script>
 </body>
 </html>'''
 
@@ -498,7 +512,10 @@ def main():
         doc_filename = f"{doc_id}.html"
         doc_path = doc_out_dir / doc_filename
         rel_to_root = doc_path.relative_to(page_root)
-        depth = len(rel_to_root.parts)
+        # Directory depth only (exclude the filename) - matches build.py's
+        # prefix helper; off-by-one here would escape the site root when
+        # hosted under a subpath (GitHub project pages).
+        depth = max(len(rel_to_root.parts) - 1, 0)
         if is_hidden:
             # URL is /local-hidden/... so one extra level up to reach site root
             prefix = '../' * (depth + 1)

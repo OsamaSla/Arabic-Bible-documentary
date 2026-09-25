@@ -108,10 +108,9 @@ ALIASES = {
     'gospel': ['الإنجيل', 'انجيل', 'سر الإنجيل', 'بشارة الإنجيل'],
     'faith-life': ['الحياة الإيمانية', 'طريق الإيمان', 'حياة الإيمان', 'الإيمان'],
     'jesus-christ': ['يسوع المسيح', 'الرب يسوع', 'مجد الرب يسوع'],
-    'creation': ['الخلق', 'أيام الخلق', 'في البدء خلق'],
-    'church': ['الكنيسة', 'الاجتماع', 'كنية الله'],
-    'magazines': ['المجلة الإنجيلية', 'المجلات', 'المجلة'],
-    'prophecy': ['أواخر الأمور', 'النبوءة', 'النبوة', 'المستقبل', 'الأمور الأخيرة', 'الدهر الآتي'],
+        'creation': ['الخلق', 'الخليقة', 'أيام الخلق', 'في البدء خلق'],
+        'church': ['الكنيسة', 'الاجتماع', 'كنية الله'],
+        'prophecy': ['أواخر الأمور', 'النبوءة', 'النبوة', 'المستقبل', 'الأمور الأخيرة', 'الدهر الآتي'],
 }
 
 # Strong context words that license short book names.
@@ -365,9 +364,6 @@ def main():
                 continue
             chosen_books = [best_slug]
 
-        # Magazine folder author → magazines topic (alongside a book if any)
-        magazine_hit = ('مجله' in text_with_author or 'مجلة' in author or 'المجلة' in author)
-
         # Strongly-signaled topics (option: books + strong topics together)
         chosen_topics = []
         for slug, group, kws, is_book in catalog:
@@ -382,8 +378,6 @@ def main():
         topic_slugs = []
         for slug, sc in chosen_topics[:2]:
             topic_slugs.append(slug)
-        if magazine_hit and 'magazines' not in topic_slugs:
-            topic_slugs.append('magazines')
 
         if not chosen_books and not topic_slugs:
             stats['unmatched'] += 1

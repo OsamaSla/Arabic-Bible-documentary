@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="ترجمات عربية لتعليقات الكتاب المقدس">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://gateway.umami.is; object-src 'none'; base-uri 'self'; form-action 'self'">
+    <title>ترجمات تعليقات الكتاب المقدس</title>
+    <link rel="stylesheet" href="css/fonts.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✝</text></svg>">
+    <script src="js/theme-init.js"></script>
+    <script defer src="js/vendor/umami.js" data-website-id="4bf9e517-428f-466b-a83e-5873974e1e8f"></script>
+</head>
+<body class="page-redesign">
+    <a class="skip-link" href="#main-content">تخطي إلى المحتوى الرئيسي</a>
+
+    <!-- ======================= Sticky header ======================= -->
+    <header class="rx-header">
+        <div class="rx-header-bar">
+            <a href="index-new.html" class="rx-brand">
+                <span class="rx-cross" aria-hidden="true">&#10013;</span>
+                <span class="rx-brand-text">
+                    <span class="rx-brand-title">ترجمات تعليقات الكتاب المقدس</span>
+                    <span class="rx-brand-tagline">دراسة متعمقة لكلمة الله وفقاً لمؤلفين موثوقين</span>
+                </span>
+            </a>
+
+            <div class="rx-search" data-rx-search>
+                <input type="text" id="searchInput" class="rx-search-input" placeholder="ابحث في التعليقات والمؤلفين..." autocomplete="off">
+                <span class="rx-search-icon" aria-hidden="true">&#128269;</span>
+                <div class="search-results" id="searchResults"></div>
+            </div>
+
+            <div class="rx-header-actions">
+                <button type="button" class="rx-icon-btn" id="themeToggle" aria-pressed="false" aria-label="تبديل المظهر">
+                    <span class="rx-icon-moon" aria-hidden="true">&#9790;</span>
+                    <span class="rx-icon-sun" aria-hidden="true">&#9728;</span>
+                </button>
+                <button type="button" class="rx-icon-btn rx-search-toggle" id="searchToggle" aria-label="فتح البحث" aria-expanded="false">
+                    <span aria-hidden="true">&#128269;</span>
+                </button>
+                <button type="button" class="rx-icon-btn rx-nav-toggle" id="navToggle" aria-label="القائمة" aria-expanded="false">
+                    <span class="nav-toggle-open" aria-hidden="true">&#9776;</span>
+                    <span class="nav-toggle-close" aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        </div>
+
+        <nav class="rx-nav" id="navBar" aria-label="التنقل الرئيسي">
+            <div class="rx-nav-inner">
+                <a href="index-new.html" class="rx-nav-link active" aria-current="page">الرئيسية</a>
+                <a href="bibles.html" class="rx-nav-link">الكتاب المقدس</a>
+                <div class="rx-nav-item has-mega"><a href="translations.html" class="rx-nav-link">الترجمات</a><div class="nav-mega" id="navMega" aria-label="قائمة الترجمات"><div class="mega-inner"><div class="mega-col mega-col-books"><div class="nav-dropdown-section"><button type="button" class="nav-dropdown-toggle" aria-expanded="false" aria-controls="megaGridOt"><span>العهد القديم</span><span class="toggle-mark" aria-hidden="true">[+]</span></button><div class="nav-book-grid" id="megaGridOt"><a href="translations-ot.html#book-takwin"><span class="mega-book-name">التكوين</span><span class="mega-count">3</span></a><a href="translations-ot.html#book-kharuj"><span class="mega-book-name">الخروج</span><span class="mega-count">4</span></a><a href="translations-ot.html#book-lawiyyun"><span class="mega-book-name">اللاويين</span><span class="mega-count">3</span></a><a href="translations-ot.html#book-adad"><span class="mega-book-name">العدد</span><span class="mega-count">1</span></a><a href="translations-ot.html#book-tathniya"><span class="mega-book-name">التثنية</span><span class="mega-count">1</span></a><a href="translations-ot.html#book-yishu"><span class="mega-book-name">يشوع</span><span class="mega-count">3</span></a><a href="translations-ot.html#book-qudah"><span class="mega-book-name">القضاة</span><span class="mega-count">2</span></a><a href="translations-ot.html#book-rauth"><span class="mega-book-name">راعوث</span><span class="mega-count">3</span></a><a href="translations-ot.html#book-samuil-awwal"><span class="mega-book-name">صموئيل الأول</span><span class="mega-count">4</span></a><a href="translations-ot.html#book-samuil-thani"><span class="mega-book-name">صموئيل الثاني</span><span class="mega-count">2</span></a><a href="translations-ot.html#book-muluk-awwal"><span class="mega-book-name">الملوك الأول</span><span class="mega-count">1</span></a><a href="translations-ot.html#book-muluk-thani"><span class="mega-book-name">الملوك الثاني</span><span class="mega-count">2</span></a><a href="translations-ot.html#book-akhbar-ayyam-awwal"><span class="mega-book-name">أخبار الأيام الأول</span></a><a href="translations-ot.html#book-akhbar-ayyam-thani"><span class="mega-book-name">أخبار الأيام الثاني</span><span class="mega-count">1</span></a><a href="translations-ot.html#book-ezra"><span class="mega-book-name">عزرا</span><span class="mega-count">3</span></a><a href="translations-ot.html#book-nahumya"><span class="mega-book-name">نحميا</span><span class="mega-count">3</span></a><a href="translations-ot.html#book-astar"><span class="mega-book-name">أستر</span><span class="mega-count">1</span></a><a href="translations-ot.html#book-ayyub"><span class="mega-book-name">أيوب</span><span class="mega-count">2</span></a><a href="translations-ot.html#book-mazamir"><span class="mega-book-name">المزامير</span><span class="mega-count">14</span></a><a href="translations-ot.html#book-amthal"><span class="mega-book-name">الأمثال</span><span class="mega-count">1</span></a><a href="translations-ot.html#book-jamiya"><span class="mega-book-name">الجامعة</span></a><a href="translations-ot.html#book-nashid"><span class="mega-book-name">نشيد الأنشاد</span><span class="mega-count">5</span></a><a href="translations-ot.html#book-ishaiya"><span class="mega-book-name">إشعياء</span><span class="mega-count">4</span></a><a href="translations-ot.html#book-irmiya"><span class="mega-book-name">إرميا</span><span class="mega-count">2</span></a><a href="translations-ot.html#book-marathi"><span class="mega-book-name">مراثي إرميا</span><span class="mega-count">1</span></a><a href="translations-ot.html#book-hizqiyal"><span class="mega-book-name">حزقيال</span><span class="mega-count">6</span></a><a href="translations-ot.html#book-daniyal"><span class="mega-book-name">دانيال</span><span class="mega-count">4</span></a><a href="translations-ot.html#book-husha"><span class="mega-book-name">هوشع</span><span class="mega-count">2</span></a><a href="translations-ot.html#book-yuil"><span class="mega-book-name">يوئيل</span><span class="mega-count">1</span></a><a href="translations-ot.html#book-amus"><span class="mega-book-name">عاموس</span></a><a href="translations-ot.html#book-ubadiya"><span class="mega-book-name">عوبديا</span><span class="mega-count">3</span></a><a href="translations-ot.html#book-yunan"><span class="mega-book-name">يونان</span><span class="mega-count">1</span></a><a href="translations-ot.html#book-mikha"><span class="mega-book-name">ميخا</span><span class="mega-count">1</span></a><a href="translations-ot.html#book-nahum"><span class="mega-book-name">ناحوم</span><span class="mega-count">2</span></a><a href="translations-ot.html#book-haqquq"><span class="mega-book-name">حبقوق</span><span class="mega-count">1</span></a><a href="translations-ot.html#book-safaniya"><span class="mega-book-name">صفنيا</span><span class="mega-count">2</span></a><a href="translations-ot.html#book-hajjai"><span class="mega-book-name">حجى</span></a><a href="translations-ot.html#book-zakariya"><span class="mega-book-name">زكريا</span><span class="mega-count">4</span></a><a href="translations-ot.html#book-malakhi"><span class="mega-book-name">ملخي</span><span class="mega-count">2</span></a></div></div><div class="nav-dropdown-section"><button type="button" class="nav-dropdown-toggle" aria-expanded="false" aria-controls="megaGridNt"><span>العهد الجديد</span><span class="toggle-mark" aria-hidden="true">[+]</span></button><div class="nav-book-grid" id="megaGridNt"><a href="translations-nt.html#book-matta"><span class="mega-book-name">متى</span><span class="mega-count">8</span></a><a href="translations-nt.html#book-marqus"><span class="mega-book-name">مرقس</span><span class="mega-count">4</span></a><a href="translations-nt.html#book-luqa"><span class="mega-book-name">لوقا</span><span class="mega-count">5</span></a><a href="translations-nt.html#book-yuanna"><span class="mega-book-name">يوحنا</span><span class="mega-count">20</span></a><a href="translations-nt.html#book-aamal-rusul"><span class="mega-book-name">أعمال الرسل</span><span class="mega-count">3</span></a><a href="translations-nt.html#book-rumiyaya"><span class="mega-book-name">رومية</span><span class="mega-count">8</span></a><a href="translations-nt.html#book-kurunthus-awwal"><span class="mega-book-name">كورنثوس الأولى</span><span class="mega-count">2</span></a><a href="translations-nt.html#book-kurunthus-thani"><span class="mega-book-name">كورنثوس الثانية</span></a><a href="translations-nt.html#book-ghalatiya"><span class="mega-book-name">غلاطية</span><span class="mega-count">4</span></a><a href="translations-nt.html#book-afsus"><span class="mega-book-name">أفسس</span><span class="mega-count">2</span></a><a href="translations-nt.html#book-filippi"><span class="mega-book-name">فيلبي</span><span class="mega-count">4</span></a><a href="translations-nt.html#book-kulusi"><span class="mega-book-name">كولوسي</span><span class="mega-count">2</span></a><a href="translations-nt.html#book-tassaluniki-awwal"><span class="mega-book-name">تسالونيكي الأولى</span><span class="mega-count">4</span></a><a href="translations-nt.html#book-tassaluniki-thani"><span class="mega-book-name">تسالونيكي الثانية</span><span class="mega-count">2</span></a><a href="translations-nt.html#book-timuthawus-awwal"><span class="mega-book-name">تيموثاوس الأولى</span><span class="mega-count">3</span></a><a href="translations-nt.html#book-timuthawus-thani"><span class="mega-book-name">تيموثاوس الثانية</span><span class="mega-count">3</span></a><a href="translations-nt.html#book-tits"><span class="mega-book-name">تيطس</span><span class="mega-count">3</span></a><a href="translations-nt.html#book-filemun"><span class="mega-book-name">فليمون</span><span class="mega-count">2</span></a><a href="translations-nt.html#book-ibranin"><span class="mega-book-name">العبرانيين</span><span class="mega-count">10</span></a><a href="translations-nt.html#book-yaqub"><span class="mega-book-name">يعقوب</span><span class="mega-count">6</span></a><a href="translations-nt.html#book-butrus-awwal"><span class="mega-book-name">بطرس الأولى</span><span class="mega-count">6</span></a><a href="translations-nt.html#book-butrus-thani"><span class="mega-book-name">بطرس الثانية</span><span class="mega-count">4</span></a><a href="translations-nt.html#book-yuanna-awwal"><span class="mega-book-name">يوحنا الأولى</span><span class="mega-count">5</span></a><a href="translations-nt.html#book-yuanna-thani"><span class="mega-book-name">يوحنا الثانية</span></a><a href="translations-nt.html#book-yuanna-thalitha"><span class="mega-book-name">يوحنا الثالثة</span></a><a href="translations-nt.html#book-yahuda"><span class="mega-book-name">يهوذا</span><span class="mega-count">5</span></a><a href="translations-nt.html#book-mukashafa"><span class="mega-book-name">المكشوف</span><span class="mega-count">11</span></a></div></div></div><div class="mega-col mega-col-links"><a class="mega-link" href="translations-subjects.html">مواضيع</a><div class="nav-dropdown-divider"></div><a class="mega-link" href="translations.html">كل الترجمات</a><a class="mega-link" href="authors.html">المؤلفون</a><a class="mega-link" href="bibles.html">فهرس الآيات</a></div></div></div></div>
+                <a href="authors.html" class="rx-nav-link">المؤلفون</a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- ======================= Quick lookup ======================= -->
+    <section class="rx-lookup" aria-label="استعراض سريع حسب السفر">
+        <form class="rx-lookup-inner" id="rxLookup" novalidate>
+            <span class="rx-lookup-label"><span aria-hidden="true">&#128214;</span> استعراض سريع حسب السفر:</span>
+            <div class="rx-lookup-fields">
+                <label class="visually-hidden" for="rxTestament">العهد</label>
+                <select id="rxTestament" class="rx-select">
+                    <option value="nt" selected>العهد الجديد</option>
+                    <option value="ot">العهد القديم</option>
+                    <option value="topics">مواضيع أخرى</option>
+                </select>
+                <label class="visually-hidden" for="rxBook">السفر</label>
+                <select id="rxBook" class="rx-select" required>
+                    <option value="">— اختر سفراً —</option>
+                </select>
+                <label class="visually-hidden" for="rxChapter">الإصحاح</label>
+                <input type="number" id="rxChapter" class="rx-chapter-input" min="1" max="150" inputmode="numeric" placeholder="إصحاح" dir="ltr">
+                <button type="submit" class="rx-btn rx-btn-primary" id="rxLookupBtn">استعراض</button>
+            </div>
+        </form>
+    </section>
+
+    <!-- ======================= Welcome banner ======================= -->
+    <section class="rx-welcome">
+        <div class="rx-welcome-inner">
+            <p class="rx-eyebrow">دراسة الكتاب المقدس. فهم السياق.</p>
+            <h1>تعليقات ومقالات الكتاب المقدس</h1>
+            <p class="rx-welcome-intro">تجد هنا مجموعة شاملة من التعليقات والمقالات المفيدة حول الكتاب المقدس، منقولة عن مؤلفين موثوقين، لفهم كلمة الله بشكل أعمق وأدق.</p>
+        </div>
+    </section>
+
+    <!-- ======================= Main content ======================= -->
+    <main id="main-content" class="rx-main">
+        <section id="articles" class="rx-panel" aria-labelledby="rxArticlesTitle">
+            <div class="rx-panel-head">
+                <div>
+                    <span class="rx-eyebrow">مكتبة الدراسات</span>
+                    <h2 id="rxArticlesTitle">مقالات وتفسيرات مختارة</h2>
+                    <p class="rx-panel-desc">تصفح مجموعة منتقاة من التعليقات الروحية والتفاسير لفهم كلمة الله بدقة وتعمق.</p>
+                </div>
+                <div>
+                    <label class="visually-hidden" for="rxFilter">ابحث في العناوين</label>
+                    <input type="text" id="rxFilter" class="rx-filter-input" placeholder="ابحث في العناوين...">
+                </div>
+            </div>
+            <div id="articlesGrid" class="rx-grid" data-source="static">
+                <article class="rx-card" data-title="خدمة أَلِيهُو">
+    <div class="rx-card-top">
+        <span class="rx-badge">✓ مكتمل</span>
+        <span class="rx-card-status">Charles Henry Mackintosh</span>
+    </div>
+    <h3 class="rx-card-title"><a href="documents/charles-henry-mackintosh/تم/doc_0055.html">خدمة أَلِيهُو</a></h3>
+    <p class="rx-card-desc rx-clamp-3">Charles Henry Mackintosh إن تأملنا الحديث بين أيوب وأصدقاءه فسنلاحظ استحالة التفاهم فيما بينهم. فأيوب قدّم كل ما عنده ليتبرر؛ وهم قدموا كل ما عندهم حت...</p>
+    <div class="rx-card-foot">
+        <button type="button" class="rx-preview-btn" data-rx-preview data-rx-title="خدمة أَلِيهُو" data-rx-author="Charles Henry Mackintosh" data-rx-desc="Charles Henry Mackintosh إن تأملنا الحديث بين أيوب وأصدقاءه فسنلاحظ استحالة التفاهم فيما بينهم. فأيوب قدّم كل ما عنده ليتبرر؛ وهم قدموا كل ما عندهم حت..." data-rx-path="documents/charles-henry-mackintosh/تم/doc_0055.html">معاينة سريعة</button>
+        <a href="documents/charles-henry-mackintosh/تم/doc_0055.html" class="rx-read-link">اقرأ المزيد ←</a>
+    </div>
+</article>
+<article class="rx-card" data-title="الخروف الضال">
+    <div class="rx-card-top">
+        <span class="rx-badge">✓ مكتمل</span>
+        <span class="rx-card-status">John Nelson Darby</span>
+    </div>
+    <h3 class="rx-card-title"><a href="documents/john-nelson-darby/تم/doc_0319.html">الخروف الضال</a></h3>
+    <p class="rx-card-desc rx-clamp-3">حادثة صارت في حياة يوحنا داربي من الصعب ترتيب الخبر التالي عن يوحنا داربي. إنها قضية كان عنوانها &quot;حادثة حدثت في أيام يوحنا داربي المبكرة&quot;. حيث الأمر ه...</p>
+    <div class="rx-card-foot">
+        <button type="button" class="rx-preview-btn" data-rx-preview data-rx-title="الخروف الضال" data-rx-author="John Nelson Darby" data-rx-desc="حادثة صارت في حياة يوحنا داربي من الصعب ترتيب الخبر التالي عن يوحنا داربي. إنها قضية كان عنوانها &quot;حادثة حدثت في أيام يوحنا داربي المبكرة&quot;. حيث الأمر ه..." data-rx-path="documents/john-nelson-darby/تم/doc_0319.html">معاينة سريعة</button>
+        <a href="documents/john-nelson-darby/تم/doc_0319.html" class="rx-read-link">اقرأ المزيد ←</a>
+    </div>
+</article>
+<article class="rx-card" data-title="الصلاة - أنواع مختلفة من الصلوات (1)">
+    <div class="rx-card-top">
+        <span class="rx-badge">✓ مكتمل</span>
+        <span class="rx-card-status">William Gurnall</span>
+    </div>
+    <h3 class="rx-card-title"><a href="documents/william-gurnall/تم/doc_0527.html">الصلاة - أنواع مختلفة من الصلوات (1)</a></h3>
+    <p class="rx-card-desc rx-clamp-3">William Gurnall صلاة متلعثمة. أحيانًا أنت تسمع أحدًا يصلي بصوت متردد جدًا، ولكنك تكاد لا تفهم أية كلمة، ومع ذلك فإنك تشكو من نفسك وتتعجب منه. إننا لا ...</p>
+    <div class="rx-card-foot">
+        <button type="button" class="rx-preview-btn" data-rx-preview data-rx-title="الصلاة - أنواع مختلفة من الصلوات (1)" data-rx-author="William Gurnall" data-rx-desc="William Gurnall صلاة متلعثمة. أحيانًا أنت تسمع أحدًا يصلي بصوت متردد جدًا، ولكنك تكاد لا تفهم أية كلمة، ومع ذلك فإنك تشكو من نفسك وتتعجب منه. إننا لا ..." data-rx-path="documents/william-gurnall/تم/doc_0527.html">معاينة سريعة</button>
+        <a href="documents/william-gurnall/تم/doc_0527.html" class="rx-read-link">اقرأ المزيد ←</a>
+    </div>
+</article>
+<article class="rx-card" data-title="وَاقِفَاتٍ عِنْدَ صَلِيبِ يَسُوعَ">
+    <div class="rx-card-top">
+        <span class="rx-badge">✓ مكتمل</span>
+        <span class="rx-card-status">Hugo Bouter</span>
+    </div>
+    <h3 class="rx-card-title"><a href="documents/hugo-bouter/تم/doc_0248.html">وَاقِفَاتٍ عِنْدَ صَلِيبِ يَسُوعَ</a></h3>
+    <p class="rx-card-desc rx-clamp-3">Hugo Bouter يوحنا 19: 26 -27 &quot; 25 وَكَانَتْ وَاقِفَاتٍ عِنْدَ صَلِيبِ يَسُوعَ، أُمُّهُ، وَأُخْتُ أُمِّهِ مَرْيَمُ زَوْجَةُ كِلُوبَا، وَمَرْيَمُ الْمَج...</p>
+    <div class="rx-card-foot">
+        <button type="button" class="rx-preview-btn" data-rx-preview data-rx-title="وَاقِفَاتٍ عِنْدَ صَلِيبِ يَسُوعَ" data-rx-author="Hugo Bouter" data-rx-desc="Hugo Bouter يوحنا 19: 26 -27 &quot; 25 وَكَانَتْ وَاقِفَاتٍ عِنْدَ صَلِيبِ يَسُوعَ، أُمُّهُ، وَأُخْتُ أُمِّهِ مَرْيَمُ زَوْجَةُ كِلُوبَا، وَمَرْيَمُ الْمَج..." data-rx-path="documents/hugo-bouter/تم/doc_0248.html">معاينة سريعة</button>
+        <a href="documents/hugo-bouter/تم/doc_0248.html" class="rx-read-link">اقرأ المزيد ←</a>
+    </div>
+</article>
+<article class="rx-card" data-title="الفارق التعليمي ما بين المؤمن السماوي والمؤمن في المُلك الألفي">
+    <div class="rx-card-top">
+        <span class="rx-badge">✓ مكتمل</span>
+        <span class="rx-card-status">James Butler Stoney</span>
+    </div>
+    <h3 class="rx-card-title"><a href="documents/james-butler-stoney/تم/doc_0263.html">الفارق التعليمي ما بين المؤمن السماوي والمؤمن في المُلك الألفي</a></h3>
+    <p class="rx-card-desc rx-clamp-3">James Butler Stoney عبرانيين 3: 1 &quot;مِنْ ثَمَّ أَيُّهَا الإِخْوَةُ الْقِدِّيسُونَ، شُرَكَاءُ الدَّعْوَةِ السَّمَاوِيَّةِ، لاَحِظُوا رَسُولَ اعْتِرَافِن...</p>
+    <div class="rx-card-foot">
+        <button type="button" class="rx-preview-btn" data-rx-preview data-rx-title="الفارق التعليمي ما بين المؤمن السماوي والمؤمن في المُلك الألفي" data-rx-author="James Butler Stoney" data-rx-desc="James Butler Stoney عبرانيين 3: 1 &quot;مِنْ ثَمَّ أَيُّهَا الإِخْوَةُ الْقِدِّيسُونَ، شُرَكَاءُ الدَّعْوَةِ السَّمَاوِيَّةِ، لاَحِظُوا رَسُولَ اعْتِرَافِن..." data-rx-path="documents/james-butler-stoney/تم/doc_0263.html">معاينة سريعة</button>
+        <a href="documents/james-butler-stoney/تم/doc_0263.html" class="rx-read-link">اقرأ المزيد ←</a>
+    </div>
+</article>
+<article class="rx-card" data-title="لذكري">
+    <div class="rx-card-top">
+        <span class="rx-badge">✓ مكتمل</span>
+        <span class="rx-card-status">منوعات</span>
+    </div>
+    <h3 class="rx-card-title"><a href="documents/منوعات/تم/doc_0736.html">لذكري</a></h3>
+    <p class="rx-card-desc rx-clamp-3">لوقا 22: 19 – 20 W.J. Hocking من بين الإنجيليين الثلاثة، الذين يخبرون عن إعداد عشاء الرب، يوجد واحد فقط أعاد ذِكر الكلمات التي نطق بها الفادي في وداعه...</p>
+    <div class="rx-card-foot">
+        <button type="button" class="rx-preview-btn" data-rx-preview data-rx-title="لذكري" data-rx-author="منوعات" data-rx-desc="لوقا 22: 19 – 20 W.J. Hocking من بين الإنجيليين الثلاثة، الذين يخبرون عن إعداد عشاء الرب، يوجد واحد فقط أعاد ذِكر الكلمات التي نطق بها الفادي في وداعه..." data-rx-path="documents/منوعات/تم/doc_0736.html">معاينة سريعة</button>
+        <a href="documents/منوعات/تم/doc_0736.html" class="rx-read-link">اقرأ المزيد ←</a>
+    </div>
+</article>
+<article class="rx-card" data-title="ثلاثة مبادئ للنهضة">
+    <div class="rx-card-top">
+        <span class="rx-badge">✓ مكتمل</span>
+        <span class="rx-card-status">Hugo Bouter</span>
+    </div>
+    <h3 class="rx-card-title"><a href="documents/hugo-bouter/تم/doc_0246.html">ثلاثة مبادئ للنهضة</a></h3>
+    <p class="rx-card-desc rx-clamp-3">Hugo Bouter نهضة روحية، حياة جديدة، سلوك في النور هل ستأتي النهضة؟ هل ستأتي النهضة؟ في صورة عامة يرسم الكتاب لوحة يسودها ضباب عن الأيام الأخيرة التي ت...</p>
+    <div class="rx-card-foot">
+        <button type="button" class="rx-preview-btn" data-rx-preview data-rx-title="ثلاثة مبادئ للنهضة" data-rx-author="Hugo Bouter" data-rx-desc="Hugo Bouter نهضة روحية، حياة جديدة، سلوك في النور هل ستأتي النهضة؟ هل ستأتي النهضة؟ في صورة عامة يرسم الكتاب لوحة يسودها ضباب عن الأيام الأخيرة التي ت..." data-rx-path="documents/hugo-bouter/تم/doc_0246.html">معاينة سريعة</button>
+        <a href="documents/hugo-bouter/تم/doc_0246.html" class="rx-read-link">اقرأ المزيد ←</a>
+    </div>
+</article>
+<article class="rx-card" data-title="في البرية مع الله">
+    <div class="rx-card-top">
+        <span class="rx-badge">✓ مكتمل</span>
+        <span class="rx-card-status">Christian Briem</span>
+    </div>
+    <h3 class="rx-card-title"><a href="documents/christian-briem/تم/doc_0075.html">في البرية مع الله</a></h3>
+    <p class="rx-card-desc rx-clamp-3">Christian Briem مقدمة يحتوي العهد القديم على ملء من التعاليم والتي معظمها سُلّمت لنا على يد أحداث تاريخية. هذه الأحداث إما أنها تدور حول أفراد من الأش...</p>
+    <div class="rx-card-foot">
+        <button type="button" class="rx-preview-btn" data-rx-preview data-rx-title="في البرية مع الله" data-rx-author="Christian Briem" data-rx-desc="Christian Briem مقدمة يحتوي العهد القديم على ملء من التعاليم والتي معظمها سُلّمت لنا على يد أحداث تاريخية. هذه الأحداث إما أنها تدور حول أفراد من الأش..." data-rx-path="documents/christian-briem/تم/doc_0075.html">معاينة سريعة</button>
+        <a href="documents/christian-briem/تم/doc_0075.html" class="rx-read-link">اقرأ المزيد ←</a>
+    </div>
+</article>
+<article class="rx-card" data-title="الإنسان المؤمن في المُلك الألفي">
+    <div class="rx-card-top">
+        <span class="rx-badge">✓ مكتمل</span>
+        <span class="rx-card-status">John Nelson Darby</span>
+    </div>
+    <h3 class="rx-card-title"><a href="documents/john-nelson-darby/تم/doc_0311.html">الإنسان المؤمن في المُلك الألفي</a></h3>
+    <p class="rx-card-desc rx-clamp-3">موقف مختلف نحو الخليقة John Nelson Darby مقدمة إن دعوة المؤمنين هن على الأرض في زمن المُلك الألفي ستكون مختلفة عن دعوة المؤمنين الذين هم على الأرض الآ...</p>
+    <div class="rx-card-foot">
+        <button type="button" class="rx-preview-btn" data-rx-preview data-rx-title="الإنسان المؤمن في المُلك الألفي" data-rx-author="John Nelson Darby" data-rx-desc="موقف مختلف نحو الخليقة John Nelson Darby مقدمة إن دعوة المؤمنين هن على الأرض في زمن المُلك الألفي ستكون مختلفة عن دعوة المؤمنين الذين هم على الأرض الآ..." data-rx-path="documents/john-nelson-darby/تم/doc_0311.html">معاينة سريعة</button>
+        <a href="documents/john-nelson-darby/تم/doc_0311.html" class="rx-read-link">اقرأ المزيد ←</a>
+    </div>
+</article>
+<article class="rx-card" data-title="كيف آتي بثمر؟">
+    <div class="rx-card-top">
+        <span class="rx-badge">✓ مكتمل</span>
+        <span class="rx-card-status">Daniel Melui</span>
+    </div>
+    <h3 class="rx-card-title"><a href="documents/daniel-melui/تم/doc_0086.html">كيف آتي بثمر؟</a></h3>
+    <p class="rx-card-desc rx-clamp-3">متى 13: 23؛ مرقس 4: 20؛ لوقا 8: 15؛ يوحنا 15: 8 Daniel Melui لقد تركنا الرب يسوع على الأرض لكي نأتي بثمر. هذا هو ما حدده لنا الرب طالما نحن على الأرض....</p>
+    <div class="rx-card-foot">
+        <button type="button" class="rx-preview-btn" data-rx-preview data-rx-title="كيف آتي بثمر؟" data-rx-author="Daniel Melui" data-rx-desc="متى 13: 23؛ مرقس 4: 20؛ لوقا 8: 15؛ يوحنا 15: 8 Daniel Melui لقد تركنا الرب يسوع على الأرض لكي نأتي بثمر. هذا هو ما حدده لنا الرب طالما نحن على الأرض...." data-rx-path="documents/daniel-melui/تم/doc_0086.html">معاينة سريعة</button>
+        <a href="documents/daniel-melui/تم/doc_0086.html" class="rx-read-link">اقرأ المزيد ←</a>
+    </div>
+</article>
+            </div>
+        </section>
+    </main>
+
+    <!-- ======================= Latest articles ======================= -->
+    <section id="latestSection" class="rx-latest" aria-labelledby="rxLatestTitle">
+        <div class="rx-latest-head">
+            <span class="rx-eyebrow">مكتبة التعليقات</span>
+            <h2 id="rxLatestTitle">الأحدث على الموقع</h2>
+        </div>
+        <ul class="rx-latest-list">
+            <li><a href="documents/منوعات/doc_0773.html" class="rx-latest-link">يسوع في الوسط</a><span class="rx-latest-author">منوعات</span></li>
+<li><a href="documents/منوعات/doc_0772.html" class="rx-latest-link">وئام أم نزاع</a><span class="rx-latest-author">منوعات</span></li>
+<li><a href="documents/منوعات/doc_0771.html" class="rx-latest-link">هل فعلاً يجب أن تكون المشاكل اليومية موجودة؟</a><span class="rx-latest-author">منوعات</span></li>
+<li><a href="documents/منوعات/doc_0770.html" class="rx-latest-link">نظرة نبوية عامة حول المزامير</a><span class="rx-latest-author">منوعات</span></li>
+<li><a href="documents/منوعات/مباركك-مبارك/doc_0769.html" class="rx-latest-link">مُبَارِكُكَ مُبَارَكٌ</a><span class="rx-latest-author">منوعات</span></li>
+<li><a href="documents/منوعات/doc_0768.html" class="rx-latest-link">من بيت عنيا الأول إلى الثاني</a><span class="rx-latest-author">منوعات</span></li>
+<li><a href="documents/منوعات/doc_0767.html" class="rx-latest-link">ممحص في بوتقة الله</a><span class="rx-latest-author">منوعات</span></li>
+<li><a href="documents/منوعات/doc_0766.html" class="rx-latest-link">ملكوت السموات، ملكوت الله، ملكوت الآب، &quot;ملكوتي&quot;.</a><span class="rx-latest-author">منوعات</span></li>
+<li><a href="documents/منوعات/doc_0765.html" class="rx-latest-link">ملء من أمجاد المسيح</a><span class="rx-latest-author">منوعات</span></li>
+<li><a href="documents/منوعات/doc_0764.html" class="rx-latest-link">ملء من أمجاد المسيح</a><span class="rx-latest-author">منوعات</span></li>
+<li><a href="documents/منوعات/doc_0763.html" class="rx-latest-link">مفصلاً كلمة الحق بالاستقامة (تسليم كلمة الحق بالطريقة الصحيحة)</a><span class="rx-latest-author">منوعات</span></li>
+<li><a href="documents/منوعات/مدخل-إلى-النبوة/doc_0762.html" class="rx-latest-link">مدخل إلى النبوة</a><span class="rx-latest-author">منوعات</span></li>
+<li><a href="documents/منوعات/مدخل-إلى-النبوة/doc_0761.html" class="rx-latest-link">مقدمة في النبوة</a><span class="rx-latest-author">منوعات</span></li>
+<li><a href="documents/منوعات/doc_0760.html" class="rx-latest-link">مخاطر: جدعون، يفتاح، شمشون (3)</a><span class="rx-latest-author">منوعات</span></li>
+        </ul>
+    </section>
+
+    <!-- ======================= Footer ======================= -->
+    <footer class="rx-footer">
+        <div class="rx-footer-stats rx-welcome-stats" aria-label="إحصاءات الموقع">
+            <span class="rx-stat-chip">إجمالي المستندات: <strong id="totalDocs">768</strong></span>
+            <span class="rx-stat-chip">مكتملة: <strong id="rxCompletedDocs">342</strong></span>
+            <span class="rx-stat-chip">المؤلفون: <strong id="rxAuthorCount">107</strong></span>
+        </div>
+        <div class="rx-footer-grid">
+            <div class="rx-footer-brand">
+                <span class="rx-footer-logo"><span class="rx-cross" aria-hidden="true">&#10013;</span> تعليقات الكتاب المقدس</span>
+                <p>للقراءة والدراسة والتنزيل مجاناً. نقدم مراجع كتابية أصيلة وموثوقة لدراسة الكلمة المقدسة.</p>
+            </div>
+            <div>
+                <h4>روابط سريعة</h4>
+                <ul>
+                    <li><a href="index-new.html">الرئيسية</a></li>
+                    <li><a href="bibles.html">فهرس الكتب والفصول</a></li>
+                    <li><a href="translations.html">الترجمات</a></li>
+                    <li><a href="authors.html">قائمة المؤلفين</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4>المساعدة والدعم</h4>
+                <ul>
+                    <li><a href="index.html">النسخة الأصلية</a></li>
+                    <li><a href="authors.html">اتصل بنا</a></li>
+                    <li><a href="index-new.html#latestSection">الأحدث على الموقع</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4>اللغة والمظهر</h4>
+                <p>يمكنك التبديل بين الوضع الفاتح والداكن باستخدام الزر في أعلى الصفحة.</p>
+                <p class="rx-footer-note">العربية • إصدار تجريبي مطابق لـ Bibelkommentare</p>
+            </div>
+        </div>
+        <div class="rx-footer-bottom">
+            <span>© 2024 - 2026 جميع الحقوق محفوظة لترجمات تعليقات الكتاب المقدس</span>
+        </div>
+    </footer>
+
+    <!-- ======================= Preview modal ======================= -->
+    <div class="rx-modal" id="rxModal" role="dialog" aria-modal="true" aria-labelledby="rxModalTitle" aria-hidden="true">
+        <div class="rx-modal-card">
+            <button type="button" class="rx-modal-close" data-rx-close aria-label="إغلاق">&times;</button>
+            <span class="rx-modal-author" id="rxModalAuthor"></span>
+            <h2 id="rxModalTitle"></h2>
+            <div class="rx-modal-body" id="rxModalBody"></div>
+            <div class="rx-modal-actions">
+                <a class="rx-btn rx-btn-primary" id="rxModalOpen" href="#">فتح المقال</a>
+                <button type="button" class="rx-btn rx-btn-ghost" data-rx-close>إغلاق</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================= Toast ======================= -->
+    <div class="rx-toast" id="rxToast" role="status" aria-live="polite"></div>
+
+    <script src="js/data-visible.js"></script>
+    <script src="js/dom.js"></script>
+    <script src="js/theme.js"></script>
+    <script src="js/nav.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/search.js"></script>
+</body>
+</html>

@@ -12,7 +12,7 @@
     <script src="js/theme-init.js"></script>
     <style>
         .translations-page {
-            max-width: 1200px;
+            max-width: 1100px;
             margin: 0 auto;
             padding: 40px 20px;
         }
@@ -21,118 +21,83 @@
             margin-bottom: 30px;
             color: var(--color-primary);
         }
-        .filter-section {
-            margin-bottom: 30px;
+        .translations-stats {
+            text-align: center;
+            margin: -18px 0 26px;
+            font-size: 14px;
+            color: var(--text-secondary);
         }
-        .categories-grid {
+        .translations-stats .stat-separator {
+            margin: 0 8px;
+            color: var(--border-light);
+        }
+        .translations-stats .stat-completed {
+            color: var(--color-secondary);
+        }
+        .translations-cards {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 20px;
         }
-        .category-section {
-            background: var(--bg-white);
-            border: 1px solid var(--border-light);
-            border-radius: var(--radius-lg);
-            overflow: hidden;
-        }
-        .category-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 14px 16px;
-            background: var(--color-primary);
-            color: white;
-            cursor: pointer;
-            transition: background var(--transition-fast);
-        }
-        .category-header:hover {
-            background: var(--color-primary-light);
-        }
-        .category-header h2 {
-            margin: 0;
-            font-size: 16px;
-            color: white;
-        }
-        .toggle-icon {
-            font-size: 18px;
-            transition: transform var(--transition-fast);
-        }
-        .category-section.open .toggle-icon {
-            transform: rotate(180deg);
-        }
-        .category-content {
-            display: none;
-            padding: 12px;
-            max-height: 500px;
-            overflow-y: auto;
-        }
-        .category-section.open .category-content {
-            display: block;
-        }
-        .books-list {
+        .translations-card {
             display: flex;
             flex-direction: column;
             gap: 6px;
-        }
-        .book-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 12px;
-            background: var(--bg-light);
-            border: 1px solid var(--border-light);
-            border-radius: var(--radius-md);
-            text-decoration: none;
-            color: var(--text-primary);
-            transition: all var(--transition-fast);
-            cursor: pointer;
-        }
-        .book-item:hover {
-            background: var(--color-primary);
-            color: white;
-            border-color: var(--color-primary);
-        }
-        .book-item .book-name {
-            font-weight: 600;
-            font-size: 13px;
-        }
-        .book-item .book-count {
-            font-size: 11px;
-            color: var(--text-muted);
+            padding: 26px 20px;
             background: var(--bg-white);
-            padding: 2px 6px;
-            border-radius: 10px;
-        }
-        .book-item:hover .book-count {
-            color: var(--color-primary);
-            background: rgba(255,255,255,0.9);
-        }
-        .book-docs {
-            display: none;
-            padding: 8px 12px;
-            background: var(--bg-light);
-            border-top: 1px solid var(--border-light);
-        }
-        .book-item.active + .book-docs {
-            display: block;
-        }
-        .book-docs a {
-            display: block;
-            padding: 6px 10px;
-            color: var(--text-primary);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-lg);
             text-decoration: none;
-            font-size: 12px;
-            border-bottom: 1px solid var(--border-light);
+            color: var(--text-primary);
+            text-align: center;
+            min-height: 170px;
+            transition: border-color var(--transition-fast), transform var(--transition-fast);
         }
-        .book-docs a:last-child {
-            border-bottom: none;
+        .translations-card:hover {
+            border-color: var(--color-primary);
+            transform: translateY(-2px);
         }
-        .book-docs a:hover {
+        .translations-card:focus-visible {
+            outline: 2px solid var(--color-secondary);
+            outline-offset: 2px;
+        }
+        .translations-card h2 {
+            margin: 0;
+            color: var(--color-primary);
+            font-size: 20px;
+        }
+        .translations-card-count {
+            margin: 4px 0 0;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        .translations-card-count strong {
+            display: block;
+            font-size: 30px;
             color: var(--color-secondary);
         }
+        .translations-card-books {
+            margin: 0;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+        .translations-card-cta {
+            margin-top: auto;
+            padding-top: 10px;
+            font-size: 13px;
+            color: var(--color-primary);
+        }
         @media (max-width: 900px) {
-            .categories-grid {
+            .translations-cards {
                 grid-template-columns: 1fr;
+            }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .translations-card {
+                transition: none;
+            }
+            .translations-card:hover {
+                transform: none;
             }
         }
     </style>
@@ -169,9 +134,7 @@
                 <div class="nav-item">
                     <a href="index.html" class="nav-link">الرئيسية</a>
                 </div>
-                <div class="nav-item">
-                    <a href="translations.html" class="nav-link active">الترجمات</a>
-                </div>
+                <div class="nav-item has-mega"><a href="translations.html" class="nav-link active" aria-current="page">الترجمات</a><div class="nav-mega" id="navMega" aria-label="قائمة الترجمات"><div class="mega-inner"><div class="mega-col mega-col-books"><div class="nav-dropdown-section"><button type="button" class="nav-dropdown-toggle" aria-expanded="false" aria-controls="megaGridOt"><span>العهد القديم</span><span class="toggle-mark" aria-hidden="true">[+]</span></button><div class="nav-book-grid" id="megaGridOt"><a href="translations-ot.html#book-takwin"><span class="mega-book-name">التكوين</span><span class="mega-count">3</span></a><a href="translations-ot.html#book-kharuj"><span class="mega-book-name">الخروج</span><span class="mega-count">4</span></a><a href="translations-ot.html#book-lawiyyun"><span class="mega-book-name">اللاويين</span><span class="mega-count">3</span></a><a href="translations-ot.html#book-adad"><span class="mega-book-name">العدد</span><span class="mega-count">1</span></a><a href="translations-ot.html#book-tathniya"><span class="mega-book-name">التثنية</span><span class="mega-count">1</span></a><a href="translations-ot.html#book-yishu"><span class="mega-book-name">يشوع</span><span class="mega-count">3</span></a><a href="translations-ot.html#book-qudah"><span class="mega-book-name">القضاة</span><span class="mega-count">2</span></a><a href="translations-ot.html#book-rauth"><span class="mega-book-name">راعوث</span><span class="mega-count">3</span></a><a href="translations-ot.html#book-samuil-awwal"><span class="mega-book-name">صموئيل الأول</span><span class="mega-count">4</span></a><a href="translations-ot.html#book-samuil-thani"><span class="mega-book-name">صموئيل الثاني</span><span class="mega-count">2</span></a><a href="translations-ot.html#book-muluk-awwal"><span class="mega-book-name">الملوك الأول</span><span class="mega-count">1</span></a><a href="translations-ot.html#book-muluk-thani"><span class="mega-book-name">الملوك الثاني</span><span class="mega-count">2</span></a><a href="translations-ot.html#book-akhbar-ayyam-awwal"><span class="mega-book-name">أخبار الأيام الأول</span></a><a href="translations-ot.html#book-akhbar-ayyam-thani"><span class="mega-book-name">أخبار الأيام الثاني</span><span class="mega-count">1</span></a><a href="translations-ot.html#book-ezra"><span class="mega-book-name">عزرا</span><span class="mega-count">3</span></a><a href="translations-ot.html#book-nahumya"><span class="mega-book-name">نحميا</span><span class="mega-count">3</span></a><a href="translations-ot.html#book-astar"><span class="mega-book-name">أستر</span><span class="mega-count">1</span></a><a href="translations-ot.html#book-ayyub"><span class="mega-book-name">أيوب</span><span class="mega-count">2</span></a><a href="translations-ot.html#book-mazamir"><span class="mega-book-name">المزامير</span><span class="mega-count">14</span></a><a href="translations-ot.html#book-amthal"><span class="mega-book-name">الأمثال</span><span class="mega-count">1</span></a><a href="translations-ot.html#book-jamiya"><span class="mega-book-name">الجامعة</span></a><a href="translations-ot.html#book-nashid"><span class="mega-book-name">نشيد الأنشاد</span><span class="mega-count">5</span></a><a href="translations-ot.html#book-ishaiya"><span class="mega-book-name">إشعياء</span><span class="mega-count">4</span></a><a href="translations-ot.html#book-irmiya"><span class="mega-book-name">إرميا</span><span class="mega-count">2</span></a><a href="translations-ot.html#book-marathi"><span class="mega-book-name">مراثي إرميا</span><span class="mega-count">1</span></a><a href="translations-ot.html#book-hizqiyal"><span class="mega-book-name">حزقيال</span><span class="mega-count">6</span></a><a href="translations-ot.html#book-daniyal"><span class="mega-book-name">دانيال</span><span class="mega-count">4</span></a><a href="translations-ot.html#book-husha"><span class="mega-book-name">هوشع</span><span class="mega-count">2</span></a><a href="translations-ot.html#book-yuil"><span class="mega-book-name">يوئيل</span><span class="mega-count">1</span></a><a href="translations-ot.html#book-amus"><span class="mega-book-name">عاموس</span></a><a href="translations-ot.html#book-ubadiya"><span class="mega-book-name">عوبديا</span><span class="mega-count">3</span></a><a href="translations-ot.html#book-yunan"><span class="mega-book-name">يونان</span><span class="mega-count">1</span></a><a href="translations-ot.html#book-mikha"><span class="mega-book-name">ميخا</span><span class="mega-count">1</span></a><a href="translations-ot.html#book-nahum"><span class="mega-book-name">ناحوم</span><span class="mega-count">2</span></a><a href="translations-ot.html#book-haqquq"><span class="mega-book-name">حبقوق</span><span class="mega-count">1</span></a><a href="translations-ot.html#book-safaniya"><span class="mega-book-name">صفنيا</span><span class="mega-count">2</span></a><a href="translations-ot.html#book-hajjai"><span class="mega-book-name">حجى</span></a><a href="translations-ot.html#book-zakariya"><span class="mega-book-name">زكريا</span><span class="mega-count">4</span></a><a href="translations-ot.html#book-malakhi"><span class="mega-book-name">ملخي</span><span class="mega-count">2</span></a></div></div><div class="nav-dropdown-section"><button type="button" class="nav-dropdown-toggle" aria-expanded="false" aria-controls="megaGridNt"><span>العهد الجديد</span><span class="toggle-mark" aria-hidden="true">[+]</span></button><div class="nav-book-grid" id="megaGridNt"><a href="translations-nt.html#book-matta"><span class="mega-book-name">متى</span><span class="mega-count">8</span></a><a href="translations-nt.html#book-marqus"><span class="mega-book-name">مرقس</span><span class="mega-count">4</span></a><a href="translations-nt.html#book-luqa"><span class="mega-book-name">لوقا</span><span class="mega-count">5</span></a><a href="translations-nt.html#book-yuanna"><span class="mega-book-name">يوحنا</span><span class="mega-count">20</span></a><a href="translations-nt.html#book-aamal-rusul"><span class="mega-book-name">أعمال الرسل</span><span class="mega-count">3</span></a><a href="translations-nt.html#book-rumiyaya"><span class="mega-book-name">رومية</span><span class="mega-count">8</span></a><a href="translations-nt.html#book-kurunthus-awwal"><span class="mega-book-name">كورنثوس الأولى</span><span class="mega-count">2</span></a><a href="translations-nt.html#book-kurunthus-thani"><span class="mega-book-name">كورنثوس الثانية</span></a><a href="translations-nt.html#book-ghalatiya"><span class="mega-book-name">غلاطية</span><span class="mega-count">4</span></a><a href="translations-nt.html#book-afsus"><span class="mega-book-name">أفسس</span><span class="mega-count">2</span></a><a href="translations-nt.html#book-filippi"><span class="mega-book-name">فيلبي</span><span class="mega-count">4</span></a><a href="translations-nt.html#book-kulusi"><span class="mega-book-name">كولوسي</span><span class="mega-count">2</span></a><a href="translations-nt.html#book-tassaluniki-awwal"><span class="mega-book-name">تسالونيكي الأولى</span><span class="mega-count">4</span></a><a href="translations-nt.html#book-tassaluniki-thani"><span class="mega-book-name">تسالونيكي الثانية</span><span class="mega-count">2</span></a><a href="translations-nt.html#book-timuthawus-awwal"><span class="mega-book-name">تيموثاوس الأولى</span><span class="mega-count">3</span></a><a href="translations-nt.html#book-timuthawus-thani"><span class="mega-book-name">تيموثاوس الثانية</span><span class="mega-count">3</span></a><a href="translations-nt.html#book-tits"><span class="mega-book-name">تيطس</span><span class="mega-count">3</span></a><a href="translations-nt.html#book-filemun"><span class="mega-book-name">فليمون</span><span class="mega-count">2</span></a><a href="translations-nt.html#book-ibranin"><span class="mega-book-name">العبرانيين</span><span class="mega-count">10</span></a><a href="translations-nt.html#book-yaqub"><span class="mega-book-name">يعقوب</span><span class="mega-count">6</span></a><a href="translations-nt.html#book-butrus-awwal"><span class="mega-book-name">بطرس الأولى</span><span class="mega-count">6</span></a><a href="translations-nt.html#book-butrus-thani"><span class="mega-book-name">بطرس الثانية</span><span class="mega-count">4</span></a><a href="translations-nt.html#book-yuanna-awwal"><span class="mega-book-name">يوحنا الأولى</span><span class="mega-count">5</span></a><a href="translations-nt.html#book-yuanna-thani"><span class="mega-book-name">يوحنا الثانية</span></a><a href="translations-nt.html#book-yuanna-thalitha"><span class="mega-book-name">يوحنا الثالثة</span></a><a href="translations-nt.html#book-yahuda"><span class="mega-book-name">يهوذا</span><span class="mega-count">5</span></a><a href="translations-nt.html#book-mukashafa"><span class="mega-book-name">المكشوف</span><span class="mega-count">11</span></a></div></div></div><div class="mega-col mega-col-links"><a class="mega-link" href="translations-subjects.html">مواضيع</a><div class="nav-dropdown-divider"></div><a class="mega-link" href="translations.html">كل الترجمات</a><a class="mega-link" href="authors.html">المؤلفون</a><a class="mega-link" href="bibles.html">فهرس الآيات</a></div></div></div></div>
                 <div class="nav-item">
                     <a href="authors.html" class="nav-link">المؤلفون</a>
                 </div>
@@ -181,51 +144,26 @@
 
     <main id="main-content" class="translations-page">
         <h1>الترجمات</h1>
-        
-        <div class="filter-section">
-            <div class="filter-container" style="justify-content: center; display: flex; gap: 8px;">
-                <button class="filter-btn active" data-filter="all">الكل</button>
-                <button class="filter-btn" data-filter="completed">&#10003; مكتمل</button>
-                <button class="filter-btn" data-filter="in-progress">قيد الترجمة</button>
-            </div>
-        </div>
-        
-        <div class="categories-grid">
-            <div class="category-section open" id="otSection">
-                <div class="category-header">
-                    <h2>العهد القديم</h2>
-                    <span class="toggle-icon">&#9660;</span>
-                </div>
-                <div class="category-content">
-                    <div class="books-list" id="otBooksList">
-                        <!-- OT books injected by JS -->
-                    </div>
-                </div>
-            </div>
 
-            <div class="category-section open" id="ntSection">
-                <div class="category-header">
-                    <h2>العهد الجديد</h2>
-                    <span class="toggle-icon">&#9660;</span>
-                </div>
-                <div class="category-content">
-                    <div class="books-list" id="ntBooksList">
-                        <!-- NT books injected by JS -->
-                    </div>
-                </div>
-            </div>
-
-            <div class="category-section open" id="topicsSection">
-                <div class="category-header">
-                    <h2>مواضيع أخرى</h2>
-                    <span class="toggle-icon">&#9660;</span>
-                </div>
-                <div class="category-content">
-                    <div class="books-list" id="topicsBooksList">
-                        <!-- Topics injected by JS -->
-                    </div>
-                </div>
-            </div>
+        <div class="translations-cards">
+            <a class="translations-card" href="translations-ot.html">
+                <h2>العهد القديم</h2>
+                <p class="translations-card-count"><strong>95</strong> مستند</p>
+                <p class="translations-card-books">39 كتاب</p>
+                <span class="translations-card-cta">تصفّح الكتب ←</span>
+            </a>
+            <a class="translations-card" href="translations-nt.html">
+                <h2>العهد الجديد</h2>
+                <p class="translations-card-count"><strong>126</strong> مستند</p>
+                <p class="translations-card-books">27 كتاب</p>
+                <span class="translations-card-cta">تصفّح الكتب ←</span>
+            </a>
+            <a class="translations-card" href="translations-subjects.html">
+                <h2>المواضيع</h2>
+                <p class="translations-card-count"><strong>96</strong> مستند</p>
+                <p class="translations-card-books">10 موضوعاً</p>
+                <span class="translations-card-cta">تصفّح المواضيع ←</span>
+            </a>
         </div>
     </main>
 
@@ -259,6 +197,7 @@
         </div>
     </footer>
 
+    <script src="js/data-visible.js"></script>
     <script src="js/data-visible.js"></script>
     <script src="js/dom.js"></script>
     <script src="js/theme.js"></script>

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://gateway.umami.is; object-src 'none'; base-uri 'self'; form-action 'self'">
+    <title>الكتاب المقدس - فهرس الكتب والفصول - ترجمات تعليقات الكتاب المقدس</title>
+    <link rel="stylesheet" href="css/fonts.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/bibles.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✝</text></svg>">
+    <script src="js/theme-init.js"></script>
+</head>
+<body>
+    <a class="skip-link" href="#main-content">تخطي إلى المحتوى الرئيسي</a>
+    <header class="site-header">
+        <div class="header-top">
+            <div class="container">
+                <a href="index.html" class="logo">
+                    <span class="cross">&#10013;</span>
+                    <span class="logo-text">ترجمات تعليقات الكتاب المقدس</span>
+                </a>
+                <div class="header-search">
+                    <input type="text" id="searchInput" placeholder="ابحث..." autocomplete="off">
+                    <span class="search-icon-btn">&#128269;</span>
+                    <div class="search-results" id="searchResults"></div>
+                </div>
+                <div class="header-actions">
+                    <button type="button" class="theme-toggle" id="themeToggle" aria-pressed="false" aria-label="تبديل المظهر">
+                        <span class="theme-icon-moon" aria-hidden="true">&#9790;</span>
+                        <span class="theme-icon-sun" aria-hidden="true">&#9728;</span>
+                    </button>
+                </div>
+                <div class="nav-toggle" id="navToggle">
+                    <span class="nav-toggle-open">&#9776;</span>
+                    <span class="nav-toggle-close">&times;</span>
+                </div>
+            </div>
+        </div>
+        <nav class="nav-bar" id="navBar">
+            <div class="container">
+                <div class="nav-item">
+                    <a href="index.html" class="nav-link">الرئيسية</a>
+                </div>
+                <div class="nav-item">
+                    <a href="bibles.html" class="nav-link active" aria-current="page">الكتاب المقدس</a>
+                </div>
+                <!-- MEGA_BAR prefix="" -->
+                <div class="nav-item">
+                    <a href="authors.html" class="nav-link">المؤلفون</a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main id="main-content" class="bibles-page">
+        <div class="container">
+            <h1>الكتاب المقدس</h1>
+            <p class="bibles-intro">
+                تصفّح التعليقات المترجمة كتاباً كتاباً وفصلاً فصلاً. اضغط أي
+                كتاب لعرض فصوله والتعليقات المرتبطة بكل فصل ومرجعياتها.
+            </p>
+            <!-- BIBLES_STATS -->
+
+            <div class="bibles-filter">
+                <div class="bibles-search">
+                    <label for="bibleFilter">ابحث عن كتاب:</label>
+                    <input type="search" id="bibleFilter" placeholder="مثال: يشوع، رومية، John..." autocomplete="off" aria-describedby="bibleEmpty">
+                </div>
+                <div class="bibles-tabs" role="group" aria-label="تصفية حسب العهد">
+                    <button type="button" class="filter-btn active" data-filter="all" aria-pressed="true">الكل</button>
+                    <button type="button" class="filter-btn" data-filter="ot" aria-pressed="false">العهد القديم</button>
+                    <button type="button" class="filter-btn" data-filter="nt" aria-pressed="false">العهد الجديد</button>
+                </div>
+            </div>
+            <p class="bibles-empty" id="bibleEmpty" role="status" hidden>لا يوجد كتاب مطابق لبحثك.</p>
+
+            <section class="bible-books-section" aria-labelledby="otHeading">
+                <h2 id="otHeading">العهد القديم</h2>
+                <div class="bible-grid" id="otGrid">
+                    <!-- BIBLES_OT_GRID -->
+                </div>
+            </section>
+
+            <section class="bible-books-section" aria-labelledby="ntHeading">
+                <h2 id="ntHeading">العهد الجديد</h2>
+                <div class="bible-grid" id="ntGrid">
+                    <!-- BIBLES_NT_GRID -->
+                </div>
+            </section>
+
+            <section class="bible-panels-section" aria-labelledby="indexHeading">
+                <h2 id="indexHeading">الفهرس التفصيلي: الفصول والتعليقات</h2>
+                <div class="book-panels" id="bookPanels">
+                    <!-- BIBLES_BOOK_SECTIONS -->
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container footer-grid">
+            <div class="footer-brand">
+                <p>تعليقات ومقالات الكتاب المقدس - للقراءة والدراسة والتنزيل مجاناً.</p>
+            </div>
+            <div>
+                <h3>المحتوى</h3>
+                <button type="button" data-href="index.html">الرئيسية</button>
+                <button type="button" data-href="bibles.html">الكتاب المقدس</button>
+                <button type="button" data-href="translations.html">الترجمات</button>
+                <button type="button" data-href="authors.html">المؤلفون</button>
+            </div>
+            <div>
+                <h3>الخدمات</h3>
+                <button type="button" data-href="index.html#recentUpdates">آخر التحديثات</button>
+                <button type="button" data-href="index.html#newsletterForm">النشرة البريدية</button>
+            </div>
+            <div>
+                <h3>حول</h3>
+                <button type="button">ملاحظات</button>
+                <button type="button">الشروط</button>
+                <button type="button">الخصوصية</button>
+            </div>
+        </div>
+        <div class="footer-bottom container">
+            <span>© 2024 - 2026 ترجمات تعليقات الكتاب المقدس</span>
+            <span>العربية</span>
+        </div>
+    </footer>
+
+    <script src="js/data-visible.js"></script>
+    <script src="js/dom.js"></script>
+    <script src="js/theme.js"></script>
+    <script src="js/nav.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/search.js"></script>
+    <script src="js/bibles.js"></script>
+</body>
+</html>

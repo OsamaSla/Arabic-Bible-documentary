@@ -90,12 +90,11 @@
         {"slug": "scripture", "name_ar": "الكتاب المقدس", "name_de": "Die Heilige Schrift", "order": 3},
         {"slug": "marriage-family", "name_ar": "الزواج والأسرة", "name_de": "Ehe & Familie", "order": 4},
         {"slug": "gospel", "name_ar": "الإنجيل", "name_de": "Evangelium", "order": 5},
-        {"slug": "faith-life", "name_ar": "الحياة الإيمانية", "name_de": "Glaubensleben", "order": 6},
+        {"slug": "faith-life", "name_ar": "حياة الإيمان", "name_de": "Glaubensleben", "order": 6},
         {"slug": "jesus-christ", "name_ar": "يسوع المسيح", "name_de": "Jesus Christus", "order": 7},
-        {"slug": "creation", "name_ar": "الخلق", "name_de": "Schöpfung", "order": 8},
+        {"slug": "creation", "name_ar": "الخليقة", "name_de": "Schöpfung", "order": 8},
         {"slug": "church", "name_ar": "الكنيسة", "name_de": "Versammlung / Gemeinde", "order": 9},
-        {"slug": "magazines", "name_ar": "المجلات", "name_de": "Zeitschriften", "order": 10},
-        {"slug": "prophecy", "name_ar": "النبوءة والمستقبل", "name_de": "Zukunft / Prophetie", "order": 11}
+        {"slug": "prophecy", "name_ar": "النبوءة والمستقبل", "name_de": "Zukunft / Prophetie", "order": 10}
       ]
     }
   }

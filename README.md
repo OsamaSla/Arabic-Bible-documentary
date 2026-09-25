@@ -122,8 +122,12 @@ Your site will be live at: `https://osamasla.github.io/Arabic-Bible-documentary/
 ```
 Arabic-Bible-documentary/
 ├── docs/                    # Generated site (GitHub Pages root — public only)
-│   ├── index.html           # Homepage
-│   ├── translations.html    # Translations page with book categories
+│   ├── index.html           # Homepage (original design)
+│   ├── index-new.html       # Redesign preview (Slide1-style, static cards + latest list)
+│   ├── translations.html    # Translations landing (3 count cards)
+│   ├── translations-ot.html # Old Testament books category page
+│   ├── translations-nt.html # New Testament books category page
+│   ├── translations-subjects.html  # Topics category page
 │   ├── authors.html         # All authors page
 │   ├── documents/           # Generated HTML (visible docs only; index.json is visible-only)
 │   ├── authors/             # Author profile pages
@@ -136,11 +140,14 @@ Arabic-Bible-documentary/
 ├── scripts/
 │   ├── convert.py           # Word to HTML converter
 │   ├── build.py             # Master build script
+│   ├── mega_nav.py          # Hover mega-menu builder (build-time counts)
 │   ├── watch.py             # Poll source + optional --push auto-deploy
 │   ├── serve.py             # Localhost-only server + token-gated /api/*
 │   └── git_ops.py           # Shared git add/commit/push helper
 ├── templates/
-│   └── index.html           # Homepage template
+│   ├── index-new.html       # Redesign homepage template
+│   ├── translations*.html   # Translations landing + 3 category pages
+│   └── bibles.html          # Book & chapter navigator template
 ├── css/
 │   ├── style.css            # Main site styles
 │   ├── fonts.css            # Self-hosted @font-face
@@ -235,17 +242,16 @@ Open `http://localhost:8000/admin-panel.html` while `python scripts/serve.py` is
 | 4 | يوحنا | Joh | yuanna |
 | ... | ... | ... | ... |
 
-### Topics (11 categories)
+### Topics (10 categories)
 - دراسة الكتاب المقدس (Bible Study)
 - الروح القدس (Holy Spirit)
 - الكتاب المقدس (The Bible)
 - الزواج والأسرة (Marriage & Family)
 - الإنجيل (The Gospel)
-- الحياة الإيمانية (Faith Life)
+- حياة الإيمان (Faith Life)
 - يسوع المسيح (Jesus Christ)
-- الخلق (Creation)
+- الخليقة (Creation)
 - الكنيسة (The Church)
-- المجلات (Magazines)
 - النبوءة والمستقبل (Prophecy & Future)
 
 ---

@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="العهد الجديد - تعليقات الكتاب المقدس">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://gateway.umami.is; object-src 'none'; base-uri 'self'; form-action 'self'">
+    <title>العهد الجديد - تعليقات الكتاب المقدس</title>
+    <link rel="stylesheet" href="css/fonts.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✝</text></svg>">
+    <script src="js/theme-init.js"></script>
+    <style>
+        .translations-page {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        .translations-page h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: var(--color-primary);
+        }
+        .filter-section {
+            margin-bottom: 30px;
+        }
+        .category-section {
+            background: var(--bg-white);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+        }
+        .category-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 16px;
+            background: var(--color-primary);
+            color: white;
+            cursor: pointer;
+            transition: background var(--transition-fast);
+        }
+        .category-header:hover {
+            background: var(--color-primary-light);
+        }
+        .category-header h2 {
+            margin: 0;
+            font-size: 16px;
+            color: white;
+        }
+        .toggle-icon {
+            font-size: 18px;
+            transition: transform var(--transition-fast);
+        }
+        .category-section.open .toggle-icon {
+            transform: rotate(180deg);
+        }
+        .category-content {
+            padding: 12px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        .books-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .book-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: var(--bg-light);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-md);
+            text-decoration: none;
+            color: var(--text-primary);
+            transition: all var(--transition-fast);
+            cursor: pointer;
+        }
+        .book-item:hover {
+            background: var(--color-primary);
+            color: white;
+            border-color: var(--color-primary);
+        }
+        .book-item:focus-visible {
+            outline: 2px solid var(--color-secondary);
+            outline-offset: 2px;
+        }
+        .book-item .book-name {
+            font-weight: 600;
+            font-size: 13px;
+        }
+        .book-item .book-count {
+            font-size: 11px;
+            color: var(--text-muted);
+            background: var(--bg-white);
+            padding: 2px 6px;
+            border-radius: 10px;
+        }
+        .book-item:hover .book-count {
+            color: var(--color-primary);
+            background: rgba(255,255,255,0.9);
+        }
+        .book-docs {
+            display: none;
+            padding: 8px 12px;
+            background: var(--bg-light);
+            border-top: 1px solid var(--border-light);
+        }
+        .book-docs a {
+            display: block;
+            padding: 6px 10px;
+            color: var(--text-primary);
+            text-decoration: none;
+            font-size: 12px;
+            border-bottom: 1px solid var(--border-light);
+        }
+        .book-docs a:last-child {
+            border-bottom: none;
+        }
+        .book-docs a:hover {
+            color: var(--color-secondary);
+        }
+        .translations-stats {
+            text-align: center;
+            margin: -18px 0 26px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        .translations-stats .stat-separator {
+            margin: 0 8px;
+            color: var(--border-light);
+        }
+        .translations-stats .stat-completed {
+            color: var(--color-secondary);
+        }
+    </style>
+    <script defer src="js/vendor/umami.js" data-website-id="4bf9e517-428f-466b-a83e-5873974e1e8f"></script>
+</head>
+<body>
+    <a class="skip-link" href="#main-content">تخطي إلى المحتوى الرئيسي</a>
+    <header class="site-header">
+        <div class="header-top">
+            <div class="container">
+                <a href="index.html" class="logo">
+                    <span class="cross">&#10013;</span>
+                    <span class="logo-text">ترجمات تعليقات الكتاب المقدس</span>
+                </a>
+                <div class="header-search">
+                    <input type="text" id="searchInput" placeholder="ابحث..." autocomplete="off">
+                    <span class="search-icon-btn">&#128269;</span>
+                    <div class="search-results" id="searchResults"></div>
+                </div>
+                <div class="header-actions">
+                    <button type="button" class="theme-toggle" id="themeToggle" aria-pressed="false" aria-label="تبديل المظهر">
+                        <span class="theme-icon-moon" aria-hidden="true">&#9790;</span>
+                        <span class="theme-icon-sun" aria-hidden="true">&#9728;</span>
+                    </button>
+                </div>
+                <div class="nav-toggle" id="navToggle">
+                    <span class="nav-toggle-open">&#9776;</span>
+                    <span class="nav-toggle-close">&times;</span>
+                </div>
+            </div>
+        </div>
+        <nav class="nav-bar" id="navBar">
+            <div class="container">
+                <div class="nav-item">
+                    <a href="index.html" class="nav-link">الرئيسية</a>
+                </div>
+                <!-- MEGA_BAR prefix="" active="1" -->
+                <div class="nav-item">
+                    <a href="authors.html" class="nav-link">المؤلفون</a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main id="main-content" class="translations-page">
+        <h1>العهد الجديد</h1>
+
+        <div class="filter-section">
+            <div class="filter-container" style="justify-content: center; display: flex; gap: 8px;">
+                <button class="filter-btn active" data-filter="all">الكل</button>
+                <button class="filter-btn" data-filter="completed">&#10003; مكتمل</button>
+                <button class="filter-btn" data-filter="in-progress">قيد الترجمة</button>
+            </div>
+        </div>
+
+        <div class="category-section open" id="ntSection">
+            <div class="category-header">
+                <h2>كتب العهد الجديد</h2>
+                <span class="toggle-icon">&#9660;</span>
+            </div>
+            <div class="category-content">
+                <div class="books-list" id="ntBooksList">
+                    <!-- OT books injected by JS -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container footer-grid">
+            <div class="footer-brand">
+                <p>تعليقات ومقالات الكتاب المقدس - للقراءة والدراسة والتنزيل مجاناً.</p>
+            </div>
+            <div>
+                <h3>المحتوى</h3>
+                <button type="button" data-href="index.html">الرئيسية</button>
+                <button type="button" data-href="translations.html">الترجمات</button>
+                <button type="button" data-href="authors.html">المؤلفون</button>
+            </div>
+            <div>
+                <h3>الخدمات</h3>
+                <button type="button">آخر التحديثات</button>
+                <button type="button" data-href="index.html#newsletterForm">النشرة البريدية</button>
+                <button type="button">التحميل</button>
+            </div>
+            <div>
+                <h3>حول</h3>
+                <button type="button">ملاحظات</button>
+                <button type="button">الشروط</button>
+                <button type="button">الخصوصية</button>
+            </div>
+        </div>
+        <div class="footer-bottom container">
+            <span>© 2024 - 2026 ترجمات تعليقات الكتاب المقدس</span>
+            <span>العربية</span>
+        </div>
+    </footer>
+
+    <script src="js/data-visible.js"></script>
+    <script src="js/dom.js"></script>
+    <script src="js/theme.js"></script>
+    <script src="js/nav.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/translations.js"></script>
+    <script src="js/search.js"></script>
+</body>
+</html>

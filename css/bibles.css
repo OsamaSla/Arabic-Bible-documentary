@@ -1,0 +1,406 @@
+/* ========================================
+   Bible Book & Chapter Navigator (bibles.html)
+   ======================================== */
+
+.bibles-page .container {
+    max-width: 1200px;
+}
+
+.bibles-page h1 {
+    color: var(--color-primary);
+    margin-bottom: 0.5rem;
+}
+
+.bibles-intro {
+    color: var(--text-secondary);
+    line-height: 1.8;
+    margin-bottom: 0.75rem;
+    max-width: 60ch;
+}
+
+.bibles-stats {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    margin-bottom: 1.5rem;
+    min-height: 1.5rem;
+}
+
+.bibles-stats strong {
+    color: var(--color-primary);
+}
+
+/* ---- Filter bar ---- */
+.bibles-filter {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    background: var(--bg-light);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    margin-bottom: 1rem;
+}
+
+.bibles-search {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    flex: 1 1 260px;
+    min-width: 0;
+}
+
+.bibles-search label {
+    font-size: 0.88rem;
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+.bibles-search input {
+    width: 100%;
+    min-height: 44px;
+    padding: 0.5rem 0.85rem;
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+    background: var(--bg-white);
+    color: var(--text-primary, inherit);
+    font: inherit;
+}
+
+.bibles-search input:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}
+
+.bibles-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.bibles-tabs .filter-btn {
+    min-height: 44px;
+    padding: 0.5rem 1.1rem;
+}
+
+.bibles-empty {
+    min-height: 5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    background: var(--bg-light);
+    border: 1px dashed var(--border-light);
+    border-radius: var(--radius-md);
+    margin-bottom: 1rem;
+}
+
+/* `hidden` must win over the component display rules above */
+.bible-book[hidden],
+.book-panel[hidden],
+.bible-books-section[hidden],
+.bible-panels-section[hidden],
+.bibles-empty[hidden],
+.chapter-block[hidden] {
+    display: none !important;
+}
+
+/* ---- Book grids ---- */
+.bible-books-section {
+    margin-bottom: 2rem;
+}
+
+.bible-books-section h2,
+.bible-panels-section h2 {
+    color: var(--color-primary);
+    font-size: 1.35rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--color-secondary);
+    margin-bottom: 1rem;
+}
+
+.bible-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 0.85rem;
+}
+
+.bible-book {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    min-height: 96px;
+    padding: 0.85rem 1rem;
+    background: var(--bg-white);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.15s ease, box-shadow 0.15s ease,
+                border-color 0.15s ease;
+}
+
+.bible-book:hover {
+    transform: translateY(-3px);
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-sm);
+}
+
+.bible-book:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}
+
+.bible-book .bb-name {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--color-primary);
+}
+
+.bible-book .bb-name-de {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    direction: ltr;
+    text-align: right;
+}
+
+.bible-book .bb-meta {
+    margin-top: auto;
+    font-size: 0.82rem;
+    color: var(--color-accent, var(--color-secondary));
+    font-weight: 600;
+}
+
+.bible-book.no-docs {
+    opacity: 0.62;
+}
+
+.bible-book.no-docs:hover {
+    opacity: 0.9;
+}
+
+/* ---- Book panels (chapters + commentaries) ---- */
+.book-panel {
+    background: var(--bg-white);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    margin-bottom: 0.85rem;
+    overflow: hidden;
+}
+
+.book-panel > summary {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.6rem;
+    min-height: 56px;
+    padding: 0.9rem 1.25rem;
+    cursor: pointer;
+    list-style: none;
+    background: var(--bg-light);
+    transition: background 0.15s ease;
+}
+
+.book-panel > summary::-webkit-details-marker {
+    display: none;
+}
+
+.book-panel > summary::after {
+    content: '\25BE';
+    margin-right: auto;
+    color: var(--text-muted);
+    transition: transform 0.15s ease;
+}
+
+.book-panel[open] > summary::after {
+    transform: rotate(180deg);
+}
+
+.book-panel > summary:hover {
+    background: var(--border-light);
+}
+
+.book-panel > summary:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: -2px;
+}
+
+.book-panel .bp-name {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--color-primary);
+}
+
+.book-panel .bp-name-de {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    direction: ltr;
+}
+
+.book-panel .bp-meta {
+    font-size: 0.85rem;
+    color: var(--color-accent, var(--color-secondary));
+    font-weight: 600;
+}
+
+.bp-body {
+    padding: 1rem 1.25rem 1.25rem;
+    border-top: 1px solid var(--border-light);
+    min-height: 60px;
+}
+
+.bp-empty {
+    color: var(--text-muted);
+    padding: 0.75rem 0;
+    margin: 0;
+}
+
+/* ---- Chapter blocks ---- */
+.chapter-block {
+    margin-bottom: 1.25rem;
+    scroll-margin-top: 140px;
+}
+
+.chapter-block:last-child {
+    margin-bottom: 0;
+}
+
+.chapter-title {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 1.05rem;
+    color: var(--color-primary);
+    margin: 0 0 0.6rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px dashed var(--border-light);
+}
+
+.chapter-count {
+    background: var(--color-secondary);
+    color: var(--text-light);
+    border-radius: 999px;
+    padding: 0.05rem 0.6rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+
+.chapter-block.loose .chapter-title {
+    color: var(--text-secondary);
+}
+
+.chapter-docs {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.chapter-doc {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.35rem 0.75rem;
+    padding: 0.6rem 0.8rem;
+    background: var(--bg-light);
+    border-radius: var(--radius-md);
+    min-height: 48px;
+}
+
+.chapter-doc .cd-title {
+    color: var(--color-primary);
+    font-weight: 600;
+    text-decoration: none;
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.chapter-doc .cd-title:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.chapter-doc .cd-title:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+    border-radius: 2px;
+}
+
+.chapter-doc .cd-author {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+}
+
+.chapter-doc .cd-status {
+    font-size: 0.85rem;
+    line-height: 1;
+}
+
+.chapter-doc .cd-status.done {
+    color: #15803d;
+}
+
+.chapter-doc .cd-status.prog {
+    color: #b45309;
+}
+
+.chapter-doc .cd-verses {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    background: var(--bg-white);
+    border: 1px solid var(--border-light);
+    border-radius: 999px;
+    padding: 0.05rem 0.55rem;
+    direction: rtl;
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 768px) {
+    .bibles-filter {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .bible-grid {
+        grid-template-columns: repeat(auto-fill, minmax(135px, 1fr));
+    }
+
+    .book-panel > summary {
+        padding: 0.85rem 1rem;
+    }
+
+    .bp-body {
+        padding: 0.85rem 1rem 1rem;
+    }
+
+    .chapter-doc {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .bible-book,
+    .book-panel > summary::after {
+        transition: none;
+    }
+
+    .bible-book:hover {
+        transform: none;
+    }
+}
+
+@media print {
+    .bibles-filter,
+    .bibles-empty {
+        display: none !important;
+    }
+
+    .book-panel {
+        break-inside: avoid;
+    }
+}
