@@ -344,11 +344,32 @@ def generate_index_new_html(base_dir, docs_dir, index_data):
 # Scripture indexing + Bible navigator (bibles.html)
 # ------------------------------------------------------------------
 
+def _load_bible_chapter_totals(base_dir):
+    """{slug: chapter_count} from bible-data/*.json (Van Dyck canon)."""
+    data_dir = base_dir / 'bible-data'
+    totals = {}
+    if not data_dir.exists():
+        return totals
+    for path in data_dir.glob('*.json'):
+        try:
+            with open(path, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+        except (OSError, ValueError):
+            continue
+        slug = data.get('slug') or path.stem
+        if data.get('chapters'):
+            totals[slug] = int(data['chapters'])
+    return totals
+
+
 def prepare_scripture_data(base_dir, docs_dir, visible_index_data):
     """Extract Book/Chapter/Verse refs from metadata, persist the enriched
     public index, and build the Book -> Chapter -> Documents index."""
     categories = load_categories(base_dir)
     catalog = build_book_catalog(categories)
+    for slug, n in _load_bible_chapter_totals(base_dir).items():
+        if slug in catalog:
+            catalog[slug]['chapters'] = n
     documents = visible_index_data.get('documents', [])
 
     stats = attach_refs(documents, catalog)
@@ -408,12 +429,12 @@ def build_related_sidebar(doc, documents, catalog, categories, limit=6):
 
     sections = []
 
-    # 1) Scripture reference chips -> jump into bibles.html anchors
+    # 1) Scripture reference chips -> static chapter text pages (bible/<b>/<c>.html)
     if doc.get('refs'):
         chips = []
         for ref in doc['refs'][:8]:
             label = escape_html(ref_label(ref, catalog))
-            anchor = escape_html(f"bibles.html#book-{ref['b']}-ch-{ref['c']}")
+            anchor = escape_html(f"bible/{ref['b']}/{ref['c']}.html")
             chips.append(f'<a class="ref-chip" href="{prefix}{anchor}">{label}</a>')
         if chips:
             sections.append(
@@ -590,7 +611,9 @@ def _bible_book_panel(slug, info, bucket, testament):
             parts.append(
                 f'<section class="chapter-block" id="book-{slug}-ch-{ch}">'
                 f'<h3 class="chapter-title">الإصحاح {ch}'
-                f'<span class="chapter-count">{len(entries)} تعليق</span></h3>'
+                f'<span class="chapter-count">{len(entries)} تعليق</span>'
+                f'<a class="ch-text-link" href="bible/{slug}/{ch}.html">'
+                'نص الإصحاح</a></h3>'
                 '<ul class="chapter-docs">'
             )
             for entry in entries:
@@ -657,6 +680,185 @@ def generate_bibles_html(base_dir, docs_dir, catalog, categories, scripture):
     with open(docs_dir / 'bibles.html', 'w', encoding='utf-8') as f:
         f.write(html)
     print(f'  [OK] bibles.html generated ({len(ot_cards)} OT, {len(nt_cards)} NT books)')
+
+
+def _bible_chapter_page(name, slug, ch, total, verses, has_docs):
+    """One static Van Dyck chapter page (site chrome, no client fetch)."""
+    prefix = '../../'
+    name_e = escape_html(name)
+    title = (f'{name_e} {ch} - الكتاب المقدس (فان دايك) '
+             '- ترجمات تعليقات الكتاب المقدس')
+
+    verses_html = ''.join(
+        f'<p class="ch-verse"><span class="ch-n">{i}</span> {escape_html(text)}</p>'
+        for i, text in enumerate(verses, 1)
+    )
+
+    if ch > 1:
+        prev_html = (f'<a href="{ch - 1}.html">'
+                     '&#8594; الإصحاح السابق</a>')
+    else:
+        prev_html = '<span class="ch-nav-fill" aria-hidden="true"></span>'
+    if ch < total:
+        next_html = (f'<a href="{ch + 1}.html">'
+                     'الإصحاح التالي &#8592;</a>')
+    else:
+        next_html = '<span class="ch-nav-fill" aria-hidden="true"></span>'
+
+    comments_html = ''
+    if has_docs:
+        comments_html = (
+            f'<p class="ch-comments"><a href="{prefix}bibles.html'
+            f'#book-{slug}-ch-{ch}">تعليقات ومرجعيات على هذا الإصحاح '
+            '&larr;</a></p>'
+        )
+
+    return f'''<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://gateway.umami.is; object-src 'none'; base-uri 'self'; form-action 'self'">
+    <title>{title}</title>
+    <link rel="stylesheet" href="{prefix}css/fonts.css">
+    <link rel="stylesheet" href="{prefix}css/style.css">
+    <link rel="stylesheet" href="{prefix}css/chapter.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✝</text></svg>">
+    <script src="{prefix}js/theme-init.js"></script>
+</head>
+<body>
+    <a class="skip-link" href="#main-content">تخطي إلى المحتوى الرئيسي</a>
+    <header class="site-header">
+        <div class="header-top">
+            <div class="container">
+                <a href="{prefix}index.html" class="logo">
+                    <span class="cross">&#10013;</span>
+                    <span class="logo-text">ترجمات تعليقات الكتاب المقدس</span>
+                </a>
+                <div class="header-search">
+                    <input type="text" id="searchInput" placeholder="ابحث..." autocomplete="off">
+                    <span class="search-icon-btn">&#128269;</span>
+                    <div class="search-results" id="searchResults"></div>
+                </div>
+                <div class="header-actions">
+                    <button type="button" class="theme-toggle" id="themeToggle" aria-pressed="false" aria-label="تبديل المظهر">
+                        <span class="theme-icon-moon" aria-hidden="true">&#9790;</span>
+                        <span class="theme-icon-sun" aria-hidden="true">&#9728;</span>
+                    </button>
+                </div>
+                <div class="nav-toggle" id="navToggle">
+                    <span class="nav-toggle-open">&#9776;</span>
+                    <span class="nav-toggle-close">&times;</span>
+                </div>
+            </div>
+        </div>
+        <nav class="nav-bar" id="navBar">
+            <div class="container">
+                <div class="nav-item">
+                    <a href="{prefix}index.html" class="nav-link">الرئيسية</a>
+                </div>
+                <div class="nav-item">
+                    <a href="{prefix}bibles.html" class="nav-link active" aria-current="page">الكتاب المقدس</a>
+                </div>
+                <!-- MEGA_BAR prefix="../../" -->
+                <div class="nav-item">
+                    <a href="{prefix}authors.html" class="nav-link">المؤلفون</a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main id="main-content" class="chapter-page">
+        <div class="container">
+            <nav class="ch-crumbs" aria-label="مسار التصفح">
+                <a href="{prefix}bibles.html">الكتاب المقدس</a>
+                <span aria-hidden="true">/</span>
+                <a href="{prefix}bibles.html#book-{slug}">{name_e}</a>
+                <span aria-hidden="true">/</span>
+                <span aria-current="page">الإصحاح {ch}</span>
+            </nav>
+            <h1>{name_e} — الإصحاح {ch}</h1>
+            <p class="ch-sub">نص الكتاب المقدس — ترجمة فان دايك</p>
+            <article class="ch-text">
+                {verses_html}
+            </article>
+            {comments_html}
+            <nav class="ch-nav" aria-label="تنقل بين الإصحاحات">
+                {prev_html}
+                <a href="{prefix}bibles.html#book-{slug}">فهرس الكتاب</a>
+                {next_html}
+            </nav>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container footer-grid">
+            <div class="footer-brand">
+                <p>تعليقات ومقالات الكتاب المقدس - للقراءة والدراسة والتنزيل مجاناً.</p>
+            </div>
+            <div>
+                <h3>المحتوى</h3>
+                <button type="button" data-href="{prefix}index.html">الرئيسية</button>
+                <button type="button" data-href="{prefix}bibles.html">الكتاب المقدس</button>
+                <button type="button" data-href="{prefix}translations.html">الترجمات</button>
+                <button type="button" data-href="{prefix}authors.html">المؤلفون</button>
+            </div>
+            <div>
+                <h3>الخدمات</h3>
+                <button type="button" data-href="{prefix}index.html#recentUpdates">آخر التحديثات</button>
+                <button type="button" data-href="{prefix}index.html#newsletterForm">النشرة البريدية</button>
+            </div>
+            <div>
+                <h3>حول</h3>
+                <button type="button">ملاحظات</button>
+                <button type="button">الشروط</button>
+                <button type="button">الخصوصية</button>
+            </div>
+        </div>
+        <div class="footer-bottom container">
+            <span>© 2024 - 2026 ترجمات تعليقات الكتاب المقدس</span>
+            <span>العربية</span>
+        </div>
+    </footer>
+
+    <script defer src="{prefix}js/vendor/umami.js" data-website-id="4bf9e517-428f-466b-a83e-5873974e1e8f"></script>
+    <script src="{prefix}js/dom.js"></script>
+    <script src="{prefix}js/theme.js"></script>
+    <script src="{prefix}js/ui.js"></script>
+    <script src="{prefix}js/search.js"></script>
+    <script src="{prefix}js/nav.js"></script>
+</body>
+</html>
+'''
+
+
+def generate_bible_chapter_pages(base_dir, docs_dir, scripture):
+    """Static Van Dyck chapter pages: bible-data/*.json -> docs/bible/."""
+    data_dir = base_dir / 'bible-data'
+    if not data_dir.exists():
+        print('  [WARNING] bible-data/ not found, skipping chapter pages')
+        return
+    books = scripture.get('books', {})
+    written = 0
+    for path in sorted(data_dir.glob('*.json')):
+        with open(path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        slug = data.get('slug') or path.stem
+        name = data.get('name') or slug
+        total = int(data.get('chapters') or 0)
+        verses_map = data.get('verses') or {}
+        book_docs = (books.get(slug) or {}).get('chapters') or {}
+        out_dir = docs_dir / 'bible' / slug
+        out_dir.mkdir(parents=True, exist_ok=True)
+        for ch_str in sorted(verses_map, key=int):
+            ch = int(ch_str)
+            has_docs = (ch in book_docs) or (str(ch) in book_docs)
+            html = _bible_chapter_page(
+                name, slug, ch, total, verses_map[ch_str], has_docs
+            )
+            (out_dir / f'{ch}.html').write_text(html, encoding='utf-8')
+            written += 1
+    print(f'  [OK] {written} chapter text pages generated under bible/')
 
 
 def generate_category_html(categories, index_data):
@@ -1448,13 +1650,8 @@ def main():
     generate_bibles_html(base_dir, docs_dir, book_catalog, categories_data, scripture)
 
     # Van Dyck Bible chapter text (public domain, scripts/build_bible_data.py)
-    bible_dir = docs_dir / 'bible'
-    bible_books = len(list(bible_dir.glob('*.json'))) if bible_dir.exists() else 0
-    if bible_books == 66:
-        print(f'  [OK] bible text data present ({bible_books}/66 books)')
-    else:
-        print(f'  [WARNING] bible text data: {bible_books}/66 books '
-              '(run scripts/build_bible_data.py)')
+    print('\n[BUILD] Generating Bible chapter text pages...')
+    generate_bible_chapter_pages(base_dir, docs_dir, scripture)
     
     # Generate document index pages
     print('\n[BUILD] Generating document index pages...')

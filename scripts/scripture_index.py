@@ -146,7 +146,11 @@ def extract_doc_refs(doc, catalog):
             chapter = int(m.group('chapter'))
         except (TypeError, ValueError):
             continue
-        if not (1 <= chapter <= MAX_CHAPTER):
+        info = catalog[slug]
+        # Per-book canon limit (augmented from bible-data at build time);
+        # rejects e.g. "يهوذا 3" (Jude has 1 chapter) or "متى 29".
+        limit = info.get('chapters') or MAX_CHAPTER
+        if not (1 <= chapter <= limit):
             continue
         taken.append((start, m.end()))
         verse = m.group('verse')
@@ -156,7 +160,9 @@ def extract_doc_refs(doc, catalog):
         if chap_end:
             ce = int(chap_end)
             if ce > chapter and ce - chapter <= MAX_CHAPTER_SPAN:
-                ref['ce'] = ce
+                ce = min(ce, limit)
+                if ce > chapter:
+                    ref['ce'] = ce
         if verse:
             v = int(verse)
             if 1 <= v <= MAX_VERSE:

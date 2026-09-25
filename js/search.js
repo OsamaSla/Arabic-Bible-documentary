@@ -3,6 +3,14 @@
  * Instant search across all documents
  */
 
+// Site root derived from this script's own URL (…/js/search.js) so the
+// index is fetched with ONE request at any page depth (bible/<slug>/<n>.html
+// included) instead of blind relative probes.
+var SEARCH_SITE_ROOT = (function () {
+    var src = (document.currentScript && document.currentScript.src) || '';
+    return src.replace(/js\/[^/]*$/, '');
+})();
+
 class Search {
     constructor() {
         this.documents = [];
@@ -41,12 +49,16 @@ class Search {
             return;
         }
 
-        const paths = [
+        const paths = [];
+        if (SEARCH_SITE_ROOT) {
+            paths.push(SEARCH_SITE_ROOT + 'documents/index.json');
+        }
+        paths.push(
             'documents/index.json',
             '../documents/index.json',
             '../../documents/index.json',
             '../../../documents/index.json'
-        ];
+        );
         for (const path of paths) {
             try {
                 const response = await fetch(path);

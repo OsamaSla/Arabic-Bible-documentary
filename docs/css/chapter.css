@@ -1,0 +1,197 @@
+/* ========================================
+   Bible chapter text page (bible/<slug>/<ch>.html)
+   Static Van Dyck chapter — no client JS fetch.
+   ======================================== */
+
+.chapter-page .container {
+    max-width: 760px;
+}
+
+.ch-crumbs {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 0.75rem;
+    min-height: 1.4rem;
+}
+
+.ch-crumbs a {
+    color: var(--text-secondary);
+    text-decoration: none;
+}
+
+.ch-crumbs a:hover {
+    color: var(--color-primary);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.ch-crumbs a:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+    border-radius: 2px;
+}
+
+.chapter-page h1 {
+    color: var(--color-primary);
+    font-size: 1.6rem;
+    margin: 0 0 0.35rem;
+}
+
+.ch-sub {
+    color: var(--text-muted);
+    font-size: 0.92rem;
+    margin: 0 0 1.25rem;
+    min-height: 1.4rem;
+}
+
+.ch-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    padding: 1.25rem 1.35rem;
+    background: var(--bg-white);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    font-size: 1.05rem;
+    line-height: 2;
+    color: var(--text-primary);
+}
+
+.ch-verse {
+    margin: 0;
+}
+
+.ch-n {
+    display: inline-block;
+    min-width: 1.5em;
+    margin-inline-end: 0.4em;
+    font-size: 0.72em;
+    font-weight: 700;
+    color: var(--color-primary);
+    background: var(--bg-light);
+    border: 1px solid var(--border-light);
+    border-radius: 999px;
+    text-align: center;
+    line-height: 1.7;
+    vertical-align: 0.1em;
+}
+
+.ch-comments {
+    margin: 1rem 0 0;
+    min-height: 44px;
+}
+
+.ch-comments a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0.45rem 0.95rem;
+    background: var(--bg-light);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+    color: var(--color-primary);
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.ch-comments a:hover {
+    background: var(--border-light);
+}
+
+.ch-comments a:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}
+
+.ch-nav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 1.1rem;
+    min-height: 44px;
+}
+
+.ch-nav a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0.45rem 0.95rem;
+    background: var(--bg-light);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+    color: var(--color-primary);
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.ch-nav a:hover {
+    background: var(--border-light);
+}
+
+.ch-nav a:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}
+
+.ch-nav-fill {
+    flex: 0 0 auto;
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 600px) {
+    .chapter-page h1 {
+        font-size: 1.35rem;
+    }
+
+    .ch-text {
+        padding: 1rem 0.9rem;
+        font-size: 1rem;
+        line-height: 1.95;
+    }
+
+    .ch-nav {
+        justify-content: stretch;
+    }
+
+    .ch-nav a {
+        flex: 1 1 auto;
+        justify-content: center;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ch-comments a,
+    .ch-nav a {
+        transition: none;
+    }
+}
+
+@media print {
+    .skip-link,
+    .site-header,
+    .site-footer,
+    .ch-crumbs,
+    .ch-comments,
+    .ch-nav {
+        display: none !important;
+    }
+
+    .chapter-page .container {
+        max-width: none;
+    }
+
+    .ch-text {
+        border: none;
+        padding: 0;
+    }
+}

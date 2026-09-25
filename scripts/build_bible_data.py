@@ -9,10 +9,13 @@ Format: arb-vd_vpl.txt (VPL: "BOOK CH:V verse text" per line, UTF-8)
 Usage:
     python -X utf8 scripts/build_bible_data.py <path/to/arb-vd_vpl.txt>
 
-Output (committed to the repo, served statically):
-    docs/bible/<slug>.json
+Output (committed at repo root, NOT deployed):
+    bible-data/<slug>.json
         ->  {slug, name, chapters, verses: {"1": ["verse text", ...], ...}}
             (array index + 1 = verse number, strictly 1..N — validated)
+
+scripts/build.py renders these into static chapter pages:
+    docs/bible/<slug>/<ch>.html  (server-rendered, no client fetch)
 """
 
 import io
@@ -84,7 +87,7 @@ def main():
         sys.exit(1)
     src = Path(sys.argv[1])
     base_dir = Path(__file__).resolve().parent.parent
-    out_dir = base_dir / 'docs' / 'bible'
+    out_dir = base_dir / 'bible-data'
     out_dir.mkdir(parents=True, exist_ok=True)
 
     names = load_arabic_names(base_dir)

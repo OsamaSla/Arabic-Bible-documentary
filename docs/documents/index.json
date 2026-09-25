@@ -6182,12 +6182,7 @@
       "html_path": "documents/john-nelson-darby/doc_0287.html",
       "download_path": "downloads/john-nelson-darby/doc_0287.docx",
       "file_hash": "aa5a5053",
-      "refs": [
-        {
-          "b": "yahuda",
-          "c": 3
-        }
-      ]
+      "refs": []
     },
     {
       "id": "doc_0288",
@@ -9551,12 +9546,7 @@
       "html_path": "documents/leslie-m-grant/تم/doc_0449.html",
       "download_path": "downloads/leslie-m-grant/تم/doc_0449.docx",
       "file_hash": "d0a6a8af",
-      "refs": [
-        {
-          "b": "matta",
-          "c": 29
-        }
-      ]
+      "refs": []
     },
     {
       "id": "doc_0450",
