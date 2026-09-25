@@ -134,7 +134,7 @@
     padding: 0.85rem 1rem;
     background: var(--bg-white);
     border: 1px solid var(--border-light);
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-lg);
     text-decoration: none;
     color: inherit;
     transition: transform 0.15s ease, box-shadow 0.15s ease,
@@ -142,9 +142,9 @@
 }
 
 .bible-book:hover {
-    transform: translateY(-3px);
+    transform: translateY(-4px);
     border-color: var(--color-primary);
-    box-shadow: var(--shadow-sm);
+    box-shadow: var(--shadow-lg);
 }
 
 .bible-book:focus-visible {
@@ -349,7 +349,7 @@
 .chapter-doc .cd-title:focus-visible {
     outline: 2px solid var(--color-primary);
     outline-offset: 2px;
-    border-radius: 2px;
+    border-radius: var(--radius-sm);
 }
 
 .chapter-doc .cd-author {
@@ -367,7 +367,7 @@
 }
 
 .chapter-doc .cd-status.prog {
-    color: #b45309;
+    color: var(--color-secondary);
 }
 
 .chapter-doc .cd-verses {
@@ -496,7 +496,7 @@
     min-height: 44px;
     padding: 0.25rem 0.5rem;
     border: 1px solid var(--border-light);
-    border-radius: 0.5rem;
+    border-radius: var(--radius-md);
     background: var(--bg-light);
     color: var(--text-secondary);
     font-weight: 700;

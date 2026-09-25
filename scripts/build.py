@@ -8,6 +8,7 @@ import os
 import sys
 import json
 import shutil
+import time
 from datetime import datetime
 from pathlib import Path
 
@@ -534,7 +535,14 @@ def inject_related_sidebars(docs_dir, documents, catalog, categories):
             skipped += 1
             continue
         widget = build_related_sidebar(doc, documents, catalog, categories)
-        path.write_text(html.replace(marker, widget), encoding='utf-8')
+        for _attempt in range(5):
+            try:
+                path.write_text(html.replace(marker, widget), encoding='utf-8')
+                break
+            except OSError:
+                if _attempt == 4:
+                    raise
+                time.sleep(0.5)
         ok += 1
     print(f'  [OK] sidebars injected into {ok} document pages'
           + (f' ({skipped} skipped)' if skipped else ''))
