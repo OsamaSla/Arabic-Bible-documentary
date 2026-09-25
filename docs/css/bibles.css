@@ -357,6 +357,112 @@
     direction: rtl;
 }
 
+/* ---- Chapter Bible text (Van Dyck, fetched on demand) ---- */
+.chapter-reader {
+    margin: 0 0 0.9rem;
+    padding: 0.9rem 1rem;
+    background: var(--bg-light);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+}
+
+.chapter-reader[hidden] {
+    display: none !important;
+}
+
+.chapter-reader.is-loading,
+.chapter-reader.is-error {
+    min-height: 180px;
+}
+
+.cr-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem;
+    margin-bottom: 0.7rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px dashed var(--border-light);
+}
+
+.cr-label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+}
+
+.cr-verses {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    font-size: 1rem;
+    line-height: 1.95;
+    color: var(--text-primary);
+}
+
+.cr-verse {
+    margin: 0;
+}
+
+.cr-n {
+    display: inline-block;
+    min-width: 1.5em;
+    margin-inline-end: 0.4em;
+    font-size: 0.72em;
+    font-weight: 700;
+    color: var(--color-primary);
+    background: var(--bg-white);
+    border: 1px solid var(--border-light);
+    border-radius: 999px;
+    text-align: center;
+    line-height: 1.7;
+    vertical-align: 0.1em;
+}
+
+.cr-nav {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-top: 0.9rem;
+    padding-top: 0.7rem;
+    border-top: 1px dashed var(--border-light);
+}
+
+.cr-nav a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0.4rem 0.9rem;
+    background: var(--bg-white);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+    color: var(--color-primary);
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.cr-nav a:hover {
+    background: var(--border-light);
+}
+
+.cr-nav a:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}
+
+.cr-status {
+    margin: 0;
+    padding: 0.55rem 0;
+    color: var(--text-muted);
+    min-height: 1.5rem;
+}
+
+.cr-status[role='alert'] {
+    color: #b45309;
+}
+
 /* ---- Responsive ---- */
 @media (max-width: 768px) {
     .bibles-filter {
@@ -381,11 +487,16 @@
         align-items: flex-start;
         gap: 0.25rem;
     }
+
+    .cr-nav {
+        flex-wrap: wrap;
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {
     .bible-book,
-    .book-panel > summary::after {
+    .book-panel > summary::after,
+    .cr-nav a {
         transition: none;
     }
 

@@ -1446,6 +1446,15 @@ def main():
     # Bible book & chapter navigator (bibles.html)
     print('\n[BUILD] Generating bibles.html (book & chapter navigator)...')
     generate_bibles_html(base_dir, docs_dir, book_catalog, categories_data, scripture)
+
+    # Van Dyck Bible chapter text (public domain, scripts/build_bible_data.py)
+    bible_dir = docs_dir / 'bible'
+    bible_books = len(list(bible_dir.glob('*.json'))) if bible_dir.exists() else 0
+    if bible_books == 66:
+        print(f'  [OK] bible text data present ({bible_books}/66 books)')
+    else:
+        print(f'  [WARNING] bible text data: {bible_books}/66 books '
+              '(run scripts/build_bible_data.py)')
     
     # Generate document index pages
     print('\n[BUILD] Generating document index pages...')
