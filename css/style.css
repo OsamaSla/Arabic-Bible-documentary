@@ -4429,10 +4429,9 @@ body.page-redesign .search-result-more {
     color: var(--rx-accent-bright);
 }
 
-.rx-footer-note {
-    font-size: 12px !important;
-    color: var(--rx-accent-bright) !important;
-    font-weight: 700;
+.rx-footer ul .rx-footer-inactive {
+    color: #94a3b8;
+    cursor: default;
 }
 
 .rx-footer-bottom {
