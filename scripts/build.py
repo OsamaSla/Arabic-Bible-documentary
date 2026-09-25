@@ -459,8 +459,8 @@ def build_related_sidebar(doc, documents, catalog, categories, limit=6):
         ]
         book_candidates.sort(key=sort_key)
         more_label = escape_html(f"كل ترجمات {catalog[primary]['name_ar']}")
-        more_html = (f'<a class="related-more" href="{prefix}bibles.html'
-                     f'#book-{primary}">{more_label} &larr;</a>')
+        more_html = (f'<a class="related-more" href="{prefix}bible/{primary}/"'
+                     f'>{more_label} &larr;</a>')
     elif my_topics:
         primary_topic = my_topics[0]
         topic_name = primary_topic
@@ -559,7 +559,7 @@ def _bible_book_card(slug, info, bucket, testament):
         f"{info['name_ar']} {info['name_de']} {slug}".lower()
     )
     return (
-        f'<a class="{cls}" href="#book-{slug}" data-testament="{testament}" '
+        f'<a class="{cls}" href="bible/{slug}/" data-testament="{testament}" '
         f'data-name="{data_name}">'
         f'<span class="bb-name">{name}</span>'
         f'<span class="bb-name-de">{name_de}</span>'
@@ -567,6 +567,25 @@ def _bible_book_card(slug, info, bucket, testament):
         f'</a>'
     )
 
+
+def _chapter_doc_row(entry, verses):
+    title = escape_html(entry.get('title', 'بدون عنوان'))
+    author = escape_html(entry.get('author', ''))
+    path = escape_html(entry.get('html_path', '#'))
+    badge = ('<span class="cd-status done" aria-label="مكتمل" title="مكتمل">&#10003;</span>'
+             if entry.get('completed') else
+             '<span class="cd-status prog" aria-label="قيد الترجمة" title="قيد الترجمة">&#9679;</span>')
+    verses_html = ''
+    if verses:
+        joined = escape_html('، '.join(verses[:6]))
+        verses_html = f'<span class="cd-verses">آيات {joined}</span>'
+    return (
+        '<li class="chapter-doc">'
+        f'<a class="cd-title" href="{path}">{title} {badge}</a>'
+        f'<span class="cd-author">{author}</span>'
+        f'{verses_html}'
+        '</li>'
+    )
 
 def _bible_book_panel(slug, info, bucket, testament):
     name = escape_html(info['name_ar'])
@@ -579,31 +598,13 @@ def _bible_book_panel(slug, info, bucket, testament):
     parts = [
         f'<details class="book-panel" id="book-{slug}" data-testament="{testament}">',
         '<summary>'
-        f'<span class="bp-name">{name}</span>'
+        f'<a class="bp-name-link" href="bible/{slug}/"><span class="bp-name">{name}</span></a>'
         f'<span class="bp-name-de">{name_de}</span>'
         f'<span class="bp-meta">{meta}</span>'
         '</summary>',
         '<div class="bp-body">',
     ]
 
-    def doc_row(entry, verses):
-        title = escape_html(entry.get('title', 'بدون عنوان'))
-        author = escape_html(entry.get('author', ''))
-        path = escape_html(entry.get('html_path', '#'))
-        badge = ('<span class="cd-status done" aria-label="مكتمل" title="مكتمل">&#10003;</span>'
-                 if entry.get('completed') else
-                 '<span class="cd-status prog" aria-label="قيد الترجمة" title="قيد الترجمة">&#9679;</span>')
-        verses_html = ''
-        if verses:
-            joined = escape_html('، '.join(verses[:6]))
-            verses_html = f'<span class="cd-verses">آيات {joined}</span>'
-        return (
-            '<li class="chapter-doc">'
-            f'<a class="cd-title" href="{path}">{title} {badge}</a>'
-            f'<span class="cd-author">{author}</span>'
-            f'{verses_html}'
-            '</li>'
-        )
 
     if chapters:
         for ch in sorted(chapters):
@@ -617,7 +618,7 @@ def _bible_book_panel(slug, info, bucket, testament):
                 '<ul class="chapter-docs">'
             )
             for entry in entries:
-                parts.append(doc_row(entry, entry.get('chapters', {}).get(ch, [])))
+                parts.append(_chapter_doc_row(entry, entry.get('chapters', {}).get(ch, [])))
             parts.append('</ul></section>')
 
     if loose:
@@ -628,7 +629,7 @@ def _bible_book_panel(slug, info, bucket, testament):
             '<ul class="chapter-docs">'
         )
         for entry in loose:
-            parts.append(doc_row(entry, []))
+            parts.append(_chapter_doc_row(entry, []))
         parts.append('</ul></section>')
 
     if not chapters and not loose:
@@ -636,6 +637,20 @@ def _bible_book_panel(slug, info, bucket, testament):
 
     parts.append('</div></details>')
     return ''.join(parts)
+
+
+def _bibles_stats_html(stats):
+    stats_html = (
+        f'<p class="bibles-stats">'
+        f'<strong>{stats["books_with_docs"]}</strong> من '
+        f'<strong>{stats["books_total"]}</strong> كتاباً عليها ترجمات'
+        f' <span aria-hidden="true">&middot;</span> '
+        f'<strong>{stats["chapters_indexed"]}</strong> فصلاً مفهرساً'
+        f' <span aria-hidden="true">&middot;</span> '
+        f'<strong>{stats["docs_indexed"]}</strong> مستنداً مرتبطاً بكتاب'
+        f'</p>'
+    )
+    return stats_html
 
 
 def generate_bibles_html(base_dir, docs_dir, catalog, categories, scripture):
@@ -650,7 +665,6 @@ def generate_bibles_html(base_dir, docs_dir, catalog, categories, scripture):
     books = scripture['books']
     ot_cards = []
     nt_cards = []
-    sections = []
     ordered_slugs = sorted(catalog.keys(), key=lambda s: _testament_key(catalog, s))
     for slug in ordered_slugs:
         info = catalog[slug]
@@ -658,28 +672,230 @@ def generate_bibles_html(base_dir, docs_dir, catalog, categories, scripture):
         testament = 'ot' if info['group'] == 'old_testament' else 'nt'
         card = _bible_book_card(slug, info, bucket, testament)
         (ot_cards if testament == 'ot' else nt_cards).append(card)
-        sections.append(_bible_book_panel(slug, info, bucket, testament))
 
-    stats = scripture['stats']
-    stats_html = (
-        f'<p class="bibles-stats">'
-        f'<strong>{stats["books_with_docs"]}</strong> من '
-        f'<strong>{stats["books_total"]}</strong> كتاباً عليها ترجمات'
-        f' <span aria-hidden="true">&middot;</span> '
-        f'<strong>{stats["chapters_indexed"]}</strong> فصلاً مفهرساً'
-        f' <span aria-hidden="true">&middot;</span> '
-        f'<strong>{stats["docs_indexed"]}</strong> مستنداً مرتبطاً بكتاب'
-        f'</p>'
-    )
+    stats_html = _bibles_stats_html(scripture['stats'])
 
     html = html.replace('<!-- BIBLES_OT_GRID -->', '\n'.join(ot_cards))
     html = html.replace('<!-- BIBLES_NT_GRID -->', '\n'.join(nt_cards))
-    html = html.replace('<!-- BIBLES_BOOK_SECTIONS -->', '\n'.join(sections))
     html = html.replace('<!-- BIBLES_STATS -->', stats_html)
 
     with open(docs_dir / 'bibles.html', 'w', encoding='utf-8') as f:
         f.write(html)
     print(f'  [OK] bibles.html generated ({len(ot_cards)} OT, {len(nt_cards)} NT books)')
+
+
+def generate_bible_index_html(base_dir, docs_dir, catalog, scripture):
+    # Detailed index: templates/bible-index.html -> docs/bible-index.html
+    template_path = base_dir / 'templates' / 'bible-index.html'
+    if not template_path.exists():
+        print('  [WARNING] templates/bible-index.html not found, skipping')
+        return
+    with open(template_path, 'r', encoding='utf-8') as f:
+        html = f.read()
+    books = scripture['books']
+    sections = []
+    ordered_slugs = sorted(catalog.keys(), key=lambda s: _testament_key(catalog, s))
+    for slug in ordered_slugs:
+        info = catalog[slug]
+        bucket = books.get(slug) or {'chapters': {}, 'loose': [], 'docs': 0}
+        testament = 'ot' if info['group'] == 'old_testament' else 'nt'
+        sections.append(_bible_book_panel(slug, info, bucket, testament))
+    html = html.replace('<!-- BIBLES_BOOK_SECTIONS -->', '\n'.join(sections))
+    html = html.replace('<!-- BIBLES_STATS -->', _bibles_stats_html(scripture['stats']))
+    with open(docs_dir / 'bible-index.html', 'w', encoding='utf-8') as f:
+        f.write(html)
+    print(f'  [OK] bible-index.html generated ({len(sections)} book panels)')
+
+
+def _bible_book_page_html(info, slug, bucket, total_chapters, prev_slug, next_slug, catalog):
+    # Standalone per-book detail page: docs/bible/<slug>/index.html, prefix ../../
+    prefix = '../../'
+    name = escape_html(info['name_ar'])
+    name_de = escape_html(info.get('name_de', ''))
+    testament = ('العهد القديم'
+                 if info['group'] == 'old_testament' else
+                 'العهد الجديد')
+    chapters = bucket['chapters']
+    loose = bucket['loose']
+    title = f'{name} - الكتاب المقدس'
+
+    def entries_for(ch):
+        e = chapters.get(ch)
+        if e is None:
+            e = chapters.get(str(ch), [])
+        return e
+
+    strip = ''.join(
+        f'<a href="#book-{slug}-ch-{ch}">{ch}</a>'
+        for ch in range(1, total_chapters + 1)
+    )
+    parts = [f'<nav class="book-chapters-strip" aria-label="الإصحاحات">{strip}</nav>']
+    for ch in range(1, total_chapters + 1):
+        entries = entries_for(ch)
+        if entries:
+            rows = ''.join(
+                _chapter_doc_row(e, (e.get('chapters') or {}).get(ch, []) or (e.get('chapters') or {}).get(str(ch), []))
+                for e in entries
+            )
+            docs_html = f'<ul class="chapter-docs">{rows}</ul>'
+            count = f'<span class="chapter-count">{len(entries)} تعليقات</span>'
+        else:
+            docs_html = '<p class="ch-empty-note">لا توجد تعليقات على هذا الإصحاح بعد.</p>'
+            count = '<span class="chapter-count">بدون تعليقات</span>'
+        parts.append(
+            f'<section class="chapter-block" id="book-{slug}-ch-{ch}">'
+            f'<h3 class="chapter-title">الإصحاح {ch}'
+            f'{count}'
+            f'<a class="ch-text-link" href="{ch}.html">نص الإصحاح</a></h3>'
+            f'{docs_html}</section>'
+        )
+    if loose:
+        rows = ''.join(_chapter_doc_row(e, []) for e in loose)
+        parts.append(
+            '<section class="chapter-block loose">'
+            '<h3 class="chapter-title">تعليقات عامة على السفر'
+            f'<span class="chapter-count">{len(loose)} تعليقات</span></h3>'
+            f'<ul class="chapter-docs">{rows}</ul></section>'
+        )
+    if prev_slug:
+        prev_html = (f'<a href="../{prev_slug}/">{escape_html(catalog[prev_slug]["name_ar"])} &#8594;</a>')
+    else:
+        prev_html = '<span class="ch-nav-fill" aria-hidden="true"></span>'
+    if next_slug:
+        next_html = (f'<a href="../{next_slug}/">{escape_html(catalog[next_slug]["name_ar"])} &#8592;</a>')
+    else:
+        next_html = '<span class="ch-nav-fill" aria-hidden="true"></span>'
+
+    body = '\n'.join(parts)
+    return f"""<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://gateway.umami.is; object-src 'none'; base-uri 'self'; form-action 'self'">
+    <title>{title}</title>
+    <link rel="stylesheet" href="{prefix}css/fonts.css">
+    <link rel="stylesheet" href="{prefix}css/style.css">
+    <link rel="stylesheet" href="{prefix}css/bibles.css">
+    <link rel="stylesheet" href="{prefix}css/chapter.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📖</text></svg>">
+    <script src="{prefix}js/theme-init.js"></script>
+</head>
+<body>
+    <a class="skip-link" href="#main-content">تخطى إلى المحتوى الرئيسي</a>
+    <header class="site-header">
+        <div class="header-top">
+            <div class="container">
+                <a href="{prefix}index.html" class="logo">
+                    <span class="cross">&#10013;</span>
+                    <span class="logo-text">مكتبة التفاسير العربية للكتاب المقدس</span>
+                </a>
+                <div class="header-search">
+                    <input type="text" id="searchInput" placeholder="ابحث..." autocomplete="off">
+                    <span class="search-icon-btn">&#128269;</span>
+                    <div class="search-results" id="searchResults"></div>
+                </div>
+                <div class="header-actions">
+                    <button type="button" class="theme-toggle" id="themeToggle" aria-pressed="false" aria-label="تبديل المظهر">
+                        <span class="theme-icon-moon" aria-hidden="true">&#9790;</span>
+                        <span class="theme-icon-sun" aria-hidden="true">&#9728;</span>
+                    </button>
+                </div>
+                <div class="nav-toggle" id="navToggle">
+                    <span class="nav-toggle-open">&#9776;</span>
+                    <span class="nav-toggle-close">&times;</span>
+                </div>
+            </div>
+        </div>
+        <nav class="nav-bar" id="navBar">
+            <div class="container">
+                <div class="nav-item">
+                    <a href="{prefix}index.html" class="nav-link">الرئيسية</a>
+                </div>
+                <div class="nav-item">
+                    <a href="{prefix}bibles.html" class="nav-link active" aria-current="page">الكتاب المقدس</a>
+                </div>
+                <!-- MEGA_BAR prefix="../../" -->
+                <div class="nav-item">
+                    <a href="{prefix}authors.html" class="nav-link">المؤلفون</a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main id="main-content" class="bibles-page book-page">
+        <div class="container">
+            <nav class="ch-crumbs" aria-label="مسار التنقل">
+                <a href="{prefix}bibles.html">الكتاب المقدس</a>
+                <span aria-hidden="true">/</span>
+                <a href="{prefix}bible-index.html">الفهرس التفصيلي</a>
+                <span aria-hidden="true">/</span>
+                <span aria-current="page">{name}</span>
+            </nav>
+            <h1>{name}</h1>
+            <p class="ch-sub">{name_de} &middot; {testament} &middot; {total_chapters} إصحاح &middot; {bucket['docs']} تعليقات</p>
+            {body}
+            <nav class="ch-nav" aria-label="التنقل بين الأسفار">
+                {prev_html}
+                <a href="{prefix}bible-index.html">الفهرس التفصيلي</a>
+                {next_html}
+            </nav>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container footer-grid">
+            <div class="footer-brand">
+                <p>مكتبة التفاسير العربية للكتاب المقدس</p>
+            </div>
+            <div>
+                <h3>روابط</h3>
+                <button type="button" data-href="{prefix}index.html">الرئيسية</button>
+                <button type="button" data-href="{prefix}bibles.html">الكتاب المقدس</button>
+                <button type="button" data-href="{prefix}bible-index.html">الفهرس التفصيلي</button>
+                <button type="button" data-href="{prefix}authors.html">المؤلفون</button>
+            </div>
+        </div>
+        <div class="footer-bottom container">
+            <span>2024 - 2026 مكتبة التفاسير العربية للكتاب المقدس</span>
+        </div>
+    </footer>
+
+    <script defer src="{prefix}js/vendor/umami.js" data-website-id="4bf9e517-428f-466b-a83e-5873974e1e8f"></script>
+    <script src="{prefix}js/dom.js"></script>
+    <script src="{prefix}js/theme.js"></script>
+    <script src="{prefix}js/ui.js"></script>
+    <script src="{prefix}js/search.js"></script>
+    <script src="{prefix}js/nav.js"></script>
+</body>
+</html>
+"""
+
+
+def generate_bible_book_pages(base_dir, docs_dir, catalog, scripture):
+    # Per-book detail pages: docs/bible/<slug>/index.html, one per book
+    totals = _load_bible_chapter_totals(base_dir)
+    books = scripture['books']
+    ordered = sorted(catalog.keys(), key=lambda s: _testament_key(catalog, s))
+    count = 0
+    for i, slug in enumerate(ordered):
+        info = catalog[slug]
+        bucket = books.get(slug) or {'chapters': {}, 'loose': [], 'docs': 0}
+        total = info.get('chapters') or totals.get(slug) or 0
+        if not total and bucket['chapters']:
+            try:
+                total = max(int(k) for k in bucket['chapters'])
+            except (TypeError, ValueError):
+                total = 0
+        prev_slug = ordered[i - 1] if i > 0 else None
+        next_slug = ordered[i + 1] if i + 1 < len(ordered) else None
+        html = _bible_book_page_html(info, slug, bucket, total, prev_slug, next_slug, catalog)
+        out_dir = docs_dir / 'bible' / slug
+        out_dir.mkdir(parents=True, exist_ok=True)
+        with open(out_dir / 'index.html', 'w', encoding='utf-8') as f:
+            f.write(html)
+        count += 1
+    print(f'  [OK] {count} per-book Bible pages generated')
 
 
 def _bible_chapter_page(name, slug, ch, total, verses, has_docs):
@@ -708,7 +924,7 @@ def _bible_chapter_page(name, slug, ch, total, verses, has_docs):
     comments_html = ''
     if has_docs:
         comments_html = (
-            f'<p class="ch-comments"><a href="{prefix}bibles.html'
+            f'<p class="ch-comments"><a href="index.html'
             f'#book-{slug}-ch-{ch}">تعليقات ومرجعيات على هذا الإصحاح '
             '&larr;</a></p>'
         )
@@ -773,7 +989,7 @@ def _bible_chapter_page(name, slug, ch, total, verses, has_docs):
             <nav class="ch-crumbs" aria-label="مسار التصفح">
                 <a href="{prefix}bibles.html">الكتاب المقدس</a>
                 <span aria-hidden="true">/</span>
-                <a href="{prefix}bibles.html#book-{slug}">{name_e}</a>
+                <a href="index.html">{name_e}</a>
                 <span aria-hidden="true">/</span>
                 <span aria-current="page">الإصحاح {ch}</span>
             </nav>
@@ -785,7 +1001,7 @@ def _bible_chapter_page(name, slug, ch, total, verses, has_docs):
             {comments_html}
             <nav class="ch-nav" aria-label="تنقل بين الإصحاحات">
                 {prev_html}
-                <a href="{prefix}bibles.html#book-{slug}">فهرس الكتاب</a>
+                <a href="index.html">فهرس الكتاب</a>
                 {next_html}
             </nav>
         </div>
@@ -1124,7 +1340,7 @@ def generate_author_pages(docs_dir, index_data, catalog=None, categories=None):
     def bucket_section(key, docs_list, is_book):
         if is_book:
             sec_name = catalog[key]['name_ar']
-            sec_link = (f'<a class="sec-link" href="../../bibles.html#book-{key}">'
+            sec_link = (f'<a class="sec-link" href="../../bible/{key}/">'
                         f'الفهرس في الكتاب المقدس &larr;</a>')
         else:
             sec_name = topic_names.get(key, key)
@@ -1648,6 +1864,12 @@ def main():
     # Bible book & chapter navigator (bibles.html)
     print('\n[BUILD] Generating bibles.html (book & chapter navigator)...')
     generate_bibles_html(base_dir, docs_dir, book_catalog, categories_data, scripture)
+
+    print('\n[BUILD] Generating bible-index.html (detailed index)...')
+    generate_bible_index_html(base_dir, docs_dir, book_catalog, scripture)
+
+    print('\n[BUILD] Generating per-book Bible pages...')
+    generate_bible_book_pages(base_dir, docs_dir, book_catalog, scripture)
 
     # Van Dyck Bible chapter text (public domain, scripts/build_bible_data.py)
     print('\n[BUILD] Generating Bible chapter text pages...')

@@ -318,7 +318,10 @@ class DevHandler(BaseHTTPRequestHandler):
             return LOCAL_HIDDEN_DIR / rel
         if clean == '/':
             clean = '/index.html'
-        return DOCS_DIR / clean.lstrip('/')
+        resolved = DOCS_DIR / clean.lstrip('/')
+        if resolved.is_dir():
+            resolved = resolved / 'index.html'
+        return resolved
 
     def _serve_admin_panel(self):
         if not ADMIN_PANEL_PATH.is_file():

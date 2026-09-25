@@ -428,3 +428,95 @@
         break-inside: avoid;
     }
 }
+
+/* ---- Detailed-index promo (bibles.html overview) ---- */
+.bibles-index-promo {
+    background: var(--bg-light);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 2rem;
+}
+.bibles-index-promo h2 {
+    color: var(--color-primary);
+    margin: 0 0 0.5rem;
+}
+.bibles-index-promo p {
+    color: var(--text-secondary);
+    line-height: 1.8;
+    margin: 0 0 1rem;
+    max-width: 60ch;
+}
+.index-promo-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0.6rem 1.5rem;
+    background: var(--color-primary);
+    color: #fff;
+    border-radius: 999px;
+    font-weight: 700;
+    text-decoration: none;
+}
+.index-promo-link:hover {
+    filter: brightness(1.1);
+}
+
+/* ---- Book name link inside index panels ---- */
+.bp-name-link {
+    color: var(--color-primary);
+    text-decoration: none;
+}
+.bp-name-link:hover .bp-name {
+    text-decoration: underline;
+}
+
+/* ---- Back link on bible-index.html ---- */
+.index-back {
+    margin: 0 0 0.5rem;
+}
+.index-back a {
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+/* ---- Chapter quick-jump strip on per-book pages ---- */
+.book-chapters-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin: 1rem 0 1.5rem;
+    min-height: 44px;
+}
+.book-chapters-strip a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0.25rem 0.5rem;
+    border: 1px solid var(--border-light);
+    border-radius: 0.5rem;
+    background: var(--bg-light);
+    color: var(--text-secondary);
+    font-weight: 700;
+    text-decoration: none;
+}
+.book-chapters-strip a:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+.ch-empty-note {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin: 0.25rem 0 0.75rem;
+}
+
+/* ---- Visible keyboard focus for new interactive elements ---- */
+.index-promo-link:focus-visible,
+.bp-name-link:focus-visible,
+.book-chapters-strip a:focus-visible,
+.index-back a:focus-visible {
+    outline: 3px solid var(--color-secondary);
+    outline-offset: 2px;
+}
