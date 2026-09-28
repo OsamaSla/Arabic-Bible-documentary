@@ -826,7 +826,21 @@
         }
     });
 
+    function pinAdminToolbar() {
+        var bar = document.querySelector('.admin-toolbar');
+        var header = document.querySelector('.site-header');
+        if (!bar || !header || !header.getBoundingClientRect) {
+            return;
+        }
+        bar.style.setProperty('--admin-toolbar-top',
+            Math.ceil(header.getBoundingClientRect().height) + 'px');
+    }
+    window.addEventListener('resize', pinAdminToolbar);
+    if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(pinAdminToolbar);
+    }
     document.addEventListener('DOMContentLoaded', function () {
+        pinAdminToolbar();
         document.getElementById('adminContent').style.display = 'block';
         setupDeployButton();
         setupChangesButton();

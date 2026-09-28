@@ -32,6 +32,22 @@
         .changes-panel li { margin: 0.15rem 0; word-break: break-all; }
         .changes-panel .muted { color: #6c757d; }
         .changes-panel code { font-size: 0.88em; }
+        /* Floating toolbar: search + filters stay visible while scrolling the list.
+           --admin-toolbar-top is set precisely by js/admin-ui.js; fallback below. */
+        .admin-toolbar {
+            position: sticky;
+            top: var(--admin-toolbar-top, 76px);
+            z-index: 500;
+            background: var(--bg-light);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            padding: 0.75rem 0.75rem 0.25rem;
+            margin-bottom: 1rem;
+        }
+        .admin-toolbar #filterBox { margin-bottom: 0.5rem; }
+        .admin-toolbar .filter-buttons { margin-bottom: 0.5rem; }
+        .admin-toolbar .cat-toolbar { margin-bottom: 0.5rem; }
         .filter-buttons { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
         .filter-btn { padding: 0.4rem 0.8rem; border: 1px solid #ddd; background: #f8f9fa; border-radius: 4px; cursor: pointer; font-family: inherit; font-size: 0.9rem; }
         .filter-btn:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
@@ -291,6 +307,7 @@
                 </div>
             </section>
 
+            <div class="admin-toolbar">
             <input type="text" id="filterBox" placeholder="Search docs..." style="width:100%; padding:8px; margin-bottom:10px; border:1px solid #ddd; border-radius:4px;">
 
             <div class="filter-buttons">
@@ -309,6 +326,7 @@
                 <span id="categoryCounts" class="muted" style="font-size:0.9rem;color:#6c757d;"></span>
             </div>
 
+            </div>
             <div id="docsContainer">
                 <p style="min-height:72px;">Loading documents...</p>
             </div>
