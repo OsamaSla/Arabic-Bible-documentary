@@ -45,3 +45,6 @@ desktop.ini
 
 # Local-only hidden documents and admin index (never publish)
 local-hidden/
+
+# Weekly auto-deploy run lock (transient)
+.weekly_deploy.lock
