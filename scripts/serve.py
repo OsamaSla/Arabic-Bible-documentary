@@ -59,6 +59,8 @@ if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
 from git_ops import git_add_commit_push
+from weekly_deploy import get_weekly_status, register_weekly_schedule
+from weekly_deploy import log as weekly_log
 
 _MIME = {
     '.html': 'text/html; charset=utf-8',
@@ -365,6 +367,11 @@ class DevHandler(BaseHTTPRequestHandler):
                 self._deny(403, 'Forbidden: missing or invalid token/origin.')
                 return
             self._handle_categories_get()
+        elif path == '/api/weekly-status':
+            if not self._authorize_api():
+                self._deny(403, 'Forbidden: missing or invalid token/origin.')
+                return
+            self._handle_weekly_status()
         elif path == '/admin-panel.html':
             if not self._origin_allowed():
                 self._deny(403, 'Forbidden origin.')
@@ -375,7 +382,7 @@ class DevHandler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         path = self.path.split('?', 1)[0]
-        if path not in ('/api/rebuild', '/api/deploy', '/api/categories'):
+        if path not in ('/api/rebuild', '/api/deploy', '/api/categories', '/api/weekly-schedule'):
             self.send_error(404, 'Not found')
             return
         if not self._authorize_api():
@@ -385,6 +392,8 @@ class DevHandler(BaseHTTPRequestHandler):
             self._handle_rebuild()
         elif path == '/api/categories':
             self._handle_categories_post()
+        elif path == '/api/weekly-schedule':
+            self._handle_weekly_schedule()
         else:
             self._handle_deploy()
 
@@ -541,6 +550,7 @@ class DevHandler(BaseHTTPRequestHandler):
 
         print('[SERVER] Pushing to GitHub...')
         ok, detail = git_add_commit_push()
+        weekly_log('manual deploy: ' + detail)
         if ok:
             self._json_response(200, {
                 'ok': True,
@@ -555,6 +565,27 @@ class DevHandler(BaseHTTPRequestHandler):
                 'message': f'Scanned and rebuilt, but push failed: {detail}',
                 'detail': detail,
             })
+
+    def _handle_weekly_status(self):
+        try:
+            data = get_weekly_status()
+            data['ok'] = True
+            self._json_response(200, data)
+        except Exception as e:
+            self._json_response(500, {'ok': False, 'message': f'weekly status failed: {e}'})
+
+    def _handle_weekly_schedule(self):
+        body = self._read_json_body() or {}
+        ok, detail = register_weekly_schedule(body.get('day'), body.get('time'))
+        if ok:
+            try:
+                data = get_weekly_status()
+                data.update({'ok': True, 'message': detail})
+            except Exception:
+                data = {'ok': True, 'message': detail}
+            self._json_response(200, data)
+        else:
+            self._json_response(400, {'ok': False, 'message': detail})
 
     def _run_build(self):
         print('[SERVER] Running build (scan source + regenerate)...')

@@ -182,3 +182,112 @@ def main():
 
 if __name__ == '__main__':
     sys.exit(main())
+
+
+TASK_NAME = 'ArabicBibleWeeklyDeploy'
+WEEKDAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+
+
+def get_weekly_status():
+    """Task/next-run/last-run info + last successful deploy timestamp."""
+    info = {'task': False, 'next_run': None, 'last_run': None,
+            'last_result': None, 'last_deploy': None}
+    try:
+        r = subprocess.run(['schtasks', '/query', '/tn', TASK_NAME, '/fo', 'LIST', '/v'],
+                           capture_output=True, text=True, encoding='utf-8',
+                           errors='replace', timeout=30)
+        if r.returncode == 0:
+            info['task'] = True
+            for line in (r.stdout or '').splitlines():
+                t = line.strip()
+                for key, field in (('next_run', 'Next Run Time:'),
+                                   ('last_run', 'Last Run Time:'),
+                                   ('last_result', 'Last Result:')):
+                    if t.startswith(field):
+                        v = t[len(field):].strip()
+                        info[key] = None if v in ('N/A', '') else v
+    except Exception:
+        pass
+    try:
+        if LOG_FILE.exists():
+            for line in reversed(LOG_FILE.read_text(encoding='utf-8', errors='replace').splitlines()):
+                if 'Pushed to' in line:
+                    info['last_deploy'] = line[:19]
+                    break
+    except OSError:
+        pass
+    return info
+
+
+def register_weekly_schedule(day='Friday', time_str='03:00'):
+    """(Re)create the weekly scheduled task. Returns (ok, detail)."""
+    import re as _re
+    import tempfile
+    day = (day or '').strip().capitalize()
+    if day not in WEEKDAYS:
+        return False, 'Day must be Monday..Sunday.'
+    time_str = (time_str or '').strip()
+    if not _re.fullmatch(r'([01]\d|2[0-3]):[0-5]\d', time_str):
+        return False, 'Time must be HH:MM (24h).'
+    from datetime import date, timedelta
+    idx = {d.lower(): i for i, d in enumerate(WEEKDAYS)}
+    first = date.today() + timedelta(days=(idx[day.lower()] - date.today().weekday()) % 7)
+    start = f'{first.isoformat()}T{time_str}:00'
+    py = sys.executable
+    repo = str(BASE_DIR)
+    xml = f"""<?xml version="1.0" encoding="UTF-16"?>
+<Task version="1.4" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
+  <RegistrationInfo>
+    <Description>Weekly auto-deploy for Arabic Bible site: rebuild + push only if changed.</Description>
+  </RegistrationInfo>
+  <Triggers>
+    <CalendarTrigger>
+      <StartBoundary>{start}</StartBoundary>
+      <ScheduleByWeek>
+        <DaysOfWeek><{day} /></DaysOfWeek>
+        <WeeksInterval>1</WeeksInterval>
+      </ScheduleByWeek>
+    </CalendarTrigger>
+  </Triggers>
+  <Principals>
+    <Principal id="Author">
+      <LogonType>InteractiveToken</LogonType>
+      <RunLevel>LeastPrivilege</RunLevel>
+    </Principal>
+  </Principals>
+  <Settings>
+    <MultipleInstancesPolicy>IgnoreNew</MultipleInstancesPolicy>
+    <DisallowStartIfOnBatteries>false</DisallowStartIfOnBatteries>
+    <StopIfGoingOnBatteries>false</StopIfGoingOnBatteries>
+    <AllowHardTerminate>true</AllowHardTerminate>
+    <StartWhenAvailable>true</StartWhenAvailable>
+    <RunOnlyIfNetworkAvailable>true</RunOnlyIfNetworkAvailable>
+    <AllowStartOnDemand>true</AllowStartOnDemand>
+    <Enabled>true</Enabled>
+    <Hidden>false</Hidden>
+    <ExecutionTimeLimit>PT2H</ExecutionTimeLimit>
+    <Priority>7</Priority>
+  </Settings>
+  <Actions Context="Author">
+    <Exec>
+      <Command>{py}</Command>
+      <Arguments>-X utf8 scripts\\weekly_deploy.py</Arguments>
+      <WorkingDirectory>{repo}</WorkingDirectory>
+    </Exec>
+  </Actions>
+</Task>
+"""
+    try:
+        with tempfile.NamedTemporaryFile('w', suffix='.xml', delete=False,
+                                         encoding='utf-16') as f:
+            f.write(xml)
+            tmp = f.name
+        r = subprocess.run(['schtasks', '/create', '/tn', TASK_NAME, '/xml', tmp, '/f'],
+                           capture_output=True, text=True, encoding='utf-8',
+                           errors='replace', timeout=60)
+    except Exception as e:
+        return False, f'schedule failed: {e}'
+    if r.returncode != 0:
+        return False, ((r.stderr or r.stdout) or 'schtasks failed').strip()[:300]
+    info = get_weekly_status()
+    return True, 'Schedule saved: %s %s (next: %s).' % (day, time_str, info.get('next_run') or '?')

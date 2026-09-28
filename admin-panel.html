@@ -26,6 +26,10 @@
         .deploy-status.is-ok { color: #28a745; }
         .deploy-status.is-err { color: #dc3545; }
         .deploy-status.is-busy { color: #007bff; }
+        .schedule-panel { margin-top: 0.75rem; padding: 0.75rem; border: 1px solid #ddd; border-radius: 6px; background: var(--bg-light, #f8f9fa); font-size: 0.92rem; }
+        .schedule-panel h3 { margin: 0 0 0.5rem; font-size: 1rem; }
+        .sched-lines { margin: 0 0 0.5rem; }
+        .sched-form { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
         .changes-panel { min-height: 120px; margin-top: 0.75rem; padding: 0.75rem; border: 1px solid #ddd; border-radius: 6px; background: var(--bg-light, #f8f9fa); font-size: 0.92rem; }
         .changes-panel h3 { margin: 0 0 0.5rem; font-size: 1rem; }
         .changes-panel ul { margin: 0 0 0.75rem; padding-right: 1.25rem; }
@@ -291,6 +295,27 @@
             </div>
         </div>
         <div id="deployStatus" class="deploy-status" role="status" aria-live="polite"></div>
+        <section class="schedule-panel" aria-labelledby="schedHeading">
+            <h3 id="schedHeading">Weekly auto-deploy</h3>
+            <p class="sched-lines">Last deploy: <strong id="lastDeploy">…</strong><br>
+            Next auto-deploy: <strong id="nextDeploy">…</strong></p>
+            <div class="sched-form">
+                <label for="schedDay">Day</label>
+                <select id="schedDay" class="cat-select">
+                    <option>Monday</option>
+                    <option>Tuesday</option>
+                    <option>Wednesday</option>
+                    <option>Thursday</option>
+                    <option selected>Friday</option>
+                    <option>Saturday</option>
+                    <option>Sunday</option>
+                </select>
+                <label for="schedTime">Time</label>
+                <input type="time" id="schedTime" value="03:00" class="cat-select" style="min-width:0;">
+                <button type="button" class="admin-btn admin-btn-secondary" id="schedSave">Save schedule</button>
+                <span id="schedStatus" class="cat-save-status" role="status"></span>
+            </div>
+        </section>
         <div id="changesPanel" class="changes-panel" hidden></div>
 
         <div id="adminContent">

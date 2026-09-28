@@ -839,11 +839,46 @@
     if (document.fonts && document.fonts.ready) {
         document.fonts.ready.then(pinAdminToolbar);
     }
+    function setupSchedulePanel() {
+        var dayEl = document.getElementById('schedDay');
+        var timeEl = document.getElementById('schedTime');
+        var btn = document.getElementById('schedSave');
+        var lastEl = document.getElementById('lastDeploy');
+        var nextEl = document.getElementById('nextDeploy');
+        var statusEl = document.getElementById('schedStatus');
+        if (!dayEl || !timeEl || !btn || btn._listenerAdded) return;
+        function say(msg, cls) {
+            if (!statusEl) return;
+            statusEl.textContent = msg || '';
+            statusEl.className = 'cat-save-status' + (cls ? ' ' + cls : '');
+        }
+        getApi('/api/weekly-status').then(function (result) {
+            var data = result.data || {};
+            if (result.status === 200 && data.ok) {
+                if (lastEl) lastEl.textContent = data.last_deploy || 'unknown';
+                if (nextEl) nextEl.textContent = data.task ? (data.next_run || 'scheduled') : 'not scheduled';
+            }
+        }).catch(function () {});
+        btn._listenerAdded = true;
+        btn.addEventListener('click', function () {
+            say('Saving.');
+            postApi('/api/weekly-schedule', { day: dayEl.value, time: timeEl.value }).then(function (result) {
+                var data = result.data || {};
+                if (result.status === 200 && data.ok) {
+                    if (nextEl && data.next_run) nextEl.textContent = data.next_run;
+                    say(data.message || 'Saved.', 'ok');
+                } else {
+                    say(data.message || 'Save failed.', 'err');
+                }
+            }).catch(function () { say('Cannot reach server.', 'err'); });
+        });
+    }
     document.addEventListener('DOMContentLoaded', function () {
         pinAdminToolbar();
         document.getElementById('adminContent').style.display = 'block';
         setupDeployButton();
         setupChangesButton();
+        setupSchedulePanel();
         loadCategories().then(function () {
             loadDocuments();
         });
