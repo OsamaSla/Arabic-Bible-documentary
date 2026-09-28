@@ -2950,12 +2950,15 @@ button:disabled:hover,
    Overflow / Layout Stability
    ======================================== */
 
+/* NOTE: `clip` (not `hidden`) so sticky descendants (site header,
+   floating bible filter, doc sidebar) keep working: `hidden` on html/body
+   creates a scroll container that disables position:sticky. */
 html {
-    overflow-x: hidden;
+    overflow-x: clip;
 }
 
 body {
-    overflow-x: hidden;
+    overflow-x: clip;
 }
 
 .word-break {

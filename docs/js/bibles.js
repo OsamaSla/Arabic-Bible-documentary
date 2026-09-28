@@ -124,8 +124,30 @@
 
     document.addEventListener('DOMContentLoaded', function () {
         openHashTarget(false);
+        pinFilterOffset();
     });
     if (document.readyState !== 'loading') {
         openHashTarget(false);
+        pinFilterOffset();
+    }
+
+    /* Floating filter bar: dock exactly under the sticky site header.
+       CSS fallback --bibles-filter-top applies until measured (no-JS safe). */
+    var filterBar = document.querySelector('.bibles-filter');
+    function pinFilterOffset() {
+        if (!filterBar) {
+            return;
+        }
+        var header = document.querySelector('.site-header');
+        if (!header || !header.getBoundingClientRect) {
+            return;
+        }
+        filterBar.style.setProperty('--bibles-filter-top',
+            Math.ceil(header.getBoundingClientRect().height) + 'px');
+    }
+    pinFilterOffset();
+    window.addEventListener('resize', pinFilterOffset);
+    if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(pinFilterOffset);
     }
 })();

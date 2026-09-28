@@ -41,6 +41,12 @@
     border: 1px solid var(--border-light);
     border-radius: var(--radius-lg);
     margin-bottom: 1rem;
+    /* Floating search + filters: docks under the sticky site header.
+       --bibles-filter-top is set precisely by js/bibles.js; fallbacks below. */
+    position: sticky;
+    top: var(--bibles-filter-top, 120px);
+    z-index: 500;
+    box-shadow: var(--shadow-md);
 }
 
 .bibles-search {
@@ -385,6 +391,7 @@
     .bibles-filter {
         flex-direction: column;
         align-items: stretch;
+        --bibles-filter-top: 170px;
     }
 
     .bible-grid {
