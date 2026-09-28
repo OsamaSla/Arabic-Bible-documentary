@@ -41,7 +41,7 @@
       "rel_path": "تم",
       "html_path": "documents/achim-zöfelt/تم/doc_0001.html",
       "download_path": "downloads/achim-zöfelt/تم/doc_0001.docx",
-      "file_hash": "c7253b9c",
+      "file_hash": "8b48bc95",
       "refs": [
         {
           "b": "yuanna",
@@ -324,7 +324,7 @@
       ]
     },
     {
-      "id": "doc_0017",
+      "id": "doc_0020",
       "title": "التأييد والتعضيد الإلهي",
       "description": "\"قَدْ أَيَّدْتُكَ - אִמַּצְתִּיךָ\" (أشعياء 41: 10). سبيرجون عندما نكون مدعوين بأن نخدم أو نتألم فإننا نقلب في قوتنا، ونجدها أقل مما أعتقدنا أن تكون وأقل مما نحتاج إليه. لكن دعونا لا نسمح لعزيمتنا...",
       "author": "Charles Haddon Spurgeon",
@@ -335,8 +335,8 @@
       "category": "uncategorized",
       "filename": "التأييد والتعضيد الإلهي - سبرجون.docx",
       "rel_path": "تم",
-      "html_path": "documents/charles-haddon-spurgeon/تم/doc_0017.html",
-      "download_path": "downloads/charles-haddon-spurgeon/تم/doc_0017.docx",
+      "html_path": "documents/charles-haddon-spurgeon/تم/doc_0020.html",
+      "download_path": "downloads/charles-haddon-spurgeon/تم/doc_0020.docx",
       "file_hash": "80337a25",
       "refs": [
         {
@@ -347,24 +347,7 @@
       ]
     },
     {
-      "id": "doc_0018",
-      "title": "المواظبة على الصلاة",
-      "description": "",
-      "author": "Charles Haddon Spurgeon",
-      "author_slug": "charles-haddon-spurgeon",
-      "completed": true,
-      "hidden": false,
-      "categories": [],
-      "category": "uncategorized",
-      "filename": "المواظبة على الصلاة.docx",
-      "rel_path": "تم",
-      "html_path": "documents/charles-haddon-spurgeon/تم/doc_0018.html",
-      "download_path": "downloads/charles-haddon-spurgeon/تم/doc_0018.docx",
-      "file_hash": "c756e6a7",
-      "refs": []
-    },
-    {
-      "id": "doc_0019",
+      "id": "doc_0021",
       "title": "بِالْهُدُوءِ وَالطُّمَأْنِينَةِ",
       "description": "Charles Haddon Spurgeon \"​ ​لأَنَّهُ هكَذَا قَالَ السَّيِّدُ الرَّبُّ قُدُّوسُ إِسْرَائِيلَ: «بِالرُّجُوعِ وَالسُّكُونِ تَخْلُصُونَ. بِالْهُدُوءِ وَالطُّمَأْنِينَةِ تَكُونُ قُوَّتُكُمْ»\" (أشعياء 30:...",
       "author": "Charles Haddon Spurgeon",
@@ -375,8 +358,8 @@
       "category": "uncategorized",
       "filename": "بِالْهُدُوءِ وَالطُّمَأْنِينَةِ.docx",
       "rel_path": "تم",
-      "html_path": "documents/charles-haddon-spurgeon/تم/doc_0019.html",
-      "download_path": "downloads/charles-haddon-spurgeon/تم/doc_0019.docx",
+      "html_path": "documents/charles-haddon-spurgeon/تم/doc_0021.html",
+      "download_path": "downloads/charles-haddon-spurgeon/تم/doc_0021.docx",
       "file_hash": "7b3e0246",
       "refs": [
         {
@@ -384,40 +367,6 @@
           "c": 30
         }
       ]
-    },
-    {
-      "id": "doc_0020",
-      "title": "دروس في أوقات المرض",
-      "description": "",
-      "author": "Charles Haddon Spurgeon",
-      "author_slug": "charles-haddon-spurgeon",
-      "completed": true,
-      "hidden": false,
-      "categories": [],
-      "category": "uncategorized",
-      "filename": "دروس في أوقات المرض.docx",
-      "rel_path": "تم",
-      "html_path": "documents/charles-haddon-spurgeon/تم/doc_0020.html",
-      "download_path": "downloads/charles-haddon-spurgeon/تم/doc_0020.docx",
-      "file_hash": "79f72de1",
-      "refs": []
-    },
-    {
-      "id": "doc_0021",
-      "title": "فِي وَقْتِ الْمَسَاءِ يَكُونُ نُورٌ",
-      "description": "",
-      "author": "Charles Haddon Spurgeon",
-      "author_slug": "charles-haddon-spurgeon",
-      "completed": true,
-      "hidden": false,
-      "categories": [],
-      "category": "uncategorized",
-      "filename": "فِي وَقْتِ الْمَسَاءِ يَكُونُ نُورٌ.docx",
-      "rel_path": "تم",
-      "html_path": "documents/charles-haddon-spurgeon/تم/doc_0021.html",
-      "download_path": "downloads/charles-haddon-spurgeon/تم/doc_0021.docx",
-      "file_hash": "4e2f0b07",
-      "refs": []
     },
     {
       "id": "doc_0022",
@@ -1899,7 +1848,7 @@
       "rel_path": "",
       "html_path": "documents/david-willoughby-gooding/doc_0090.html",
       "download_path": "downloads/david-willoughby-gooding/doc_0090.docx",
-      "file_hash": "da8cd72e",
+      "file_hash": "639761d2",
       "refs": []
     },
     {
@@ -9381,30 +9330,6 @@
       ]
     },
     {
-      "id": "doc_0443",
-      "title": "أشعياء 53 - حوار",
-      "description": "كارل هاينز فيبر نبوة لإسرائيل وللأمم يكتب بطرس في رسالته الأولى في إصحاح 1: 11، بأن أنبياء العهد القديم تنبأوا \" بِالآلاَمِ الَّتِي لِلْمَسِيحِ، وَالأَمْجَادِ الَّتِي بَعْدَهَا.\". ويتنبأ أشعياء النبي...",
-      "author": "Karl-Heinz Weber",
-      "author_slug": "karl-heinz-weber",
-      "completed": false,
-      "hidden": false,
-      "categories": [
-        "ishaiya"
-      ],
-      "category": "ishaiya",
-      "filename": "أشعياء 53 - حوار - كارل هاينز فيبر.docx",
-      "rel_path": "",
-      "html_path": "documents/karl-heinz-weber/doc_0443.html",
-      "download_path": "downloads/karl-heinz-weber/doc_0443.docx",
-      "file_hash": "b88a40f7",
-      "refs": [
-        {
-          "b": "ishaiya",
-          "c": 53
-        }
-      ]
-    },
-    {
       "id": "doc_0444",
       "title": "إشعياء 53 – حوار",
       "description": "Karl-Heinz Weber نبوات لإسرائيل وللأمم يكتب بطرس في رسالته الأولى في الإصحاح 1: 11، بأن أنبياء العهد القديم تنبأوا عن \"الآلام، التي ستقع على المسيح، وعن الأمجاد بعدها\". ويتنبأ النبي إشعياء كذلك في...",
@@ -16038,8 +15963,8 @@
       "refs": []
     }
   ],
-  "total_count": 768,
-  "completed_count": 342,
+  "total_count": 764,
+  "completed_count": 339,
   "authors": {
     "Achim Zöfelt": {
       "slug": "achim-zöfelt",
@@ -16088,8 +16013,8 @@
     },
     "Charles Haddon Spurgeon": {
       "slug": "charles-haddon-spurgeon",
-      "total": 6,
-      "completed": 5
+      "total": 3,
+      "completed": 2
     },
     "Charles Henry Mackintosh": {
       "slug": "charles-henry-mackintosh",
@@ -16298,7 +16223,7 @@
     },
     "Karl-Heinz Weber": {
       "slug": "karl-heinz-weber",
-      "total": 7,
+      "total": 6,
       "completed": 1
     },
     "Leslie M. Grant": {
