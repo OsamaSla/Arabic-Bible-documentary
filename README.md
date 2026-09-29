@@ -6,7 +6,7 @@
 
 </div>
 
-A static website hosting **774 Arabic translations** of Christian Bible commentaries from [bibelkommentare.de](https://www.bibelkommentare.de), built for GitHub Pages with instant search, author pages, and admin management.
+A static website hosting **774 Arabic translations** of Christian Bible commentaries, built for GitHub Pages with instant search, author pages, and admin management.
 
 **Live site:** [https://osamasla.github.io/Arabic-Bible-documentary/](https://osamasla.github.io/Arabic-Bible-documentary/)
 
@@ -303,9 +303,3 @@ python scripts/build.py
 - Firefox (latest)
 - Safari (latest)
 - Edge (latest)
-
----
-
-## License
-
-These translations are based on commentaries from [bibelkommentare.de](https://www.bibelkommentare.de) pursuant to their terms of use.
