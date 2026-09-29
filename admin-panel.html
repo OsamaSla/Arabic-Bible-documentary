@@ -52,6 +52,9 @@
         .admin-toolbar #filterBox { margin-bottom: 0.5rem; }
         .admin-toolbar .filter-buttons { margin-bottom: 0.5rem; }
         .admin-toolbar .cat-toolbar { margin-bottom: 0.5rem; }
+        .doc-item mark, .doc-snippet mark { background: var(--color-secondary-light, #d4b76a); color: inherit; border-radius: 4px; padding: 0 2px; }
+        .doc-snippet { color: var(--text-secondary, #5a5a5a); font-size: 0.88rem; line-height: 1.9; margin: 0.35rem 0 0; }
+        .tb-label { display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 0.25rem; }
         .filter-buttons { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
         .filter-btn { padding: 0.4rem 0.8rem; border: 1px solid #ddd; background: #f8f9fa; border-radius: 4px; cursor: pointer; font-family: inherit; font-size: 0.9rem; }
         .filter-btn:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
@@ -333,7 +336,10 @@
             </section>
 
             <div class="admin-toolbar">
-            <input type="text" id="filterBox" placeholder="Search docs..." style="width:100%; padding:8px; margin-bottom:10px; border:1px solid #ddd; border-radius:4px;">
+            <label class="tb-label" for="filterBox">Titles</label>
+            <input type="text" id="filterBox" placeholder="Search titles..." style="width:100%; padding:8px; margin-bottom:10px; border:1px solid #ddd; border-radius:4px;">
+            <label class="tb-label" for="contentBox">Full search</label>
+            <input type="text" id="contentBox" placeholder="Search titles, authors and full text..." style="width:100%; padding:8px; margin-bottom:10px; border:1px solid #ddd; border-radius:4px;">
 
             <div class="filter-buttons">
                 <button class="filter-btn active" data-filter="all" id="btnAll">الكل (All)</button>
