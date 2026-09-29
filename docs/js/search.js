@@ -72,7 +72,7 @@ window.ArSearch = (function () {
         return merged;
     }
 
-    var metaCache = null, fullCache = null, fullFailed = false;
+    var metaCache = null, fullCache = null, fullFailed = false, fullPromise = null;
     function root() { return SEARCH_SITE_ROOT || ''; }
     function fetchJson(url) {
         return fetch(url).then(function (r) {
@@ -94,13 +94,17 @@ window.ArSearch = (function () {
     function loadFullIndex() {
         if (fullCache) return Promise.resolve(fullCache);
         if (fullFailed) return Promise.reject(new Error('unavailable'));
-        return fetchJson(root() + 'search-index.json').then(function (d) {
-            fullCache = d;
-            return d;
-        }).catch(function (e) {
-            fullFailed = true;
-            throw e;
-        });
+        if (!fullPromise) {
+            fullPromise = fetchJson(root() + 'search-index.json').then(function (d) {
+                fullCache = d;
+                return d;
+            }).catch(function (e) {
+                fullFailed = true;
+                fullPromise = null;
+                throw e;
+            });
+        }
+        return fullPromise;
     }
 
     /* AND over tokens (rarest posting first). Returns [docIdx...]. */
