@@ -513,6 +513,19 @@
             filterBox._listenerAdded = true;
             filterBox.addEventListener('input', function (e) {
                 currentSearchQuery = e.target.value.toLowerCase();
+                window.__contentIds = null;
+                var q = (e.target.value || '').trim();
+                if (window.ArSearch && q.length >= 2) {
+                    window.ArSearch.loadFullIndex().then(function (full) {
+                        var ids = {};
+                        window.ArSearch.matchContent(q, full).forEach(function (i) {
+                            var d = full.docs[i];
+                            if (d && d.id) ids[d.id] = true;
+                        });
+                        window.__contentIds = ids;
+                        applyFiltersAndRender();
+                    }).catch(function () {});
+                }
                 applyFiltersAndRender();
             });
         }
@@ -591,7 +604,8 @@
                 return (d.title && d.title.toLowerCase().includes(currentSearchQuery)) ||
                        (d.id && d.id.toLowerCase().includes(currentSearchQuery)) ||
                        (d.author && d.author.toLowerCase().includes(currentSearchQuery)) ||
-                       catLabels.toLowerCase().includes(currentSearchQuery);
+                       catLabels.toLowerCase().includes(currentSearchQuery) ||
+                       (window.__contentIds && d.id && window.__contentIds[d.id]);
             });
         }
 

@@ -325,3 +325,10 @@
         justify-content: center;
     }
 }
+
+.document-content mark {
+    background: var(--color-secondary-light);
+    color: inherit;
+    border-radius: var(--radius-sm);
+    padding: 0 2px;
+}

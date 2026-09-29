@@ -11,6 +11,130 @@ var SEARCH_SITE_ROOT = (function () {
     return src.replace(/js\/[^/]*$/, '');
 })();
 
+/* Shared Arabic full-text engine (mirrors scripts/build.py tokenization):
+   strip diacritics/tatweel, normalize alef/hamza forms, words of 2+ letters. */
+window.ArSearch = (function () {
+    'use strict';
+    var DIACRITICS_RE = /[\u064B-\u0652\u0670\u0640]/g;
+    var WORD_SRC = '[\\p{L}]{2,}';
+    var ALEF_MAP = {'\u0623': '\u0627', '\u0625': '\u0627', '\u0622': '\u0627',
+                    '\u0671': '\u0627', '\u0624': '\u0648', '\u0626': '\u064A'};
+
+    function normalize(str) {
+        var t = String(str == null ? '' : str).replace(DIACRITICS_RE, '');
+        var out = '';
+        for (var i = 0; i < t.length; i++) {
+            out += ALEF_MAP[t[i]] || t[i];
+        }
+        return out;
+    }
+
+    function tokenize(str) {
+        var t = normalize(str).toLowerCase();
+        var re = new RegExp(WORD_SRC, 'gu');
+        var out = [], m;
+        while ((m = re.exec(t)) !== null) out.push(m[0]);
+        return out;
+    }
+
+    /* Normalized text + map[normIdx] = origIdx (diacritics dropped). */
+    function normWithMap(str) {
+        var orig = String(str == null ? '' : str);
+        var chars = [], map = [];
+        for (var i = 0; i < orig.length; i++) {
+            var ch = orig[i];
+            if (/[\u064B-\u0652\u0670\u0640]/.test(ch)) continue;
+            chars.push(ALEF_MAP[ch] || ch);
+            map.push(i);
+        }
+        return { text: chars.join('').toLowerCase(), map: map };
+    }
+
+    /* Find [start,end) ranges (original coords) of any word in text. */
+    function findRanges(text, words) {
+        var nm = normWithMap(String(text).toLowerCase());
+        var ranges = [];
+        (words || []).forEach(function (w) {
+            if (!w) return;
+            var from = 0, at;
+            while ((at = nm.text.indexOf(w, from)) !== -1) {
+                ranges.push([nm.map[at], nm.map[at + w.length - 1] + 1]);
+                from = at + Math.max(1, w.length);
+            }
+        });
+        ranges.sort(function (a, b) { return a[0] - b[0]; });
+        var merged = [];
+        ranges.forEach(function (r) {
+            var last = merged[merged.length - 1];
+            if (last && r[0] <= last[1]) last[1] = Math.max(last[1], r[1]);
+            else merged.push([r[0], r[1]]);
+        });
+        return merged;
+    }
+
+    var metaCache = null, fullCache = null, fullFailed = false;
+    function root() { return SEARCH_SITE_ROOT || ''; }
+    function fetchJson(url) {
+        return fetch(url).then(function (r) {
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            return r.json();
+        });
+    }
+    function loadMeta() {
+        if (metaCache) return Promise.resolve(metaCache);
+        if (window.__DOCUMENTS_DATA__) {
+            metaCache = window.__DOCUMENTS_DATA__;
+            return Promise.resolve(metaCache);
+        }
+        return fetchJson(root() + 'documents/index.json').then(function (d) {
+            metaCache = d.documents || [];
+            return metaCache;
+        });
+    }
+    function loadFullIndex() {
+        if (fullCache) return Promise.resolve(fullCache);
+        if (fullFailed) return Promise.reject(new Error('unavailable'));
+        return fetchJson(root() + 'search-index.json').then(function (d) {
+            fullCache = d;
+            return d;
+        }).catch(function (e) {
+            fullFailed = true;
+            throw e;
+        });
+    }
+
+    /* AND over tokens (rarest posting first). Returns [docIdx...]. */
+    function matchContent(query, full) {
+        var words = [];
+        tokenize(query).forEach(function (w) {
+            if (words.indexOf(w) === -1) words.push(w);
+        });
+        if (!words.length || !full || !full.index) return [];
+        var lists = [];
+        for (var i = 0; i < words.length; i++) {
+            var l = full.index[words[i]];
+            if (!l || !l.length) return [];
+            lists.push(l);
+        }
+        lists.sort(function (a, b) { return a.length - b.length; });
+        var set = new Set(lists[0]);
+        for (var k = 1; k < lists.length; k++) {
+            var next = new Set();
+            lists[k].forEach(function (id) { if (set.has(id)) next.add(id); });
+            set = next;
+            if (!set.size) return [];
+        }
+        return Array.from(set);
+    }
+
+    return {
+        normalize: normalize, tokenize: tokenize,
+        normWithMap: normWithMap, findRanges: findRanges,
+        loadMeta: loadMeta, loadFullIndex: loadFullIndex,
+        matchContent: matchContent
+    };
+})();
+
 class Search {
     constructor() {
         this.documents = [];
@@ -108,9 +232,13 @@ class Search {
             } else if (e.key === 'ArrowUp' && items.length) {
                 e.preventDefault();
                 this.moveActive(-1, items);
-            } else if (e.key === 'Enter' && this.activeIndex >= 0 && items[this.activeIndex]) {
+            } else if (e.key === 'Enter') {
                 e.preventDefault();
-                items[this.activeIndex].click();
+                if (this.activeIndex >= 0 && items[this.activeIndex]) {
+                    items[this.activeIndex].click();
+                } else {
+                    this.goToResultsPage(this.searchInput.value);
+                }
             }
         });
 
@@ -201,25 +329,28 @@ class Search {
     }
 
     searchDocuments(query) {
-        const normalizedQuery = query.toLowerCase();
+        const words = window.ArSearch ? window.ArSearch.tokenize(query) : [query.toLowerCase()];
+        const norm = window.ArSearch
+            ? (t) => window.ArSearch.normalize(t).toLowerCase()
+            : (t) => String(t || '').toLowerCase();
         const matched = this.documents.filter(doc => {
-            const title = (doc.title || '').toLowerCase();
-            const description = (doc.description || '').toLowerCase();
-            const author = (doc.author || '').toLowerCase();
-            // Array-safe: search across all assigned categories
-            let catStr = '';
-            if (Array.isArray(doc.categories)) {
-                catStr = doc.categories.join(' ').toLowerCase();
-            } else {
-                catStr = String(doc.category || '').toLowerCase();
-            }
-
-            return title.includes(normalizedQuery) ||
-                   description.includes(normalizedQuery) ||
-                   author.includes(normalizedQuery) ||
-                   catStr.includes(normalizedQuery);
+            const hay = norm(doc.title) + ' ' + norm(doc.description) + ' ' +
+                        norm(doc.author) + ' ' +
+                        (Array.isArray(doc.categories)
+                            ? doc.categories.join(' ')
+                            : String(doc.category || ''));
+            const hayN = norm(hay);
+            return words.length > 0 && words.every(w => hayN.includes(w));
         });
         return { all: matched, shown: matched.slice(0, 20) };
+    }
+
+    resultsPageUrl(query) {
+        return (SEARCH_SITE_ROOT || '') + 'search.html?q=' + encodeURIComponent((query || '').trim());
+    }
+
+    goToResultsPage(query) {
+        window.location.href = this.resultsPageUrl(query);
     }
 
     displayResults(resultObj, query) {
@@ -233,6 +364,9 @@ class Search {
                     <div class="search-result-title">لا توجد نتائج</div>
                     <div class="search-result-category">جرّب كلمات بحث مختلفة</div>
                 </div>
+            <a href="${escapeHtml(this.resultsPageUrl(query))}" class="search-result-item search-result-all" role="option" aria-selected="false">
+                <div class="search-result-title">البحث في نصوص التعليقات &larr;</div>
+            </a>
             `;
             this.announce('لا توجد نتائج');
         } else {
@@ -249,7 +383,9 @@ class Search {
                     <div class="search-result-category">${author}</div>
                 </a>
                 `;
-            }).join('') + moreNote;
+            }).join('') + moreNote +
+            `<a href="${escapeHtml(this.resultsPageUrl(query))}" class="search-result-item search-result-all" role="option" aria-selected="false">`
+            + `<div class="search-result-title">عرض كل النتائج &larr;</div></a>`;
             this.announce(`${total} نتيجة`);
         }
 
@@ -296,6 +432,52 @@ class Search {
     }
 }
 
+/* Highlight search words inside article text (?hl=...), then jump to first hit. */
+function highlightQueryInArticle() {
+    var article = document.querySelector('.document-content');
+    if (!article || !window.ArSearch) return;
+    var raw = '';
+    try {
+        raw = (new URLSearchParams(window.location.search).get('hl') || '').trim();
+    } catch (e) { return; }
+    if (raw.length < 2) return;
+    var words = [];
+    window.ArSearch.tokenize(raw).forEach(function (w) {
+        if (words.indexOf(w) === -1) words.push(w);
+    });
+    if (!words.length) return;
+    var MAX_MARKS = 300, marks = 0, first = null;
+    var walker = document.createTreeWalker(article, NodeFilter.SHOW_TEXT, null);
+    var nodes = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach(function (node) {
+        if (marks >= MAX_MARKS) return;
+        var parent = node.parentNode;
+        if (!parent || parent.closest('mark,script,style')) return;
+        var ranges = window.ArSearch.findRanges(node.nodeValue, words);
+        if (!ranges.length) return;
+        var frag = document.createDocumentFragment();
+        var pos = 0, text = node.nodeValue;
+        ranges.forEach(function (r) {
+            if (marks >= MAX_MARKS) return;
+            if (r[0] > pos) frag.appendChild(document.createTextNode(text.slice(pos, r[0])));
+            var mark = document.createElement('mark');
+            mark.className = 'hl';
+            mark.textContent = text.slice(r[0], r[1]);
+            frag.appendChild(mark);
+            marks++;
+            if (!first) first = mark;
+            pos = r[1];
+        });
+        if (pos < text.length) frag.appendChild(document.createTextNode(text.slice(pos)));
+        parent.replaceChild(frag, node);
+    });
+    if (first && first.scrollIntoView) {
+        try { first.scrollIntoView({ block: 'center' }); } catch (e) {}
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     window.search = new Search();
+    highlightQueryInArticle();
 });

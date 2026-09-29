@@ -7,6 +7,7 @@ Runs the conversion and generates the complete site in docs/
 import os
 import sys
 import json
+import re
 import shutil
 import time
 from datetime import datetime
@@ -1056,6 +1057,93 @@ def _bible_chapter_page(name, slug, ch, total, verses, has_docs):
 '''
 
 
+def generate_search_index(base_dir, docs_dir, visible_documents):
+    """Full-text search index: docs/search-index.json {docs:[{id,title,author,html_path}], index:{token:[docIdx]}}.
+
+    Arabic-aware tokenization (mirrored in js/search.js:ArSearch): strip
+    diacritics/tatweel, normalize alef/hamza forms, words of 2+ letters.
+    One posting entry per (token, doc) — no positions (snippets are extracted
+    client-side by fetching the matched page).
+    """
+    from html.parser import HTMLParser
+
+    class _ArticleText(HTMLParser):
+        def __init__(self):
+            super().__init__()
+            self.in_article = False
+            self.parts = []
+
+        def handle_starttag(self, tag, attrs):
+            if tag == 'article':
+                for k, v in attrs:
+                    if k == 'class' and 'document-content' in v:
+                        self.in_article = True
+
+        def handle_endtag(self, tag):
+            if tag == 'article' and self.in_article:
+                self.in_article = False
+
+        def handle_data(self, data):
+            if self.in_article:
+                self.parts.append(data)
+
+    WORD_RE = re.compile(r'[^\W\d_]{2,}', re.UNICODE)
+    STRIP_RE = re.compile(r'[\u064b-\u0652\u0670\u0640]')
+    ALEF_MAP = str.maketrans({'أ': 'ا', 'إ': 'ا', 'آ': 'ا',
+                              'ٱ': 'ا', 'ؤ': 'و', 'ئ': 'ي'})
+
+    docs_meta = []
+    postings = {}
+    for doc in visible_documents:
+        rel = doc.get('html_path') or ''
+        page = docs_dir / rel
+        if not rel or not page.exists():
+            continue
+        try:
+            html = page.read_text(encoding='utf-8')
+        except (OSError, UnicodeDecodeError):
+            continue
+        parser = _ArticleText()
+        try:
+            parser.feed(html)
+        except Exception:
+            continue
+        text = STRIP_RE.sub('', re.sub(r'\s+', ' ', ''.join(parser.parts))).translate(ALEF_MAP)
+        idx = len(docs_meta)
+        docs_meta.append({'id': doc.get('id', ''), 'title': doc.get('title', ''),
+                          'author': doc.get('author', ''), 'html_path': rel})
+        seen = set()
+        for m in WORD_RE.finditer(text):
+            w = m.group(0)
+            if w in seen:
+                continue
+            seen.add(w)
+            postings.setdefault(w, []).append(idx)
+
+    payload = {'docs': docs_meta, 'index': postings}
+    out = docs_dir / 'search-index.json'
+    raw = json.dumps(payload, ensure_ascii=False).encode('utf-8')
+    with open(out, 'wb') as f:
+        f.write(raw)
+    try:
+        import gzip as _gzip
+        gz = len(_gzip.compress(raw, 9))
+    except Exception:
+        gz = -1
+    print(f'  [OK] search-index.json: {len(docs_meta)} docs, '
+          f'{len(postings)} terms, {len(raw) // 1024} KB ({gz // 1024} KB gzip)')
+
+
+def copy_search_page(base_dir, docs_dir):
+    """Static results shell: templates/search.html -> docs/search.html."""
+    src = base_dir / 'templates' / 'search.html'
+    if not src.exists():
+        print('  [WARNING] templates/search.html not found, skipping')
+        return
+    shutil.copy2(src, docs_dir / 'search.html')
+    print('  [OK] search.html copied')
+
+
 def generate_bible_chapter_pages(base_dir, docs_dir, scripture):
     """Static Van Dyck chapter pages: bible-data/*.json -> docs/bible/."""
     data_dir = base_dir / 'bible-data'
@@ -1882,6 +1970,14 @@ def main():
     # Van Dyck Bible chapter text (public domain, scripts/build_bible_data.py)
     print('\n[BUILD] Generating Bible chapter text pages...')
     generate_bible_chapter_pages(base_dir, docs_dir, scripture)
+
+    # Full-text search index (powers search.html content search)
+    print('\n[BUILD] Generating full-text search index...')
+    generate_search_index(base_dir, docs_dir, visible_documents)
+
+    # Search results page (static shell; results rendered client-side)
+    print('\n[BUILD] Copying search page...')
+    copy_search_page(base_dir, docs_dir)
     
     # Generate document index pages
     print('\n[BUILD] Generating document index pages...')
