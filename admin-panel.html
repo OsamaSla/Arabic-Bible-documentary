@@ -13,15 +13,15 @@
         .admin-container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
         .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding: 1rem; background: var(--bg-light); border-radius: var(--radius-md); flex-wrap: wrap; gap: 0.5rem; }
         .admin-header-actions { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
-        .doc-item { min-height: 72px; padding: 14px; border: 1px solid #ddd; margin: 8px 0; border-radius: 6px; background: #fff; cursor: pointer; position: relative; }
+        .doc-item {  padding: var(--spacing-lg); border: 1px solid var(--border-light); margin: 8px 0; border-radius: var(--radius-lg); background: var(--bg-white); cursor: pointer; position: relative; }
         .doc-item:hover { border-color: var(--color-primary); }
         .doc-item:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
         .doc-item.hidden-doc { opacity: 0.65; border-style: dashed; }
-        .admin-btn { padding: 0.5rem 1rem; border: none; border-radius: 4px; cursor: pointer; font-family: inherit; font-size: 0.95rem; }
+        .admin-btn { padding: 0.5rem 1rem; border: none; border-radius: var(--radius-md); cursor: pointer; font-family: inherit; font-size: 0.95rem; }
         .admin-btn:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
         .admin-btn:disabled { opacity: 0.65; cursor: not-allowed; }
-        .admin-btn-primary { background: #007bff; color: white; }
-        .admin-btn-secondary { background: #6c757d; color: white; }
+        .admin-btn-primary { background: var(--color-primary); color: var(--text-light); }
+        .admin-btn-secondary { background: var(--text-secondary); color: var(--text-light); }
         .deploy-status { min-height: 1.5rem; margin-top: 0.75rem; font-size: 0.95rem; }
         .deploy-status.is-ok { color: #28a745; }
         .deploy-status.is-err { color: #dc3545; }
@@ -56,7 +56,7 @@
         .doc-snippet { color: var(--text-secondary, #5a5a5a); font-size: 0.88rem; line-height: 1.9; margin: 0.35rem 0 0; }
         .tb-label { display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 0.25rem; }
         .filter-buttons { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
-        .filter-btn { padding: 0.4rem 0.8rem; border: 1px solid #ddd; background: #f8f9fa; border-radius: 4px; cursor: pointer; font-family: inherit; font-size: 0.9rem; }
+        .filter-btn { padding: 0.4rem 0.8rem; border: 1px solid var(--border-light); background: var(--bg-light); border-radius: var(--radius-md); cursor: pointer; font-family: inherit; font-size: 0.9rem; }
         .filter-btn:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
         .filter-btn.active { background: var(--color-primary); color: white; border-color: var(--color-primary); }
         .status-badge {
@@ -168,7 +168,7 @@
             max-height: 22rem;
             min-height: 8rem;
             border: 1px solid #ced4da;
-            border-radius: 6px;
+border-radius: var(--radius-lg);
             background: #fff;
             box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
             overflow: hidden;

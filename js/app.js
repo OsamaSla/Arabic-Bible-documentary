@@ -4,8 +4,14 @@
 
 document.addEventListener('DOMContentLoaded', function() {
     let allDocuments = [];
-    
-    function loadAllDocuments() {
+
+    // Skip loading the 795 KB index when the page is build-time rendered
+    // (index-new carries data-source="static"): RANDOM_ARTICLES + RECENT_UPDATES
+    // sections target #randomArticles/#recentUpdates, which don't exist here.
+    var _staticGrid = document.getElementById('articlesGrid');
+    var _isStatic = _staticGrid && _staticGrid.getAttribute('data-source') === 'static';
+
+    if (!_isStatic) {
         if (window.__DOCUMENTS_DATA__) {
             allDocuments = window.__DOCUMENTS_DATA__;
         } else {
@@ -20,9 +26,7 @@ document.addEventListener('DOMContentLoaded', function() {
             } catch (e) {}
         }
     }
-    
-    loadAllDocuments();
-    
+
     // === RANDOM ARTICLES (completed only) ===
     var articlesGrid = document.getElementById('randomArticles');
     if (articlesGrid) {

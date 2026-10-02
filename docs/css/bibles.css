@@ -137,7 +137,7 @@
     flex-direction: column;
     gap: 0.2rem;
     min-height: 96px;
-    padding: 0.85rem 1rem;
+    padding: var(--spacing-lg);
     background: var(--bg-white);
     border: 1px solid var(--border-light);
     border-radius: var(--radius-lg);
@@ -307,8 +307,8 @@
 }
 
 .chapter-count {
-    background: var(--color-secondary);
-    color: var(--text-light);
+    background: var(--color-secondary-light);
+    color: var(--color-primary-dark);
     border-radius: 999px;
     padding: 0.05rem 0.6rem;
     font-size: 0.78rem;
@@ -373,7 +373,7 @@
 }
 
 .chapter-doc .cd-status.prog {
-    color: var(--color-secondary);
+    color: var(--color-secondary-dark);
 }
 
 .chapter-doc .cd-verses {
@@ -399,7 +399,7 @@
     }
 
     .book-panel > summary {
-        padding: 0.85rem 1rem;
+    padding: var(--spacing-lg);
     }
 
     .bp-body {
@@ -459,8 +459,8 @@
     align-items: center;
     min-height: 44px;
     padding: 0.6rem 1.5rem;
-    background: var(--color-primary);
-    color: #fff;
+    background: var(--gradient-gold);
+    color: #0d1f33;
     border-radius: 999px;
     font-weight: 700;
     text-decoration: none;

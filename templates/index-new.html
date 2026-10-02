@@ -3,9 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="ترجمات عربية لتعليقات الكتاب المقدس">
+    <meta name="description" content="مكتبة مجانية من 774 ترجمة وتعليقا عربيا للكتاب المقدس. تصفح تفاسير موثوقة لكل سفر وإصحاح، وقراءتها أو تحميلها مجانا.">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://gateway.umami.is; object-src 'none'; base-uri 'self'; form-action 'self'">
-    <title>ترجمات تعليقات الكتاب المقدس</title>
+
+    <link rel="canonical" href="index-new.html">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="ترجمات تعليقات الكتاب المقدس — تعليقات ومقالات عربية مجانية">
+    <meta property="og:description" content="مكتبة مجانية من 774 ترجمة وتعليقا عربيا للكتاب المقدس. تصفح تفاسير موثوقة لكل سفر وإصحاح، وقراءتها أو تحميلها مجانا.">
+    <meta property="og:url" content="https://osamasla.github.io/Arabic-Bible-documentary/index-new.html">
+    <meta property="og:image" content="https://osamasla.github.io/Arabic-Bible-documentary/assets/og-image.svg">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="ترجمات تعليقات الكتاب المقدس — تعليقات ومقالات عربية مجانية">
+    <meta name="twitter:description" content="مكتبة مجانية من 774 ترجمة وتعليقا عربيا للكتاب المقدس. تصفح تفاسير موثوقة لكل سفر وإصحاح، وقراءتها أو تحميلها مجانا.">
+    <meta name="twitter:image" content="https://osamasla.github.io/Arabic-Bible-documentary/assets/og-image.svg">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "ترجمات تعليقات الكتاب المقدس",
+      "url": "https://osamasla.github.io/Arabic-Bible-documentary/",
+      "description": "مكتبة مجانية من 774 ترجمة وتعليقا عربيا للكتاب المقدس. تصفح تفاسير موثوقة لكل سفر وإصحاح، وقراءتها أو تحميلها مجانا.",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://osamasla.github.io/Arabic-Bible-documentary/search.html?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+    <title>ترجمات تعليقات الكتاب المقدس — تعليقات ومقالات عربية مجانية</title>
     <link rel="stylesheet" href="css/fonts.css">
     <link rel="stylesheet" href="css/style.css">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✝</text></svg>">
@@ -27,7 +52,8 @@
             </a>
 
             <div class="rx-search" data-rx-search>
-                <input type="text" id="searchInput" class="rx-search-input" placeholder="ابحث في التعليقات والمؤلفين..." autocomplete="off">
+                <label class="visually-hidden" for="searchInput">ابحث في التعليقات والمؤلفين</label>
+    <input type="text" id="searchInput" class="rx-search-input" placeholder="ابحث في التعليقات والمؤلفين..." autocomplete="off">
                 <span class="rx-search-icon" aria-hidden="true">&#128269;</span>
                 <div class="search-results" id="searchResults"></div>
             </div>
@@ -37,10 +63,10 @@
                     <span class="rx-icon-moon" aria-hidden="true">&#9790;</span>
                     <span class="rx-icon-sun" aria-hidden="true">&#9728;</span>
                 </button>
-                <button type="button" class="rx-icon-btn rx-search-toggle" id="searchToggle" aria-label="فتح البحث" aria-expanded="false">
+                <button type="button" class="rx-icon-btn rx-search-toggle" id="searchToggle" aria-label="فتح البحث" aria-expanded="false" aria-controls="rx-search">
                     <span aria-hidden="true">&#128269;</span>
                 </button>
-                <button type="button" class="rx-icon-btn rx-nav-toggle" id="navToggle" aria-label="القائمة" aria-expanded="false">
+                <button type="button" class="rx-icon-btn rx-nav-toggle" id="navToggle" aria-label="القائمة" aria-expanded="false" aria-controls="navBar">
                     <span class="nav-toggle-open" aria-hidden="true">&#9776;</span>
                     <span class="nav-toggle-close" aria-hidden="true">&times;</span>
                 </button>
@@ -132,7 +158,7 @@
                 <p>للقراءة والدراسة والتنزيل مجاناً. نقدم مراجع كتابية أصيلة وموثوقة لدراسة الكلمة المقدسة.</p>
             </div>
             <div>
-                <h4>روابط سريعة</h4>
+                <h3>روابط سريعة</h3>
                 <ul>
                     <li><a href="index-new.html">الرئيسية</a></li>
                     <li><a href="bibles.html">فهرس الكتب والفصول</a></li>
@@ -141,14 +167,14 @@
                 </ul>
             </div>
             <div>
-                <h4>المساعدة والدعم</h4>
+                <h3>المساعدة والدعم</h3>
                 <ul>
                     <li><span class="rx-footer-inactive" aria-disabled="true">اتصل بنا</span></li>
                     <li><a href="index-new.html#latestSection">الأحدث على الموقع</a></li>
                 </ul>
             </div>
             <div>
-                <h4>اللغة والمظهر</h4>
+                <h3>اللغة والمظهر</h3>
                 <p>يمكنك التبديل بين الوضع الفاتح والداكن باستخدام الزر في أعلى الصفحة.</p>
             </div>
         </div>
