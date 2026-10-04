@@ -3512,7 +3512,7 @@ body.page-redesign .search-result-more {
     display: inline-flex;
     align-items: center;
     padding: 0 16px;
-    color: rgba(255, 255, 255, 0.88);
+    color: #e8edf3;
     text-decoration: none;
     font-size: 15px;
     font-weight: 500;
@@ -3723,7 +3723,7 @@ body.page-redesign .search-result-more {
 /* Keep the hero band deep navy in dark mode: the theme-swapped gradient
    turns medium-blue and washes out the white/gold hero text. */
 [data-theme="dark"] .rx-welcome {
-    background: linear-gradient(135deg, #1a3a5c 0%, #0d1f33 100%);
+    background: linear-gradient(135deg, #24425f 0%, #101f33 100%);
 }
 
 .rx-welcome-inner {
@@ -3744,6 +3744,18 @@ body.page-redesign .search-result-more {
     color: var(--rx-accent-bright);
 }
 
+/* Eyebrows on light surfaces (panel/latest heads): bright gold is too dim
+   on cream/white, so use a darker bronze; back to bright gold in dark mode. */
+.rx-panel .rx-eyebrow,
+.rx-latest .rx-eyebrow {
+    color: #8a6d1f;
+}
+
+[data-theme="dark"] .rx-panel .rx-eyebrow,
+[data-theme="dark"] .rx-latest .rx-eyebrow {
+    color: var(--rx-accent-bright);
+}
+
 .rx-welcome h1 {
     margin: 0;
     font-size: clamp(26px, 4vw, 38px);
@@ -3755,7 +3767,7 @@ body.page-redesign .search-result-more {
     margin: 0;
     max-width: 720px;
     font-size: clamp(15px, 2vw, 17px);
-    color: #ffffff;
+    color: #e8edf3;
 }
 
 .rx-welcome-stats {
@@ -4133,7 +4145,7 @@ body.page-redesign .search-result-more {
     margin: 0;
     font-size: 13px;
     line-height: 1.8;
-    color: #ffffff;
+    color: #e8edf3;
 }
 
 .rx-footer h4 {
@@ -4164,7 +4176,7 @@ body.page-redesign .search-result-more {
 }
 
 .rx-footer ul .rx-footer-inactive {
-    color: #ffffff;
+    color: #e8edf3;
     cursor: default;
 }
 
@@ -4174,7 +4186,41 @@ body.page-redesign .search-result-more {
     padding: 14px 20px;
     text-align: center;
     font-size: 12px;
-    color: #ffffff;
+    color: #e8edf3;
+}
+
+/* Contrast guard: headings and links inside the dark navy bands (header,
+   hero, footer — both header systems) are always light text in both themes,
+   so dark theme colors can never land on a dark background here. */
+.rx-header h1, .rx-header h2,
+.rx-welcome h1, .rx-welcome h2,
+.rx-footer h1, .rx-footer h2,
+.site-header h1, .site-header h2, .site-header a,
+.site-footer h1, .site-footer h2,
+.hero h1, .hero h2 {
+    color: #e8edf3;
+}
+
+/* Cascade fix (DevTools-proven): body.page-redesign h1/a outranks plain
+   component selectors, painting navy text on navy bands. The prefixed
+   guard below wins; interactive gold states are re-asserted after it. */
+body.page-redesign .rx-header h1,
+body.page-redesign .rx-header h2,
+body.page-redesign .rx-header a:not(.active),
+body.page-redesign .rx-welcome h1,
+body.page-redesign .rx-welcome h2,
+body.page-redesign .rx-welcome a,
+body.page-redesign .rx-footer h1,
+body.page-redesign .rx-footer h2,
+body.page-redesign .rx-footer a {
+    color: #e8edf3 !important;
+}
+
+body.page-redesign .rx-nav .rx-nav-link:hover,
+body.page-redesign .rx-nav .rx-nav-link.active,
+body.page-redesign .rx-footer ul a:hover,
+body.page-redesign .rx-brand:hover .rx-brand-title {
+    color: var(--rx-header-hover) !important;
 }
 
 /* ---------- Preview modal ---------- */

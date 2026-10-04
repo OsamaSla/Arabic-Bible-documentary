@@ -1837,6 +1837,51 @@ def inject_data_script_tag(html_path):
     return True
 
 
+_ASSET_URL_RE = re.compile(r'((?:href|src)=")((?:\.\./)*(?:css|js)/[^"]*?\.(?:css|js))(")')
+
+
+def _asset_stamp(docs_dir):
+    """Content hash over published CSS/JS (stable while assets are unchanged)."""
+    import hashlib
+    h = hashlib.sha256()
+    for path in sorted(docs_dir.rglob('*')):
+        if path.suffix in ('.css', '.js') and path.is_file():
+            h.update(path.name.encode())
+            h.update(path.read_bytes())
+    return h.hexdigest()[:8]
+
+
+def bust_asset_cache(docs_dir):
+    """Append ?v=<hash> to local CSS/JS URLs in every generated page.
+
+    Idempotent (skips URLs that already carry a query string), so reruns
+    and stale-file sweeps never stack versions.
+    """
+    stamp = _asset_stamp(docs_dir)
+    files = 0
+    for path in docs_dir.rglob('*.html'):
+        try:
+            text = path.read_text(encoding='utf-8')
+        except (OSError, UnicodeDecodeError):
+            continue
+
+        def _sub(match):
+            url = match.group(2)
+            if '?' in url:
+                return match.group(0)
+            return match.group(1) + url + '?v=' + stamp + match.group(3)
+
+        new_text, n = _ASSET_URL_RE.subn(_sub, text)
+        if n and new_text != text:
+            try:
+                path.write_text(new_text, encoding='utf-8')
+                files += 1
+            except OSError:
+                continue
+    print(f'  [OK] asset stamp ?v={stamp} applied to {files} pages')
+    return stamp
+
+
 def main():
     base_dir = Path(__file__).parent.parent
     
@@ -1972,6 +2017,11 @@ def main():
         if n_markers:
             print(f'  [OK] {n_markers} markers in {n_files} files under {label}')
     print(f'  [OK] {len(counts)} book counts computed')
+
+    # Cache-bust local CSS/JS (?v=<content-hash>) so browsers and Pages CDN
+    # fetch fresh assets after every deploy; hash only changes when assets do.
+    print('\n[BUILD] Stamping asset URLs for cache busting...')
+    bust_asset_cache(docs_dir)
 
     print('\n[BUILD] Site build completed successfully!')
     print(f'[BUILD] Site ready at: docs/')
