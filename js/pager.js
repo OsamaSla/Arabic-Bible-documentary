@@ -38,23 +38,29 @@
         var pages = [[]];
         var curH = 0;
         var curReal = 0;
+        // Don't strand 1-2 short opener lines (e.g. title + author) alone
+        // on page 1: while the page is still mostly empty, keep flowing
+        // instead of breaking before an oversized block. The sheet simply
+        // grows past min-height — far better than a near-blank first page.
+        var MIN_FILL = pageH * 0.4;
         for (var i = 0; i < items.length; i++) {
             var it = items[i];
             var h = it.h || 0;
             var filler = isFiller(it);
-            if (it.anchor && curReal > 0) {
+            var barelyStarted = curReal > 0 && curH < MIN_FILL;
+            if (it.anchor && curReal > 0 && !barelyStarted) {
                 pages.push([]);
                 curH = 0;
                 curReal = 0;
             }
-            if (!filler && curReal > 0 && curH + h > pageH) {
+            if (!filler && curReal > 0 && curH + h > pageH && !barelyStarted) {
                 pages.push([]);
                 curH = 0;
                 curReal = 0;
             }
             // Avoid leaving a heading alone at a page bottom.
             if (!filler && it.heading && curReal > 0 &&
-                    curH + h > pageH * 0.92) {
+                    curH + h > pageH * 0.92 && !barelyStarted) {
                 pages.push([]);
                 curH = 0;
                 curReal = 0;
@@ -103,6 +109,14 @@
         this.barHandlers = [];
         this.mini = null; /* tiny top button (scroll mode only) */
         this.miniHandler = null;
+        this.floats = null; /* fixed side-edge arrows (pages mode only) */
+        this.floatPrev = null;
+        this.floatNext = null;
+        this.floatHandler = null;
+        this.touchX = null;
+        this.touchY = null;
+        this.onTouchStart = null;
+        this.onTouchEnd = null;
         this.mode = 'pages';
         this.resizeTimer = null;
         this.onResize = null;
@@ -288,11 +302,65 @@
         return wrap;
     };
 
+    Pager.prototype.makeFloats = function () {
+        // Fixed side-edge flip arrows for touch screens (CSS shows them
+        // only on small viewports; hidden on desktop and in scroll mode).
+        // RTL: previous sits at inline-start (right), next at inline-end.
+        var doc = this.article.ownerDocument;
+        var wrap = doc.createElement('div');
+        wrap.className = 'pager-floats';
+        wrap.setAttribute('aria-hidden', 'false');
+
+        var prev = doc.createElement('button');
+        prev.type = 'button';
+        prev.className = 'pager-float pager-float-prev';
+        prev.setAttribute('data-pager', 'prev');
+        prev.setAttribute('aria-label', 'الصفحة السابقة');
+        prev.setAttribute('tabindex', '0');
+        prev.innerHTML = '<span aria-hidden="true">&#8594;</span>';
+
+        var next = doc.createElement('button');
+        next.type = 'button';
+        next.className = 'pager-float pager-float-next';
+        next.setAttribute('data-pager', 'next');
+        next.setAttribute('aria-label', 'الصفحة التالية');
+        next.setAttribute('tabindex', '0');
+        next.innerHTML = '<span aria-hidden="true">&#8592;</span>';
+
+        wrap.appendChild(prev);
+        wrap.appendChild(next);
+
+        var self = this;
+        var handler = function (e) {
+            var btn = e.target && e.target.closest
+                ? e.target.closest('[data-pager]') : null;
+            if (!btn || !wrap.contains(btn)) return;
+            e.preventDefault();
+            var action = btn.getAttribute('data-pager');
+            if (action === 'prev') self.show(self.current - 1);
+            else if (action === 'next') self.show(self.current + 1);
+        };
+        wrap.addEventListener('click', handler);
+
+        this.floats = wrap;
+        this.floatPrev = prev;
+        this.floatNext = next;
+        this.floatHandler = { wrap: wrap, handler: handler };
+        return wrap;
+    };
+
     Pager.prototype.buildBars = function () {
         // Single bottom bar below the article (no top bar above the text).
         var bottom = this.bottomAnchor();
         bottom.parent.insertBefore(this.makeBar(), bottom.before);
         this.bar = this.bars[0];
+        // Pages mode: fixed side-edge arrows for quick flipping.
+        if (this.mode === 'pages') {
+            var floats = this.makeFloats();
+            try {
+                this.article.ownerDocument.body.appendChild(floats);
+            } catch (e) { /* ignore */ }
+        }
         // Scroll mode only: tiny button above the article to go back.
         if (this.mode === 'scroll') {
             var top = this.topAnchor();
@@ -318,6 +386,16 @@
         var last = (n === this.sheets.length - 1);
         this.prevBtns.forEach(function (btn) { btn.disabled = first; });
         this.nextBtns.forEach(function (btn) { btn.disabled = last; });
+        // Keep the floating side arrows in sync; hide them entirely for
+        // single-page articles where there is nothing to flip.
+        try {
+            if (this.floatPrev) this.floatPrev.disabled = first;
+            if (this.floatNext) this.floatNext.disabled = last;
+            if (this.floats) {
+                if (this.sheets.length < 2) this.floats.setAttribute('hidden', '');
+                else this.floats.removeAttribute('hidden');
+            }
+        } catch (e) { /* ignore */ }
         if (!silent) {
             // Single bottom bar lives below the article: scroll back to the
             // article top (not to the bar) on page change, leaving room for
@@ -387,6 +465,18 @@
             this.mini.parentNode.removeChild(this.mini);
         }
         this.mini = null;
+        if (this.floatHandler) {
+            try {
+                this.floatHandler.wrap.removeEventListener('click', this.floatHandler.handler);
+            } catch (e) { /* ignore */ }
+            this.floatHandler = null;
+        }
+        if (this.floats && this.floats.parentNode) {
+            this.floats.parentNode.removeChild(this.floats);
+        }
+        this.floats = null;
+        this.floatPrev = null;
+        this.floatNext = null;
     };
 
     Pager.prototype.restoreNodes = function () {
@@ -432,6 +522,38 @@
             else if (e.key === 'ArrowRight') { e.preventDefault(); self.show(self.current - 1); }
         };
         document.addEventListener('keydown', this.onKey);
+        // Swipe to flip on touch screens (RTL: swipe left = next page,
+        // mirroring ArrowLeft; ignored when vertical scroll dominates).
+        this.onTouchStart = function (e) {
+            if (self.mode !== 'pages') return;
+            try {
+                var t = e.changedTouches && e.changedTouches[0];
+                if (!t) return;
+                self.touchX = t.clientX;
+                self.touchY = t.clientY;
+            } catch (err) { self.touchX = null; }
+        };
+        this.onTouchEnd = function (e) {
+            if (self.mode !== 'pages') return;
+            try {
+                var t = e.changedTouches && e.changedTouches[0];
+                if (!t || self.touchX === null || self.touchX === undefined) return;
+                var dx = t.clientX - self.touchX;
+                var dy = t.clientY - (self.touchY || 0);
+                self.touchX = null;
+                self.touchY = null;
+                if (Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+                if (dx < 0) self.show(self.current + 1);
+                else self.show(self.current - 1);
+            } catch (err) { /* ignore */ }
+        };
+        try {
+            this.article.addEventListener('touchstart', this.onTouchStart, { passive: true });
+            this.article.addEventListener('touchend', this.onTouchEnd, { passive: true });
+        } catch (err) {
+            this.article.addEventListener('touchstart', this.onTouchStart);
+            this.article.addEventListener('touchend', this.onTouchEnd);
+        }
         // Footnote / backlink jumps across pages (same-document anchors).
         this.onNoteJump = function (e) {
             if (self.mode !== 'pages') return;

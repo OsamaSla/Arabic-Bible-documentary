@@ -110,11 +110,11 @@ document.addEventListener('DOMContentLoaded', function() {
     var toast = window.rxShowToast || function () {};
 
     // === NEW ARTICLE GRID (rx-card schema) ===
-    // data-source="static": cards are server-rendered at build time - keep
-    // them (no random swap) so content is stable and crawlable.
+    // Server-rendered cards stay as SEO/no-JS fallback, but rotate to a
+    // fresh random pick on every visit when embedded data is available.
     var newGrid = document.getElementById('articlesGrid');
     if (newGrid && window.__DOCUMENTS_DATA__ &&
-        newGrid.getAttribute('data-source') !== 'static') {
+        window.__DOCUMENTS_DATA__.length) {
         var completedDocs = window.__DOCUMENTS_DATA__.filter(function(doc) {
             return doc.completed === true;
         });

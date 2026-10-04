@@ -639,6 +639,60 @@ summary.doc-aside-title:focus-visible {
     border-radius: 999px;
 }
 
+/* Fixed side-edge flip arrows (created by js/pager.js, pages mode only).
+   Hidden on desktop via display:none default; revealed on small screens.
+   Fixed positioning = no layout shift. */
+.pager-floats {
+    display: none;
+}
+
+@media (max-width: 900px) {
+    .pager-floats:not([hidden]) {
+        display: block;
+    }
+
+    .pager-float {
+        position: fixed;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 900;
+        width: 44px;
+        height: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+        line-height: 1;
+        color: var(--color-primary, #1a3a5c);
+        background: var(--bg-white, #fff);
+        border: 1px solid var(--border-light, #e8e4dc);
+        border-radius: 999px;
+        box-shadow: var(--shadow-md, 0 4px 12px rgba(0, 0, 0, 0.18));
+        opacity: 0.85;
+        cursor: pointer;
+        padding: 0;
+    }
+
+    .pager-float-prev {
+        inset-inline-start: 0.35rem;
+    }
+
+    .pager-float-next {
+        inset-inline-end: 0.35rem;
+    }
+
+    .pager-float:disabled {
+        opacity: 0.3;
+        cursor: default;
+    }
+
+    .pager-float:focus-visible {
+        outline: 3px solid var(--color-primary, #1a3a5c);
+        outline-offset: 2px;
+        opacity: 1;
+    }
+}
+
 /* Document title styling */
 /* (unified .document-title lives in css/style.css) */
 
@@ -700,6 +754,7 @@ summary.doc-aside-title:focus-visible {
     .breadcrumb,
     .pager-bar,
     .pager-mini-wrap,
+    .pager-floats,
     .doc-aside,
     .doc-toc {
         display: none !important;
