@@ -29,6 +29,34 @@
         return false;
     }
 
+    function pageStoreKey() {
+        // Per-article key so a reload (pull-to-refresh, browser refresh,
+        // process kill) can restore the reader's page instead of page 1.
+        try {
+            return 'docPagerPage:' + window.location.pathname;
+        } catch (e) {
+            return null;
+        }
+    }
+
+    function readSavedPage() {
+        var k = pageStoreKey();
+        if (!k) return 0;
+        try {
+            return parseInt(window.sessionStorage.getItem(k), 10) || 0;
+        } catch (e) {
+            return 0;
+        }
+    }
+
+    function savePage(n) {
+        var k = pageStoreKey();
+        if (!k) return;
+        try {
+            window.sessionStorage.setItem(k, String(n));
+        } catch (e) { /* ignore */ }
+    }
+
     function assignPages(items, pageH) {
         // items: [{h:number, heading:boolean, anchor:boolean, empty:boolean}]
         // returns array of pages, each a list of item indexes.
@@ -380,6 +408,7 @@
         if (n < 0) n = 0;
         if (n > this.sheets.length - 1) n = this.sheets.length - 1;
         this.current = n;
+        savePage(n);
         for (var i = 0; i < this.sheets.length; i++) {
             this.sheets[i].hidden = (i !== n);
         }
@@ -650,8 +679,16 @@
         pager.watchResize();
         if (saved === 'scroll') {
             pager.setMode('scroll');
-        } else if (!pager.build()) {
-            return;
+        } else {
+            // Restore the page the reader was on before a reload (browser
+            // refresh, pull-to-refresh, process kill — sessionStorage
+            // survives all of them within the tab session). build()
+            // clamps it to the actual page count.
+            var savedPage = readSavedPage();
+            if (savedPage > 0) pager.current = savedPage;
+            if (!pager.build()) {
+                return;
+            }
         }
         if (document.fonts && document.fonts.ready) {
             document.fonts.ready.then(function () {
