@@ -1602,7 +1602,7 @@ a:hover {
 
 .book-grid b {
     font-weight: 400;
-    color: #b6b9bc;
+    color: #6b7280;
 }
 
 /* ========================================
@@ -2000,6 +2000,7 @@ a:hover {
     top: 100%;
     right: 0;
     background: var(--bg-white);
+    color: var(--text-primary);
     border: 1px solid var(--border-light);
     border-radius: var(--radius-md);
     box-shadow: var(--shadow-lg);
@@ -2159,6 +2160,7 @@ a:hover {
     top: 100%;
     inset-inline: 0;
     background: var(--bg-white);
+    color: var(--text-primary);
     border: 1px solid var(--border-light);
     border-top: none;
     border-radius: 0 0 var(--radius-md) var(--radius-md);
@@ -3057,6 +3059,10 @@ body {
     background: #132033;
 }
 
+[data-theme="dark"] .mega-count {
+    color: #0d1f33;
+}
+
 [data-theme="dark"] .nav-link {
     color: #d7e4f2;
 }
@@ -3112,6 +3118,23 @@ body {
     box-shadow: var(--shadow-lg);
 }
 
+[data-theme="dark"] .book-grid button:hover {
+    background: var(--surface-raised);
+}
+
+[data-theme="dark"] .back-link a {
+    background: var(--color-primary-dark);
+}
+
+[data-theme="dark"] .back-link a:hover {
+    background: var(--color-primary-dark);
+    filter: brightness(1.3);
+}
+
+[data-theme="dark"] .rx-toast {
+    background-color: var(--color-primary-dark);
+}
+
 [data-theme="dark"] .btn-secondary,
 [data-theme="dark"] .filter-btn,
 [data-theme="dark"] .tab-btn,
@@ -3124,9 +3147,9 @@ body {
 [data-theme="dark"] .filter-btn.active,
 [data-theme="dark"] .tab-btn.active,
 [data-theme="dark"] .filter-btn[aria-pressed="true"] {
-    background: var(--color-primary-light);
+    background: var(--color-primary-dark);
     color: #fff;
-    border-color: var(--color-primary-light);
+    border-color: var(--color-primary-dark);
 }
 
 [data-theme="dark"] .stats-bar,
@@ -3697,6 +3720,12 @@ body.page-redesign .search-result-more {
     border-bottom: 4px solid var(--rx-accent-bright);
 }
 
+/* Keep the hero band deep navy in dark mode: the theme-swapped gradient
+   turns medium-blue and washes out the white/gold hero text. */
+[data-theme="dark"] .rx-welcome {
+    background: linear-gradient(135deg, #1a3a5c 0%, #0d1f33 100%);
+}
+
 .rx-welcome-inner {
     max-width: 1200px;
     margin: 0 auto;
@@ -4104,7 +4133,7 @@ body.page-redesign .search-result-more {
     margin: 0;
     font-size: 13px;
     line-height: 1.8;
-    color: #94a3b8;
+    color: #c6cfdb;
 }
 
 .rx-footer h4 {
@@ -4135,7 +4164,7 @@ body.page-redesign .search-result-more {
 }
 
 .rx-footer ul .rx-footer-inactive {
-    color: #94a3b8;
+    color: #c6cfdb;
     cursor: default;
 }
 
@@ -4145,7 +4174,7 @@ body.page-redesign .search-result-more {
     padding: 14px 20px;
     text-align: center;
     font-size: 12px;
-    color: #94a3b8;
+    color: #c6cfdb;
 }
 
 /* ---------- Preview modal ---------- */

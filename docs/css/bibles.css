@@ -372,8 +372,12 @@
     color: #15803d;
 }
 
+[data-theme="dark"] .chapter-doc .cd-status.done {
+    color: #4caf7a;
+}
+
 .chapter-doc .cd-status.prog {
-    color: var(--color-secondary-dark);
+    color: var(--color-secondary);
 }
 
 .chapter-doc .cd-verses {
