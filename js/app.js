@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', function() {
             var title = escapeHtml(doc.title || '\u0628\u062f\u0648\u0646 \u0639\u0646\u0648\u0627\u0646');
             var author = escapeHtml(doc.author || '\u063a\u064a\u0631 \u0645\u0639\u0631\u0648\u0641');
             var path = escapeHtml(safePath(doc.html_path || '#'));
-            var desc = doc.description ? escapeHtml(doc.description.substring(0, 150) + '...') : '';
+            var desc = doc.description ? escapeHtml(cutAtSentence(doc.description, 150)) : '';
             return '<a href="' + path + '" class="article-card">' +
                 '<div class="article-title">' + title + '</div>' +
                 '<div class="article-author">' + author + '</div>' +
@@ -136,8 +136,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 var title = escapeHtml(doc.title || '\u0628\u062f\u0648\u0646 \u0639\u0646\u0648\u0627\u0646');
                 var author = escapeHtml(doc.author || '\u063a\u064a\u0631 \u0645\u0639\u0631\u0648\u0641');
                 var path = escapeHtml(safePath(doc.html_path || '#'));
-                var desc = doc.description ? doc.description.substring(0, 150) + '...' : '';
+                var desc = doc.description ? cutAtSentence(doc.description, 150) : '';
+                var descFull = doc.description || '';
                 desc = escapeHtml(desc);
+                descFull = escapeHtml(descFull);
                 var done = doc.completed === true;
                 var badgeCls = done ? 'rx-badge' : 'rx-badge rx-badge-progress';
                 var status = done ? '\u2713 \u0645\u0643\u062a\u0645\u0644' : '\u25cf \u0642\u064a\u062f \u0627\u0644\u062a\u0631\u062c\u0645\u0629';
@@ -151,7 +153,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     '<div class="rx-card-foot">' +
                     '<button type="button" class="rx-preview-btn" data-rx-preview' +
                     ' data-rx-title="' + title + '" data-rx-author="' + author + '"' +
-                    ' data-rx-desc="' + desc + '" data-rx-path="' + path + '">' +
+                    ' data-rx-desc="' + descFull + '" data-rx-path="' + path + '">' +
                     '\u0645\u0639\u0627\u064a\u0646\u0629 \u0633\u0631\u064a\u0639\u0629</button>' +
                     '<a href="' + path + '" class="rx-read-link">\u0627\u0642\u0631\u0623 \u0645\u0632\u064a\u062f \u2190</a>' +
                     '</div>' +

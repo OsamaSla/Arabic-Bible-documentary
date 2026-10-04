@@ -232,6 +232,127 @@ border-radius: var(--radius-lg);
             border-color: #007bff;
             box-shadow: inset 0 0 0 2px #fff;
         }
+
+        /* Summaries panel */
+        .summaries-panel .summaries-card {
+            background: var(--bg-white);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-lg);
+            padding: 1rem;
+            box-shadow: var(--shadow-sm);
+        }
+        .summaries-card header {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            align-items: center;
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-light);
+        }
+        .summaries-card .card-title {
+            font-weight: 700;
+            color: var(--color-primary);
+            flex: 1;
+        }
+        .summaries-card .card-author {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        .summaries-card .card-id {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-family: monospace;
+        }
+        .summaries-card .card-status {
+            display: inline-flex;
+            gap: 0.35rem;
+            align-items: center;
+        }
+        .summaries-card .desc-row {
+            margin: 0.75rem 0;
+        }
+        .summaries-card .desc-label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 0.25rem;
+        }
+        .summaries-card .desc-text {
+            display: block;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 1.5em;
+        }
+        .summaries-card .ai-row {
+            margin: 0.75rem 0;
+        }
+        .summaries-card .ai-textarea {
+            width: 100%;
+            min-height: 60px;
+            padding: 0.5rem;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-md);
+            font-family: inherit;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            resize: vertical;
+            direction: rtl;
+        }
+        .summaries-card .ai-textarea:focus-visible {
+            outline: 3px solid var(--focus-ring);
+            outline-offset: 2px;
+        }
+        .summaries-card .char-count {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+            text-align: left;
+        }
+        .summaries-card .char-count.warn { color: #fd7e14; }
+        .summaries-card .char-count.err { color: #dc3545; }
+        .summaries-card .card-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid var(--border-light);
+        }
+        .summaries-card .btn-save { background: var(--color-primary); color: var(--text-light); }
+        .summaries-card .btn-regen { background: var(--text-secondary); color: var(--text-light); }
+        .summaries-card .btn-clear { background: transparent; color: #dc3545; border: 1px solid #dc3545; }
+        .summaries-card .btn-clear:hover { background: #dc3545; color: white; }
+        .summaries-card .save-status { font-size: 0.8rem; min-height: 1.2em; }
+        .summaries-card .save-status.ok { color: #28a745; }
+        .summaries-card .save-status.err { color: #dc3545; }
+
+        /* Dark mode adjustments */
+        .dark .summaries-card { background: #1e1e1e; border-color: #444; }
+        .dark .summaries-card .ai-textarea { background: #161616; border-color: #444; color: #eee; }
+        .dark .summaries-card .btn-clear { border-color: #dc3545; color: #dc3545; }
+        .dark .summaries-card .btn-clear:hover { background: #dc3545; color: white; };
+            height: 12px;
+            flex: 0 0 12px;
+            border: 1.5px solid #adb5bd;
+            border-radius: 3px;
+            background: #fff;
+        }
+        .cat-opt:hover { background: #f1f3f5; }
+        .cat-opt:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
+        .cat-opt.selected {
+            background: #e7f1ff;
+            border-color: #b6d4fe;
+            color: #084298;
+            font-weight: 600;
+        }
+        .cat-opt.selected::before {
+            background: #007bff;
+            border-color: #007bff;
+            box-shadow: inset 0 0 0 2px #fff;
+        }
         .cat-tray-footer {
             display: flex;
             justify-content: space-between;
@@ -334,6 +455,23 @@ border-radius: var(--radius-lg);
                     </div>
                     <a class="admin-btn admin-btn-primary" href="https://cloud.umami.is/login" target="_blank" rel="noopener noreferrer" style="text-decoration:none;display:inline-block;">فتح لوحة Umami</a>
                 </div>
+            </section>
+
+            <section id="summariesPanel" class="summaries-panel" aria-labelledby="summariesHeading" style="min-height:0;margin:0 0 1rem;padding:0.75rem 1rem;border:1px solid var(--border-light);border-radius:var(--radius-md);background:var(--bg-light);">
+                <div style="display:flex;gap:0.75rem;flex-wrap:wrap;align-items:center;justify-content:space-between;">
+                    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;">
+                        <strong id="summariesHeading" style="margin:0;">الملخصات (AI Summaries)</strong>
+                        <span class="muted" style="color:var(--text-muted);font-size:0.9rem;">الوصف الأول + ملخص الذكاء الاصطناعي</span>
+                    </div>
+                    <button type="button" class="admin-btn admin-btn-secondary" id="regenerateAllBtn" style="display:none;">توليد كل الناقص</button>
+                    <button type="button" class="admin-btn admin-btn-primary" id="saveAllBtn" style="display:inline-block;">حفظ الكل</button>
+                </div>
+                <div id="summariesSearch" style="margin-top:1rem;display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;">
+                    <label class="tb-label" for="summariesFilter" style="margin-bottom:0;">بحث بالعنوان/المؤلف</label>
+                    <input type="text" id="summariesFilter" placeholder="ابحث في العناوين والمؤلفين..." style="width:100%; max-width:400px; padding:8px; border:1px solid #ddd; border-radius:4px;">
+                    <span id="summariesCount" class="muted" style="font-size:0.9rem;color:#6c757d;margin-right:auto;"></span>
+                </div>
+                <div id="summariesList" style="margin-top:1rem;display:flex;flex-direction:column;gap:0.75rem;"></div>
             </section>
 
             <div class="admin-toolbar">

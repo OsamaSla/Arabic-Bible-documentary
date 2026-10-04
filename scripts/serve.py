@@ -36,6 +36,7 @@ import threading
 from datetime import datetime
 from pathlib import Path
 from urllib.parse import urlparse, unquote
+from urllib.request import Request as UrlRequest, urlopen as url_open
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
@@ -61,6 +62,7 @@ if str(SCRIPT_DIR) not in sys.path:
 from git_ops import git_add_commit_push
 from weekly_deploy import get_weekly_status, register_weekly_schedule
 from weekly_deploy import log as weekly_log
+from convert import escape_html
 
 _MIME = {
     '.html': 'text/html; charset=utf-8',
@@ -382,7 +384,7 @@ class DevHandler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         path = self.path.split('?', 1)[0]
-        if path not in ('/api/rebuild', '/api/deploy', '/api/categories', '/api/weekly-schedule'):
+        if path not in ('/api/rebuild', '/api/deploy', '/api/categories', '/api/weekly-schedule', '/api/summaries', '/api/ai-summarize'):
             self.send_error(404, 'Not found')
             return
         if not self._authorize_api():
@@ -394,6 +396,10 @@ class DevHandler(BaseHTTPRequestHandler):
             self._handle_categories_post()
         elif path == '/api/weekly-schedule':
             self._handle_weekly_schedule()
+        elif path == '/api/summaries':
+            self._handle_summaries_post()
+        elif path == '/api/ai-summarize':
+            self._handle_ai_summarize()
         else:
             self._handle_deploy()
 
@@ -536,6 +542,193 @@ class DevHandler(BaseHTTPRequestHandler):
             'applied': applied,
         })
 
+    def _handle_summaries_post(self):
+        body = self._read_json_body()
+        if not isinstance(body, dict):
+            self._json_response(400, {'ok': False, 'message': 'Invalid JSON body.'})
+            return
+
+        doc_id = str(body.get('docId') or '').strip()
+        ai_summary = (body.get('ai_summary') or '').strip()
+        description = (body.get('description') or '').strip()
+
+        if not doc_id:
+            self._json_response(400, {'ok': False, 'message': 'Missing docId.'})
+            return
+
+        # Validation
+        if description:
+            if len(description) > 200:
+                self._json_response(400, {'ok': False, 'message': 'Description exceeds 200 characters.'})
+                return
+            if description[-1:] not in '.?!…':
+                self._json_response(400, {'ok': False, 'message': 'Description must end with a punctuation mark (.?!…)'})
+                return
+
+        if ai_summary:
+            if len(ai_summary) > 400:
+                self._json_response(400, {'ok': False, 'message': 'AI summary exceeds 400 characters.'})
+                return
+            if ai_summary[-1:] not in '.?!…':
+                self._json_response(400, {'ok': False, 'message': 'AI summary must end with a punctuation mark (.?!…)'})
+                return
+
+        # Load both indexes
+        pub_idx_path = DOCS_DIR / 'documents' / 'index.json'
+        hid_idx_path = LOCAL_HIDDEN_DIR / 'documents-index.json'
+
+        changed_any = False
+        for idx_path in (pub_idx_path, hid_idx_path):
+            if not idx_path.exists():
+                continue
+            try:
+                with open(idx_path, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+            except Exception as e:
+                self._json_response(500, {'ok': False, 'message': f'Failed to read index: {e}'})
+                return
+
+            # Find and update the document
+            for doc in data.get('documents', []):
+                if str(doc.get('id')) == doc_id:
+                    if description:
+                        doc['description'] = description
+                    if ai_summary:
+                        doc['ai_summary'] = ai_summary
+                    elif 'ai_summary' in doc and not ai_summary:
+                        # Allow clearing by sending empty string
+                        doc['ai_summary'] = ''
+                    changed_any = True
+                    break
+
+            if changed_any:
+                try:
+                    with open(idx_path, 'w', encoding='utf-8') as f:
+                        json.dump(data, f, ensure_ascii=False, indent=2)
+                        f.write('\n')
+                except OSError as e:
+                    self._json_response(500, {'ok': False, 'message': f'Write failed: {e}'})
+                    return
+
+        if not changed_any:
+            self._json_response(404, {'ok': False, 'message': 'Document not found.'})
+            return
+
+        # Patch data-visible.js
+        dv_path = DOCS_DIR / 'js' / 'data-visible.js'
+        if dv_path.exists():
+            try:
+                text = dv_path.read_text(encoding='utf-8')
+                md = 'window.__DOCUMENTS_DATA__ = '
+                mc = ';\nwindow.__CATEGORIES_DATA__ = '
+                i = text.index(md) + len(md)
+                j = text.index(mc)
+                embedded = json.loads(text[i:j])
+                for d in embedded:
+                    if str(d.get('id')) == doc_id:
+                        if description:
+                            d['description'] = description
+                        if ai_summary:
+                            d['ai_summary'] = ai_summary
+                        elif 'ai_summary' in d and not ai_summary:
+                            d['ai_summary'] = ''
+                        break
+                newj = json.dumps(embedded, ensure_ascii=False)
+                newj = newj.replace('\u2028', '\\u2028').replace('\u2029', '\\u2029')
+                text = text[:i] + newj + text[j:]
+                dv_path.write_text(text, encoding='utf-8')
+            except Exception as e:
+                # Non-fatal; admin will see error in response
+                print(f'[WARN] data-visible.js patch failed: {e}')
+
+        # Live-patch homepage and author pages (cards)
+        _patch_cards_on_summary_change(doc_id, description, ai_summary)
+
+        self._json_response(200, {'ok': True, 'message': 'Summary saved.'})
+
+    def _handle_ai_summarize(self):
+        """Server-side proxy to Ollama (avoids browser CORS issues)."""
+        body = self._read_json_body()
+        if not isinstance(body, dict):
+            self._json_response(400, {'ok': False, 'message': 'Invalid JSON body.'})
+            return
+
+        doc_id = str(body.get('docId') or '').strip()
+        text = (body.get('text') or '').strip()
+
+        if not text and doc_id:
+            text = self._load_article_text(doc_id)
+        if not text:
+            self._json_response(404, {'ok': False, 'message': 'No text found for summarization.'})
+            return
+
+        prompt = (
+            'لخص النص التالي في جملة عربية واحدة لا تتجاوز 40 كلمة تنتهي بعلامة ترقيم. '
+            'لخص فقط ما ورد في النص، ممنوع اختراع أسماء أو شواهد أو تفاصيل غير مذكورة. النص: '
+            + text[:5000]
+        )
+        payload = json.dumps({
+            'model': 'qwen3:8b',
+            'think': False,
+            'prompt': prompt,
+            'stream': False,
+            'options': {'temperature': 0.2, 'num_predict': 120},
+        }, ensure_ascii=False).encode('utf-8')
+
+        try:
+            req = UrlRequest(
+                'http://localhost:11434/api/generate',
+                data=payload,
+                headers={'Content-Type': 'application/json'},
+                method='POST',
+            )
+            with url_open(req, timeout=120) as resp:
+                data = json.loads(resp.read().decode('utf-8'))
+        except Exception as e:
+            self._json_response(502, {'ok': False, 'message': f'Ollama request failed: {e}'})
+            return
+
+        summary = (data.get('response') or '').strip()
+        if not summary:
+            self._json_response(502, {'ok': False, 'message': 'Ollama returned an empty summary.'})
+            return
+        if summary[-1:] not in '.?!…':
+            summary += '.'
+        self._json_response(200, {'ok': True, 'summary': summary})
+
+    def _load_article_text(self, doc_id):
+        """Extract plain text from the built article HTML for a doc id."""
+        for idx_path in (LOCAL_HIDDEN_DIR / 'documents-index.json',
+                         DOCS_DIR / 'documents' / 'index.json'):
+            if not idx_path.exists():
+                continue
+            try:
+                with open(idx_path, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+            except Exception:
+                continue
+            doc = next((d for d in data.get('documents', []) if str(d.get('id')) == doc_id), None)
+            if not doc:
+                continue
+            html_path = doc.get('html_path') or ''
+            if not html_path:
+                continue
+            article_file = DOCS_DIR / html_path
+            if not article_file.exists():
+                continue
+            try:
+                html = article_file.read_text(encoding='utf-8')
+            except OSError:
+                continue
+            import re as _re
+            m = _re.search(r'<article class="document-content"[^>]*>([\s\S]*?)</article>', html)
+            if not m:
+                continue
+            text = _re.sub(r'<[^>]+>', ' ', m.group(1))
+            text = _re.sub(r'\s+', ' ', text).strip()
+            return text
+        return ''
+
     def _handle_rebuild(self):
         success = self._run_build()
         if success:
@@ -656,6 +849,64 @@ def main():
     except KeyboardInterrupt:
         print('\n[SERVER] Stopped.')
         server.server_close()
+
+
+def _patch_cards_on_summary_change(doc_id, description, ai_summary):
+    """Live-patch homepage cards and author pages for the updated document."""
+    try:
+        pub_idx = DOCS_DIR / 'documents' / 'index.json'
+        if not pub_idx.exists():
+            return
+        with open(pub_idx, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        doc = next((d for d in data.get('documents', []) if str(d.get('id')) == doc_id), None)
+        if not doc:
+            return
+        html_path = doc.get('html_path', '')
+        new_desc = description if description else doc.get('description', '')
+        new_ai = ai_summary if ai_summary else doc.get('ai_summary', '')
+
+        # --- Homepage (index.html) ---
+        home_path = DOCS_DIR / 'index.html'
+        if home_path.exists():
+            home_html = home_path.read_text(encoding='utf-8')
+            desc_full = (ai_summary or description or doc.get('ai_summary') or doc.get('description') or '')
+            desc_card = (description[:150] + ('...' if len(description) > 150 else '')) if description else ''
+            # Update card attr and visible text
+            import re
+            m = re.search(r'<article class="rx-card"[^>]*data-rx-path="' + re.escape(html_path) + '"[\s\S]*?</article>', home_html)
+            if m:
+                block = m.group(0)
+                new_block = re.sub(
+                    r'data-rx-desc="[^"]*"',
+                    f'data-rx-desc="{escape_html(desc_full)}"',
+                    block)
+                new_block = re.sub(
+                    r'(<p class="rx-card-desc rx-clamp-3">)[^<]*(</p>)',
+                    r'\1' + escape_html(desc_card) + r'\2',
+                    new_block)
+                home_html = home_html[:m.start()] + new_block + home_html[m.end():]
+                home_path.write_text(home_html, encoding='utf-8')
+
+        # --- Author pages ---
+        for auth_root in (DOCS_DIR / 'authors', LOCAL_HIDDEN_DIR / 'authors'):
+            if not auth_root.exists():
+                continue
+            for auth_page in auth_root.rglob('index.html'):
+                try:
+                    html = auth_page.read_text(encoding='utf-8')
+                    if html_path not in html:
+                        continue
+                    new_html, n = re.subn(
+                        r'(<div class="document-item">(?:(?!</div>).)*?href="../../' + re.escape(html_path) + r'"(?:(?!</div>).)*?<p class="doc-desc">).*?(</p>)',
+                        lambda m: m.group(1) + escape_html((description[:150] + ('...' if len(description) > 150 else ''))) + m.group(2),
+                        html, flags=re.DOTALL)
+                    if n:
+                        auth_page.write_text(new_html, encoding='utf-8')
+                except Exception:
+                    pass
+    except Exception as e:
+        print(f'[WARN] card patch failed: {e}')
 
 
 if __name__ == '__main__':

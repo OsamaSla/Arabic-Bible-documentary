@@ -26,3 +26,22 @@ function safePath(path) {
     }
     return p;
 }
+
+/**
+ * Shorten text to <= limit chars, preferably ending with punctuation
+ * (mirrors cut_at_sentence in scripts/convert.py).
+ */
+function cutAtSentence(text, limit) {
+    var s = String(text == null ? '' : text).replace(/^\s+|\s+$/g, '');
+    if (s.length <= limit) return s;
+    var head = s.substring(0, limit);
+    var marks = ['.', '؟', '!', '…'];
+    var idx = -1;
+    for (var k = 0; k < marks.length; k++) {
+        var at = head.lastIndexOf(marks[k]);
+        if (at > idx) idx = at;
+    }
+    if (idx >= 40) return head.substring(0, idx + 1).replace(/\s+$/g, '');
+    var cut = head.lastIndexOf(' ');
+    return (cut > 0 ? head.substring(0, cut) : head).replace(/[\s,،;:]+$/g, '') + '...';
+}

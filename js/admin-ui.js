@@ -85,6 +85,8 @@
         });
     }
 
+    window.__adminApi = { getApi: getApi, postApi: postApi };
+
     function buildCategoryLabelMap(vocab) {
         categoryLabelMap = { uncategorized: 'بدون فئة' };
         var cats = (vocab && vocab.categories) || {};
@@ -1000,4 +1002,374 @@
             loadDocuments();
         });
     });
+})();
+
+// --- Summaries Editor ---
+(function () {
+    var summariesContainer = document.getElementById('summariesList');
+    var filterInput = document.getElementById('summariesFilter');
+    var countEl = document.getElementById('summariesCount');
+    var regenAllBtn = document.getElementById('regenerateAllBtn');
+    var saveAllBtn = document.getElementById('saveAllBtn');
+
+    if (!summariesContainer) return;
+
+    var allSummaries = [];
+
+    function escapeHtml(s) {
+        return String(s == null ? '' : s)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    function safePath(p) {
+        p = String(p == null ? '' : p).trim();
+        if (!p) return '#';
+        if (p.charAt(0) === '#') return p;
+        var lower = p.toLowerCase();
+        if (lower.indexOf('javascript:') === 0 ||
+            lower.indexOf('data:') === 0 ||
+            lower.indexOf('vbscript:') === 0) {
+            return '#';
+        }
+        if (/^[a-z][a-z0-9+.\-]*:/i.test(p)) {
+            return (/^https?:/i.test(p)) ? p : '#';
+        }
+        return p;
+    }
+
+    function charInfo(text, limit) {
+        var val = String(text || '');
+        var len = val.length;
+        var cls = len > limit ? 'err' : (len > limit * 0.85 ? 'warn' : '');
+        return { len: len, cls: cls, ok: len <= limit && val.trim() !== '' };
+    }
+
+    function loadSummaries() {
+        window.__adminApi.getApi('/api/documents').then(function (result) {
+            if (result.status !== 200 || !result.data || !result.data.ok) {
+                summariesContainer.innerHTML = '<p style="color:#dc3545;">Failed to load documents.</p>';
+                return;
+            }
+            allSummaries = result.data.documents || [];
+            renderSummaries(allSummaries);
+        }).catch(function () {
+            summariesContainer.innerHTML = '<p style="color:#dc3545;">Network error loading documents.</p>';
+        });
+    }
+
+    function updateCounter(ta, limit) {
+        if (!ta) return;
+        var row = ta.closest('.desc-row, .ai-row');
+        var counter = row ? row.querySelector('.char-count') : null;
+        if (counter) {
+            var info = charInfo(ta.value, limit);
+            counter.textContent = info.len + '/' + limit;
+            counter.className = 'char-count' + (info.cls ? ' ' + info.cls : '');
+        }
+    }
+
+    function bindCardEvents(doc) {
+        var card = summariesContainer.querySelector('.summaries-card[data-doc-id="' + escapeHtml(doc.id) + '"]');
+        if (!card) return;
+
+        var descTa = card.querySelector('.desc-textarea');
+        var aiTa = card.querySelector('.ai-textarea');
+        var saveBtn = card.querySelector('.btn-save');
+        var regenBtn = card.querySelector('.btn-regen');
+        var clearBtn = card.querySelector('.btn-clear');
+        var statusEl = card.querySelector('.save-status');
+
+        function refreshSaveState() {
+            if (!saveBtn) return;
+            var dOk = !descTa || charInfo(descTa.value, 200).ok;
+            var aOk = !aiTa || charInfo(aiTa.value, 400).ok;
+            saveBtn.disabled = !(dOk && aOk);
+            updateCounter(descTa, 200);
+            updateCounter(aiTa, 400);
+        }
+
+        if (descTa) descTa.addEventListener('input', refreshSaveState);
+        if (aiTa) aiTa.addEventListener('input', refreshSaveState);
+        refreshSaveState();
+
+        if (saveBtn) {
+            saveBtn.addEventListener('click', function () {
+                saveSummary(doc.id,
+                    descTa ? descTa.value.trim() : '',
+                    aiTa ? aiTa.value.trim() : '',
+                    statusEl, saveBtn);
+            });
+        }
+        if (regenBtn) {
+            regenBtn.addEventListener('click', function () {
+                regenerateSummary(doc, regenBtn, aiTa);
+            });
+        }
+        if (clearBtn) {
+            clearBtn.addEventListener('click', function () {
+                if (!confirm('مسح ملخص الذكاء الاصطناعي لهذا المقال؟')) return;
+                clearSummary(doc.id, aiTa, statusEl);
+            });
+        }
+    }
+
+    function renderSummaries(docs) {
+        if (!docs.length) {
+            summariesContainer.innerHTML = '<p style="text-align:center;color:var(--text-muted);">لا توجد مستندات.</p>';
+            if (countEl) countEl.textContent = '0';
+            return;
+        }
+        var html = '';
+        docs.forEach(function (doc) {
+            var desc = doc.description || '';
+            var ai = doc.ai_summary || '';
+            var htmlPath = escapeHtml(safePath(doc.html_path || '#'));
+
+            html += '<div class="summaries-card" data-doc-id="' + escapeHtml(doc.id) + '">';
+            html += '<header>';
+            html += '<span class="card-title">' + escapeHtml(doc.title || 'بدون عنوان') + '</span>';
+            html += '<span class="card-author">' + escapeHtml(doc.author || 'غير معروف') + '</span>';
+            html += '<span class="card-id">' + escapeHtml(doc.id) + '</span>';
+            html += '<div class="card-status">';
+            html += '<span class="status-badge ' + (doc.completed ? 'completed-on' : 'completed-off') + '">' + (doc.completed ? '✓ مكتمل' : '○ قيد الترجمة') + '</span>';
+            html += '<span class="status-badge ' + (doc.hidden ? 'hidden-on' : 'hidden-off') + '">' + (doc.hidden ? 'مخفي' : 'مرئي') + '</span>';
+            html += '</div>';
+            html += '</header>';
+
+            html += '<div class="desc-row">';
+            html += '<span class="desc-label">الوصف (الجملة الأولى) <span class="char-count">0/200</span></span>';
+            html += '<textarea class="desc-textarea" maxlength="200" rows="2" placeholder="الجملة الأولى من المقال...">' + escapeHtml(desc) + '</textarea>';
+            html += '</div>';
+
+            html += '<div class="ai-row">';
+            html += '<span class="desc-label">ملخص الذكاء الاصطناعي <span class="char-count">0/400</span></span>';
+            html += '<textarea class="ai-textarea" maxlength="400" rows="4" placeholder="اكتب أو أعد توليد ملخص الذكاء الاصطناعي...">' + escapeHtml(ai) + '</textarea>';
+            html += '</div>';
+
+            html += '<div class="card-actions">';
+            html += '<button type="button" class="admin-btn btn-save" disabled>حفظ</button>';
+            html += '<button type="button" class="admin-btn btn-regen" data-doc-path="' + htmlPath + '">إعادة توليد بالذكاء</button>';
+            html += '<button type="button" class="admin-btn btn-clear">مسح الملخص</button>';
+            html += '<span class="save-status"></span>';
+            html += '</div>';
+            html += '</div>';
+        });
+        summariesContainer.innerHTML = html;
+
+        if (countEl) countEl.textContent = docs.length + ' مستند';
+        if (regenAllBtn) {
+            regenAllBtn.style.display = docs.some(function (d) { return !d.ai_summary; }) ? 'inline-block' : 'none';
+        }
+
+        docs.forEach(bindCardEvents);
+    }
+
+    function filterSummaries() {
+        var q = (filterInput ? filterInput.value : '').trim().toLowerCase();
+        if (!q) {
+            renderSummaries(allSummaries);
+            return;
+        }
+        var filtered = allSummaries.filter(function (doc) {
+            return (doc.title || '').toLowerCase().indexOf(q) !== -1 ||
+                   (doc.author || '').toLowerCase().indexOf(q) !== -1;
+        });
+        renderSummaries(filtered);
+    }
+
+    function saveSummary(docId, description, aiSummary, statusEl, saveBtn) {
+        if (statusEl) { statusEl.textContent = 'جاري الحفظ...'; statusEl.className = 'save-status'; }
+        if (saveBtn) saveBtn.disabled = true;
+
+        window.__adminApi.postApi('/api/summaries', { docId: docId, description: description, ai_summary: aiSummary }).then(function (result) {
+            if (result.status === 200 && result.data && result.data.ok) {
+                if (statusEl) { statusEl.textContent = 'تم الحفظ ✓'; statusEl.className = 'save-status ok'; }
+                var doc = allSummaries.find(function (d) { return String(d.id) === String(docId); });
+                if (doc) {
+                    if (description) doc.description = description;
+                    if (aiSummary) doc.ai_summary = aiSummary;
+                    else if ('ai_summary' in doc) doc.ai_summary = '';
+                }
+            } else {
+                var msg = (result.data && result.data.message) || 'فشل الحفظ';
+                if (statusEl) { statusEl.textContent = msg; statusEl.className = 'save-status err'; }
+            }
+            if (saveBtn) saveBtn.disabled = false;
+        }).catch(function () {
+            if (statusEl) { statusEl.textContent = 'تعذر الاتصال بالخادم'; statusEl.className = 'save-status err'; }
+            if (saveBtn) saveBtn.disabled = false;
+        });
+    }
+
+    function regenerateSummary(doc, btn, ta) {
+        if (!btn || !ta) return;
+        btn.disabled = true;
+        var oldText = btn.textContent;
+        btn.textContent = 'جاري التوليد...';
+
+        window.__adminApi.postApi('/api/ai-summarize', { docId: doc.id }).then(function (result) {
+            if (result.status === 200 && result.data && result.data.ok) {
+                ta.value = result.data.summary || '';
+                ta.dispatchEvent(new Event('input', { bubbles: true }));
+            } else {
+                var msg = (result.data && result.data.message) || 'فشل التوليد';
+                alert('فشل التوليد: ' + msg);
+            }
+        }).catch(function () {
+            alert('تعذر الاتصال بالخادم');
+        }).finally(function () {
+            btn.disabled = false;
+            btn.textContent = oldText;
+        });
+    }
+
+    function clearSummary(docId, ta, statusEl) {
+        if (ta) {
+            ta.value = '';
+            ta.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+        saveSummary(docId, '', '', statusEl, null);
+    }
+
+    if (filterInput) {
+        var filterTimer = null;
+        filterInput.addEventListener('input', function () {
+            clearTimeout(filterTimer);
+            filterTimer = setTimeout(filterSummaries, 150);
+        });
+    }
+
+    if (regenAllBtn) {
+        regenAllBtn.addEventListener('click', function () {
+            if (!confirm('توليد ملخصات لجميع المقالات التي لا تملك ملخصاً؟ قد يستغرق وقتاً.')) return;
+            var missing = allSummaries.filter(function (d) { return !d.ai_summary; });
+            if (!missing.length) return;
+            var i = 0;
+            regenAllBtn.disabled = true;
+            regenAllBtn.textContent = 'جاري التوليد...';
+            function processNext() {
+                if (i >= missing.length) {
+                    regenAllBtn.disabled = false;
+                    regenAllBtn.textContent = 'توليد كل الناقص';
+                    loadSummaries();
+                    return;
+                }
+                regenAllBtn.textContent = 'توليد ' + (i + 1) + '/' + missing.length;
+                var doc = missing[i];
+                var card = summariesContainer.querySelector('.summaries-card[data-doc-id="' + escapeHtml(doc.id) + '"]');
+                var btn = card ? card.querySelector('.btn-regen') : null;
+                var ta = card ? card.querySelector('.ai-textarea') : null;
+                regenerateSummary(doc, btn, ta);
+                i++;
+                setTimeout(processNext, 3000);
+            }
+            processNext();
+        });
+    }
+
+    var saveAllBtn = document.getElementById('saveAllBtn');
+    if (saveAllBtn) {
+        saveAllBtn.addEventListener('click', function () {
+            if (!confirm('حفظ جميع التعديلات؟ هذا سيحفظ كل مقالة تم تعديلها.')) return;
+
+            saveAllBtn.disabled = true;
+            saveAllBtn.textContent = 'حفظ الكل...';
+
+            var toSave = [];
+            if (summariesContainer) {
+                var cards = summariesContainer.querySelectorAll('.summaries-card');
+                cards.forEach(function (card) {
+                    var docId = card.getAttribute('data-doc-id');
+                    var descTa = card.querySelector('.desc-textarea');
+                    var aiTa = card.querySelector('.ai-textarea');
+                    if (!descTa && !aiTa) return;
+
+                    var description = descTa ? descTa.value.trim() : '';
+                    var aiSummary = aiTa ? aiTa.value.trim() : '';
+
+                    var descOk = description.match(/[.?!…]$/) !== null || description === '';
+                    var aiOk = aiSummary.match(/[.?!…]$/) !== null || aiSummary === '';
+
+                    if (!descOk || !aiOk) return;
+
+                    var statusEl = card.querySelector('.save-status');
+                    var saveBtn = card.querySelector('.btn-save');
+                    if (!saveBtn) return;
+
+                    toSave.push({
+                        docId: docId,
+                        description: description,
+                        aiSummary: aiSummary,
+                        statusEl: statusEl,
+                        saveBtn: saveBtn
+                    });
+                });
+            }
+
+            function processNext(i) {
+                if (i >= toSave.length) {
+                    saveAllBtn.disabled = false;
+                    saveAllBtn.textContent = 'حفظ الكل';
+                    loadSummaries();
+                    return;
+                }
+
+                var item = toSave[i];
+                var statusEl = item.statusEl;
+                var saveBtn = item.saveBtn;
+
+                setStatus(statusEl, 'حفظ...', '');
+                saveBtn.disabled = true;
+
+                window.__adminApi.postApi('/api/summaries', {
+                    docId: item.docId,
+                    description: item.description,
+                    ai_summary: item.aiSummary
+                }).then(function (result) {
+                    if (result.status === 200 && result.data && result.data.ok) {
+                        setStatus(statusEl, 'تم الحفظ ✓', 'ok');
+                        var doc = allSummaries.find(function (d) { return String(d.id) === String(item.docId); });
+                        if (doc) {
+                            if (item.description) doc.description = item.description;
+                            if (item.aiSummary) doc.ai_summary = item.aiSummary;
+                            else if ('ai_summary' in doc) doc.ai_summary = '';
+                        }
+                    } else {
+                        var msg = (result.data && result.data.message) || 'فشل الحفظ';
+                        setStatus(statusEl, msg, 'err');
+                    }
+                    saveBtn.disabled = false;
+                }).catch(function () {
+                    setStatus(statusEl, 'تعذر الاتصال بالخادم', 'err');
+                    saveBtn.disabled = false;
+                }).finally(function () {
+                    setTimeout(function () {
+                        processNext(i + 1);
+                    }, 300);
+                });
+            }
+
+            if (toSave.length) {
+                processNext(0);
+            } else {
+                saveAllBtn.disabled = false;
+                saveAllBtn.textContent = 'حفظ الكل';
+                alert('لا توجد تعديلات محفوظة لحفظها.');
+            }
+        });
+    }
+
+    function init() {
+        loadSummaries();
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
 })();

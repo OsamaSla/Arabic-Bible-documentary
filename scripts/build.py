@@ -17,7 +17,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 
 from convert import main as convert_documents
-from convert import escape_html, csp_meta, umami_tag, fonts_tag
+from convert import escape_html, csp_meta, umami_tag, fonts_tag, cut_at_sentence
 from scripture_index import (
     attach_refs,
     book_membership,
@@ -242,9 +242,8 @@ def generate_random_articles_v2(index_data):
         author = escape_html(doc.get('author', 'غير معروف'))
         path = escape_html(doc.get('html_path', '#'))
         desc = doc.get('description', '') or ''
-        if len(desc) > 150:
-            desc = desc[:150] + '...'
-        desc = escape_html(desc)
+        desc_full = escape_html(desc)
+        desc = escape_html(cut_at_sentence(desc, 150))
         is_done = doc.get('completed') is True
         badge_cls = 'rx-badge' if is_done else 'rx-badge rx-badge-progress'
         status = '\u2713 مكتمل' if is_done else '\u25cf قيد الترجمة'
@@ -260,7 +259,7 @@ def generate_random_articles_v2(index_data):
         html_parts.append(
             '        <button type="button" class="rx-preview-btn" data-rx-preview'
             f' data-rx-title="{title}" data-rx-author="{author}"'
-            f' data-rx-desc="{desc}" data-rx-path="{path}">معاينة سريعة</button>'
+            f' data-rx-desc="{desc_full}" data-rx-path="{path}">معاينة سريعة</button>'
         )
         html_parts.append(f'        <a href="{path}" class="rx-read-link">اقرأ المزيد \u2190</a>')
         html_parts.append('    </div>')
@@ -470,11 +469,11 @@ def build_related_sidebar(doc, documents, catalog, categories, limit=6):
     if not sections:
         return ''
     return (
-        '<aside class="doc-aside" aria-label="تعليقات ذات صلة">'
+        '<details class="doc-aside" aria-label="تعليقات ذات صلة">'
+        '<summary class="doc-aside-title">مواضيع ذات صلة</summary>'
         '<div class="doc-aside-inner">'
-        '<h2 class="doc-aside-title">مواضيع ذات صلة</h2>'
         + ''.join(sections) +
-        '</div></aside>'
+        '</div></details>'
     )
 
 
@@ -506,6 +505,67 @@ def inject_related_sidebars(docs_dir, documents, catalog, categories):
                 time.sleep(0.5)
         ok += 1
     print(f'  [OK] sidebars injected into {ok} document pages'
+          + (f' ({skipped} skipped)' if skipped else ''))
+
+
+def build_chapters_nav(doc):
+    """Chapter index for multi-chapter articles (Word Next-Page breaks).
+
+    Returns '' for single-chapter docs so no empty nav is rendered.
+    """
+    chapters = doc.get('chapters') or []
+    if len(chapters) < 2:
+        return ''
+    items = []
+    for ch in chapters:
+        anchor = escape_html(ch.get('anchor', ''))
+        title = escape_html(ch.get('title') or '')
+        items.append(f'<li><a href="#{anchor}">{title}</a></li>')
+    return (
+        '<aside class="doc-toc" aria-label="فهرس الفصول">'
+        '<details class="doc-toc-box" open>'
+        '<summary class="doc-toc-title">فهرس الفصول'
+        f'<span class="toc-count">{len(chapters)}</span></summary>'
+        '<nav aria-label="فصول المقال"><ol class="toc-list">'
+        + ''.join(items) +
+        '</ol></nav>'
+        '</details></aside>'
+    )
+
+
+def inject_chapters_nav(docs_dir, documents):
+    """Replace <!-- CHAPTERS_NAV --> in every visible document page."""
+    ok = 0
+    skipped = 0
+    for doc in documents:
+        html_path = doc.get('html_path', '')
+        if not html_path.startswith('documents/'):
+            continue
+        path = docs_dir / html_path
+        if not path.exists():
+            skipped += 1
+            continue
+        html = path.read_text(encoding='utf-8')
+        marker = '<!-- CHAPTERS_NAV -->'
+        if marker not in html:
+            skipped += 1
+            continue
+        widget = build_chapters_nav(doc)
+        html = html.replace(marker, widget)
+        if widget:
+            # Explicit grid class (no :has() dependency for side-by-side flow)
+            html = html.replace('<div class="document-layout">',
+                                '<div class="document-layout with-toc">', 1)
+        for _attempt in range(5):
+            try:
+                path.write_text(html, encoding='utf-8')
+                break
+            except OSError:
+                if _attempt == 4:
+                    raise
+                time.sleep(0.5)
+        ok += 1
+    print(f'  [OK] chapter indexes injected into {ok} document pages'
           + (f' ({skipped} skipped)' if skipped else ''))
 
 
@@ -1367,7 +1427,7 @@ def generate_author_pages(docs_dir, index_data, catalog=None, categories=None):
 
     def author_doc_item(doc):
         title = escape_html(doc.get('title', 'بدون عنوان'))
-        desc = escape_html((doc.get('description') or '')[:150])
+        desc = escape_html(cut_at_sentence(doc.get('description') or '', 150))
         html_path = escape_html(doc.get('html_path', '#'))
         download_path = escape_html(doc.get('download_path', '#'))
         if doc.get('completed'):
@@ -1387,7 +1447,7 @@ def generate_author_pages(docs_dir, index_data, catalog=None, categories=None):
         return (
             '<div class="document-item">'
             f'<a href="../../{html_path}" class="doc-title">{title} {badge}</a>'
-            f'<p class="doc-desc">{desc}...</p>'
+            f'<p class="doc-desc">{desc}</p>'
             f'{chips}'
             f'<a href="../../{download_path}" class="doc-download" download>تحميل</a>'
             '</div>\n'
@@ -1896,7 +1956,9 @@ def main():
     try:
         documents = convert_documents()
     except Exception as e:
-        print(f'  [WARNING] Conversion error: {e}')
+        # ASCII-safe: exception text may hold non-console-encodable paths
+        safe_err = str(e).encode('ascii', 'replace').decode()
+        print(f'  [WARNING] Conversion error: {safe_err}')
         documents = []
     
     # Load index data
@@ -1941,6 +2003,10 @@ def main():
     # Related-commentaries sidebar on every document page
     print('\n[BUILD] Injecting related-commentaries sidebars...')
     inject_related_sidebars(docs_dir, visible_documents, book_catalog, categories_data)
+
+    # Chapter index beside multi-chapter articles (Word Next-Page breaks)
+    print('\n[BUILD] Injecting chapter indexes...')
+    inject_chapters_nav(docs_dir, visible_documents)
 
     # Copy static files
     print('\n[BUILD] Copying static files...')
