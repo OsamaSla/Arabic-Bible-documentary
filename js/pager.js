@@ -159,10 +159,14 @@
     };
 
     Pager.prototype.build = function () {
+        // Remember where the reader was: rebuilds happen on resize/font
+        // load, and must never throw the reader back to page 1.
+        var keep = this.current || 0;
         this.restoreNodes();
         var items = this.measure();
         var pageH = this.pageHeight();
         if (!items.length || !pageH) return false;
+        this.lastW = this.article.clientWidth || 0;
         var plan = assignPages(items, pageH);
         if (!plan.length) return false;
         // If the document has no measurable content (e.g. failed render),
@@ -187,7 +191,10 @@
         });
         this.pages = plan;
         this.buildBars();
-        this.show(0, true);
+        // Restore the reader's page (clamped — a narrower screen can add
+        // pages, a wider one can remove them).
+        var at = Math.max(0, Math.min(keep, plan.length - 1));
+        this.show(at, true);
         return true;
     };
 
@@ -591,7 +598,15 @@
             updateTocOffset();
             if (self.mode !== 'pages') return;
             clearTimeout(self.resizeTimer);
-            self.resizeTimer = setTimeout(function () { self.build(); }, RESIZE_DEBOUNCE);
+            self.resizeTimer = setTimeout(function () {
+                // Mobile browsers fire resize when the URL bar shows/hides
+                // while scrolling (width unchanged). Rebuilding then is both
+                // wasteful and disruptive — only rebuild on real width change.
+                var w = 0;
+                try { w = self.article.clientWidth || 0; } catch (e) { w = 0; }
+                if (self.lastW && w && Math.abs(w - self.lastW) < 2) return;
+                self.build();
+            }, RESIZE_DEBOUNCE);
         };
         window.addEventListener('resize', this.onResize);
     };

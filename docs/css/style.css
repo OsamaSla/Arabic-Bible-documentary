@@ -91,6 +91,9 @@
 
 html {
     scroll-behavior: smooth;
+    /* Stop pull-to-refresh / scroll-chaining at page edges from yanking
+       the reader away (mobile article pages lost their pager page). */
+    overscroll-behavior-y: contain;
 }
 
 body {
