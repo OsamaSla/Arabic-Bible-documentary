@@ -758,11 +758,67 @@ a:hover {
 
 /* Mobile */
 @media (max-width: 767px) {
+    /* Compact sticky header: the stacked desktop header (logo + wrapped
+       nav) becomes 250px+ tall and covers half the viewport on article
+       pages. Keep it sticky but single-row + horizontal nav scroll. */
+    .site-header {
+        padding: 0.5rem 0;
+        min-height: 56px;
+    }
+
+    .site-header .container {
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.4rem 0.6rem;
+    }
+
+    .logo {
+        font-size: 1rem;
+    }
+
+    .logo .cross {
+        font-size: 1.4rem;
+    }
+
+    .main-nav {
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+        gap: 0.25rem;
+        max-width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .main-nav a {
+        padding: 0.4rem 0.6rem;
+        font-size: 0.85rem;
+        white-space: nowrap;
+    }
+
+    .document-viewer {
+        padding: 1rem 0;
+    }
+
+    .document-header {
+        margin-bottom: 1rem;
+    }
+
+    .document-title {
+        font-size: 1.35rem;
+        line-height: 1.6;
+    }
+
+    .breadcrumb {
+        margin-bottom: 0.75rem;
+    }
+
     .hero .stats {
         flex-direction: column;
         gap: var(--spacing-lg);
     }
-    
+
     .document-actions {
         flex-direction: column;
     }

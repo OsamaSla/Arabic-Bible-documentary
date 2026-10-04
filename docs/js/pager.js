@@ -15,35 +15,78 @@
     /* Scroll gap below the sticky site header (measured in updateTocOffset). */
     var STICKY_GAP = 160;
 
+    function isFiller(it) {
+        // Anchors, zero-height nodes and empty paragraphs must never own
+        // a page alone — they attach to the next real content block.
+        // Otherwise page 1 renders as a blank A4 sheet (empty-page bug).
+        return !!(it.anchor || it.empty);
+    }
+
+    function pageHasContent(pg, items) {
+        for (var k = 0; k < pg.length; k++) {
+            if (!isFiller(items[pg[k]])) return true;
+        }
+        return false;
+    }
+
     function assignPages(items, pageH) {
-        // items: [{h:number, heading:boolean, anchor:boolean}]
+        // items: [{h:number, heading:boolean, anchor:boolean, empty:boolean}]
         // returns array of pages, each a list of item indexes.
-        // A chapter anchor always starts a fresh page (unless the page is
-        // still empty), so jumping to a chapter shows the page that starts
-        // with it — never the tail of the previous text.
+        // A chapter anchor starts a fresh page only when the current page
+        // already holds real content; leading/consecutive anchors and empty
+        // paragraphs are glued to the following content — never alone.
         var pages = [[]];
         var curH = 0;
+        var curReal = 0;
         for (var i = 0; i < items.length; i++) {
             var it = items[i];
             var h = it.h || 0;
-            if (it.anchor && pages[pages.length - 1].length > 0) {
+            var filler = isFiller(it);
+            if (it.anchor && curReal > 0) {
                 pages.push([]);
                 curH = 0;
+                curReal = 0;
             }
-            if (pages[pages.length - 1].length > 0 && curH + h > pageH) {
+            if (!filler && curReal > 0 && curH + h > pageH) {
                 pages.push([]);
                 curH = 0;
+                curReal = 0;
             }
             // Avoid leaving a heading alone at a page bottom.
-            if (it.heading && pages[pages.length - 1].length > 0 &&
+            if (!filler && it.heading && curReal > 0 &&
                     curH + h > pageH * 0.92) {
                 pages.push([]);
                 curH = 0;
+                curReal = 0;
             }
             pages[pages.length - 1].push(i);
-            curH += h;
+            if (!filler) {
+                curH += h;
+                curReal++;
+            }
         }
-        return pages.filter(function (pg) { return pg.length > 0; });
+        // Merge filler-only pages into the next page with content (or the
+        // previous one for trailing fillers), so no blank sheet survives.
+        var merged = [];
+        var carry = [];
+        for (var p = 0; p < pages.length; p++) {
+            var pg = pages[p];
+            if (!pg.length) continue;
+            if (!pageHasContent(pg, items)) {
+                carry = carry.concat(pg);
+                continue;
+            }
+            merged.push(carry.concat(pg));
+            carry = [];
+        }
+        if (carry.length) {
+            if (merged.length) {
+                merged[merged.length - 1] = merged[merged.length - 1].concat(carry);
+            } else {
+                merged.push(carry);
+            }
+        }
+        return merged.filter(function (pg) { return pg.length > 0; });
     }
 
     function Pager(article) {
@@ -71,11 +114,26 @@
         this.nodes = Array.prototype.slice.call(this.article.children);
         return this.nodes.map(function (el) {
             var tag = el.tagName;
+            var isAnchor = !!(el.classList && el.classList.contains('doc-chapter-anchor'));
+            var h = 0;
+            try { h = el.getBoundingClientRect().height; } catch (e) { h = 0; }
+            var empty = false;
+            if (!isAnchor) {
+                var text = '';
+                try { text = (el.textContent || '').replace(/ /g, ' ').trim(); } catch (e) { text = ''; }
+                var hasMedia = false;
+                try {
+                    hasMedia = !!(el.querySelector &&
+                        el.querySelector('img, table, iframe, video, figure, object, embed'));
+                } catch (e) { hasMedia = false; }
+                empty = (!text && !hasMedia) || h < 2;
+            }
             return {
                 el: el,
-                h: el.getBoundingClientRect().height,
+                h: h,
                 heading: tag === 'H1' || tag === 'H2' || tag === 'H3' || tag === 'H4',
-                anchor: !!(el.classList && el.classList.contains('doc-chapter-anchor'))
+                anchor: isAnchor,
+                empty: empty
             };
         });
     };
@@ -92,6 +150,13 @@
         var pageH = this.pageHeight();
         if (!items.length || !pageH) return false;
         var plan = assignPages(items, pageH);
+        if (!plan.length) return false;
+        // If the document has no measurable content (e.g. failed render),
+        // stay in plain scroll mode instead of showing a blank sheet.
+        var hasReal = plan.some(function (pg) {
+            return pg.some(function (i) { return items[i] && !items[i].anchor && !items[i].empty; });
+        });
+        if (!hasReal) return false;
         var doc = this.article.ownerDocument;
         var self = this;
 
@@ -256,14 +321,21 @@
         if (!silent) {
             // Single bottom bar lives below the article: scroll back to the
             // article top (not to the bar) on page change, leaving room for
-            // the sticky site header so no text hides behind it.
+            // the sticky site header so no text hides behind it. The header
+            // is much taller on mobile (stacked layout), so measure it live
+            // instead of trusting the desktop STICKY_GAP constant.
+            var gap = STICKY_GAP;
+            try {
+                var hdr = document.querySelector('.site-header, .rx-header');
+                if (hdr) gap = Math.ceil(hdr.getBoundingClientRect().height) + 16;
+            } catch (e) { /* keep default */ }
             var top = 0;
             try {
                 var r = this.article.getBoundingClientRect();
                 top = r.top + (window.scrollY || window.pageYOffset || 0);
             } catch (e) { top = 0; }
             try {
-                window.scrollTo(0, Math.max(0, top - STICKY_GAP));
+                window.scrollTo(0, Math.max(0, top - gap));
             } catch (e) { /* ignore */ }
         }
     };

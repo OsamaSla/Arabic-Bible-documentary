@@ -746,6 +746,14 @@ summary.doc-aside-title:focus-visible {
         font-size: 1rem;
     }
 
+    /* Keep page flips and chapter jumps clear of the compact sticky
+       header (measured live in pager.js; this is the no-JS fallback). */
+    .document-layout,
+    .document-content,
+    .doc-page {
+        scroll-margin-top: 84px;
+    }
+
     .doc-page {
         padding: 1.25rem 1rem;
     }

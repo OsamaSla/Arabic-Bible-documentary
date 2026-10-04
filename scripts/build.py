@@ -120,7 +120,7 @@ def generate_random_articles(index_data):
         title = escape_html(doc.get('title', 'بدون عنوان'))
         author = escape_html(doc.get('author', 'غير معروف'))
         path = escape_html(doc.get('html_path', '#'))
-        desc = doc.get('description', '')
+        desc = doc.get('ai_summary') or doc.get('description', '')
         if desc and len(desc) > 150:
             desc = desc[:150] + '...'
         desc = escape_html(desc)
@@ -241,7 +241,7 @@ def generate_random_articles_v2(index_data):
         title = escape_html(doc.get('title', 'بدون عنوان'))
         author = escape_html(doc.get('author', 'غير معروف'))
         path = escape_html(doc.get('html_path', '#'))
-        desc = doc.get('description', '') or ''
+        desc = doc.get('ai_summary') or doc.get('description', '') or ''
         desc_full = escape_html(desc)
         desc = escape_html(cut_at_sentence(desc, 150))
         is_done = doc.get('completed') is True
@@ -1386,7 +1386,7 @@ def generate_document_index_pages(base_dir, docs_dir, index_data):
                 index_html += f'''
             <div class="document-item">
                 <a href="{escape_html(doc['id'])}.html">{escape_html(doc['title'])}</a>
-                <p>{escape_html(doc.get('description', '')[:100])}...</p>
+                <p>{escape_html((doc.get('ai_summary') or doc.get('description', ''))[:100])}...</p>
             </div>
 '''
             
@@ -1427,7 +1427,7 @@ def generate_author_pages(docs_dir, index_data, catalog=None, categories=None):
 
     def author_doc_item(doc):
         title = escape_html(doc.get('title', 'بدون عنوان'))
-        desc = escape_html(cut_at_sentence(doc.get('description') or '', 150))
+        desc = escape_html(cut_at_sentence(doc.get('ai_summary') or doc.get('description') or '', 150))
         html_path = escape_html(doc.get('html_path', '#'))
         download_path = escape_html(doc.get('download_path', '#'))
         if doc.get('completed'):

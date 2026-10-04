@@ -138,9 +138,6 @@ document.addEventListener('submit', function (e) {
         var p = document.createElement('p');
         p.textContent = desc || 'افتح المقال لقراءة النص الكامل من المكتبة.';
         modalBody.appendChild(p);
-        var p2 = document.createElement('p');
-        p2.textContent = 'تتمتع هذه الترجمة بأسلوب شروحي يربط نصوص العهدين معاً لإيصال المقاصد الإلهية للقارئ والباحث.';
-        modalBody.appendChild(p2);
         modalOpen.setAttribute('href', safePath(btn.getAttribute('data-rx-path') || '#'));
         modal.classList.add('is-open');
         modal.setAttribute('aria-hidden', 'false');

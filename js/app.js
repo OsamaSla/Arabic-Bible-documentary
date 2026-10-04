@@ -53,7 +53,8 @@ document.addEventListener('DOMContentLoaded', function() {
             var title = escapeHtml(doc.title || '\u0628\u062f\u0648\u0646 \u0639\u0646\u0648\u0627\u0646');
             var author = escapeHtml(doc.author || '\u063a\u064a\u0631 \u0645\u0639\u0631\u0648\u0641');
             var path = escapeHtml(safePath(doc.html_path || '#'));
-            var desc = doc.description ? escapeHtml(cutAtSentence(doc.description, 150)) : '';
+            var summary = doc.ai_summary || doc.description;
+            var desc = summary ? escapeHtml(cutAtSentence(summary, 150)) : '';
             return '<a href="' + path + '" class="article-card">' +
                 '<div class="article-title">' + title + '</div>' +
                 '<div class="article-author">' + author + '</div>' +
@@ -136,8 +137,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 var title = escapeHtml(doc.title || '\u0628\u062f\u0648\u0646 \u0639\u0646\u0648\u0627\u0646');
                 var author = escapeHtml(doc.author || '\u063a\u064a\u0631 \u0645\u0639\u0631\u0648\u0641');
                 var path = escapeHtml(safePath(doc.html_path || '#'));
-                var desc = doc.description ? cutAtSentence(doc.description, 150) : '';
-                var descFull = doc.description || '';
+                var summary = doc.ai_summary || doc.description;
+                var desc = summary ? cutAtSentence(summary, 150) : '';
+                var descFull = summary || '';
                 desc = escapeHtml(desc);
                 descFull = escapeHtml(descFull);
                 var done = doc.completed === true;

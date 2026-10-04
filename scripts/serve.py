@@ -871,7 +871,8 @@ def _patch_cards_on_summary_change(doc_id, description, ai_summary):
         if home_path.exists():
             home_html = home_path.read_text(encoding='utf-8')
             desc_full = (ai_summary or description or doc.get('ai_summary') or doc.get('description') or '')
-            desc_card = (description[:150] + ('...' if len(description) > 150 else '')) if description else ''
+            card_text = (ai_summary or description or doc.get('ai_summary') or doc.get('description') or '')
+            desc_card = (card_text[:150] + ('...' if len(card_text) > 150 else '')) if card_text else ''
             # Update card attr and visible text
             import re
             m = re.search(r'<article class="rx-card"[^>]*data-rx-path="' + re.escape(html_path) + '"[\s\S]*?</article>', home_html)
@@ -897,9 +898,11 @@ def _patch_cards_on_summary_change(doc_id, description, ai_summary):
                     html = auth_page.read_text(encoding='utf-8')
                     if html_path not in html:
                         continue
+                    auth_text = (ai_summary or description or doc.get('ai_summary') or doc.get('description') or '')
+                    auth_text = auth_text[:150] + ('...' if len(auth_text) > 150 else '')
                     new_html, n = re.subn(
                         r'(<div class="document-item">(?:(?!</div>).)*?href="../../' + re.escape(html_path) + r'"(?:(?!</div>).)*?<p class="doc-desc">).*?(</p>)',
-                        lambda m: m.group(1) + escape_html((description[:150] + ('...' if len(description) > 150 else ''))) + m.group(2),
+                        lambda m: m.group(1) + escape_html(auth_text) + m.group(2),
                         html, flags=re.DOTALL)
                     if n:
                         auth_page.write_text(new_html, encoding='utf-8')
