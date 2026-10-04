@@ -842,3 +842,10 @@ summary.doc-aside-title:focus-visible {
     border-radius: var(--radius-sm);
     padding: 0 2px;
 }
+
+/* Uniform article typography: neutralize any residual inline font sizes
+   carried over from Word (converter strips them; this is belt-and-braces
+   so one odd .docx can never again blow up the A4 pager layout). */
+.document-content [style*="font-size"] {
+    font-size: inherit !important;
+}

@@ -116,10 +116,9 @@ def format_run(run):
     if run.font.color and run.font.color.rgb:
         color = str(run.font.color.rgb)
         styles.append(f'color:#{color}')
-    if run.font.size:
-        size_pt = run.font.size.pt if hasattr(run.font.size, 'pt') else run.font.size / 12700
-        if size_pt > 14:
-            styles.append(f'font-size:{size_pt}pt')
+    # NOTE: Word run font sizes are deliberately NOT carried over. Source
+    # .docx files use anything from 14pt to 72pt, which broke the uniform
+    # article typography and the A4 pager layout. Site CSS owns font sizes.
     if run.font.superscript:
         formatted = f'<sup>{formatted}</sup>'
     elif run.font.subscript:
