@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let allDocuments = [];
 
     // Skip loading the 795 KB index when the page is build-time rendered
-    // (index-new carries data-source="static"): RANDOM_ARTICLES + RECENT_UPDATES
+    // (homepage carries data-source="static"): RANDOM_ARTICLES + RECENT_UPDATES
     // sections target #randomArticles/#recentUpdates, which don't exist here.
     var _staticGrid = document.getElementById('articlesGrid');
     var _isStatic = _staticGrid && _staticGrid.getAttribute('data-source') === 'static';
@@ -102,7 +102,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 /* ============================================================
-   REDESIGN (index-new) — all blocks guarded by element existence.
+   REDESIGN (homepage) — all blocks guarded by element existence.
    Original pages: every block below no-ops (its hooks don't exist).
    ============================================================ */
 document.addEventListener('DOMContentLoaded', function() {

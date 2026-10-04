@@ -21,7 +21,7 @@
         {"slug": "akhbar-ayyam-thani", "name_ar": "أخبار الأيام الثاني", "name_de": "2. Chr", "order": 14},
         {"slug": "ezra", "name_ar": "عزرا", "name_de": "Esra", "order": 15},
         {"slug": "nahumya", "name_ar": "نحميا", "name_de": "Neh", "order": 16},
-        {"slug": "astar", "name_ar": "أستر", "name_de": "Est", "order": 17},
+        {"slug": "astar", "name_ar": "أستير", "name_de": "Est", "order": 17},
         {"slug": "ayyub", "name_ar": "أيوب", "name_de": "Hiob", "order": 18},
         {"slug": "mazamir", "name_ar": "المزامير", "name_de": "Ps", "order": 19},
         {"slug": "amthal", "name_ar": "الأمثال", "name_de": "Spr", "order": 20},
@@ -43,7 +43,7 @@
         {"slug": "safaniya", "name_ar": "صفنيا", "name_de": "Zeph", "order": 36},
         {"slug": "hajjai", "name_ar": "حجى", "name_de": "Hag", "order": 37},
         {"slug": "zakariya", "name_ar": "زكريا", "name_de": "Sach", "order": 38},
-        {"slug": "malakhi", "name_ar": "ملخي", "name_de": "Mal", "order": 39}
+        {"slug": "malakhi", "name_ar": "ملاخي", "name_de": "Mal", "order": 39}
       ]
     },
     "new_testament": {
@@ -77,7 +77,7 @@
         {"slug": "yuanna-thani", "name_ar": "يوحنا الثانية", "name_de": "2. Joh", "order": 24},
         {"slug": "yuanna-thalitha", "name_ar": "يوحنا الثالثة", "name_de": "3. Joh", "order": 25},
         {"slug": "yahuda", "name_ar": "يهوذا", "name_de": "Jud", "order": 26},
-        {"slug": "mukashafa", "name_ar": "المكشوف", "name_de": "Off", "order": 27}
+        {"slug": "mukashafa", "name_ar": "سفر الرؤيا", "name_de": "Off", "order": 27}
       ]
     },
     "topics": {

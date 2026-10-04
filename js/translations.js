@@ -105,9 +105,11 @@ async function loadAllData() {
     }
     
     function generateBookItems(books) {
-        return books.map(book => {
+        return books.map((book, idx) => {
             const docs = getDocsForBook(book);
             const count = docs.length;
+            // Unique translucent tint per book: golden-angle hue spread.
+            const hue = Math.round((idx * 137.5) % 360);
             
             let docsList = '';
             if (count > 0) {
@@ -133,7 +135,7 @@ async function loadAllData() {
                 ? ' role="button" tabindex="0" aria-expanded="false" aria-controls="docs-' + escapeHtml(book.slug) + '"'
                 : '';
 
-            return '<div class="book-item" data-book="' + escapeHtml(book.slug) + '"' + rowAttrs + '>' +
+            return '<div class="book-item" data-book="' + escapeHtml(book.slug) + '" style="--book-h:' + hue + '"' + rowAttrs + '>' +
                 '<span class="book-name">' + escapeHtml(book.name_ar) + '</span>' +
                 '<span class="book-badges">' +
                 '<span class="book-count">' + count + ' \u0645\u0633\u062a\u0646\u062f</span>' +

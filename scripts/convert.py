@@ -333,6 +333,11 @@ def create_document_page(title, content, doc_id, author_name, completed, prefix=
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     {csp_meta()}
     <title>{safe_title} - ترجمات تعليقات الكتاب المقدس</title>
+    <meta name="description" content="{safe_title} - {safe_author} | ترجمات تعليقات الكتاب المقدس">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="{safe_title}">
+    <meta property="og:description" content="{safe_title} - {safe_author} | ترجمات تعليقات الكتاب المقدس">
+    <meta property="og:locale" content="ar_AR">
     {fonts_tag(prefix)}
     <link rel="stylesheet" href="{prefix}css/style.css">
     <link rel="stylesheet" href="{prefix}css/document.css">
@@ -379,6 +384,10 @@ def create_document_page(title, content, doc_id, author_name, completed, prefix=
                     <button type="button" data-action="print" class="btn btn-print">
                         <span class="btn-icon">&#128424;</span>
                         <span class="btn-text">طباعة</span>
+                    </button>
+                    <button type="button" data-action="share" class="btn btn-share" aria-label="مشاركة المقال">
+                        <span class="btn-icon" aria-hidden="true">&#128279;</span>
+                        <span class="btn-text">مشاركة</span>
                     </button>
                 </div>
             </div>
@@ -547,6 +556,7 @@ def main():
             'rel_path': rel_path,
             'html_path': html_rel,
             'download_path': dl_rel,
+            'mtime': int(os.path.getmtime(source_doc['filepath'])),
             'file_hash': get_file_hash(source_doc['filepath'])
         })
         try:

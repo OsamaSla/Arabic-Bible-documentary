@@ -31,6 +31,59 @@ document.addEventListener('click', function (e) {
         return;
     }
 
+    var shareBtn = e.target && e.target.closest ? e.target.closest('[data-action="share"]') : null;
+    if (shareBtn) {
+        e.preventDefault();
+        var pageUrl = window.location.href;
+        var titleEl = document.querySelector('h1.document-title');
+        var docTitle = titleEl ? titleEl.textContent.replace(/\s+/g, ' ').trim() : document.title;
+        var shareText = docTitle + '\n' + pageUrl;
+        if (navigator.share) {
+            try {
+                var p = navigator.share({ title: document.title, text: docTitle, url: pageUrl });
+                if (p && p.catch) p.catch(function () {});
+            } catch (err) { /* user cancelled or unavailable - ignore */ }
+            return;
+        }
+        var done = function (ok) {
+            var label = shareBtn.querySelector('.btn-text');
+            if (!label) return;
+            if (!label.getAttribute('data-orig')) {
+                label.setAttribute('data-orig', label.textContent);
+            }
+            label.textContent = ok ? 'تم النسخ ✓' : 'تعذر النسخ';
+            clearTimeout(window.__shareTimer);
+            window.__shareTimer = setTimeout(function () {
+                label.textContent = label.getAttribute('data-orig');
+            }, 2000);
+        };
+        var legacyCopy = function () {
+            try {
+                var ta = document.createElement('textarea');
+                ta.value = shareText;
+                ta.setAttribute('readonly', '');
+                ta.style.position = 'fixed';
+                ta.style.opacity = '0';
+                document.body.appendChild(ta);
+                ta.select();
+                var ok = false;
+                try { ok = document.execCommand('copy'); } catch (err) { ok = false; }
+                document.body.removeChild(ta);
+                done(ok);
+            } catch (err) { done(false); }
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(shareText).then(function () {
+                done(true);
+            }, function () {
+                legacyCopy();
+            });
+        } else {
+            legacyCopy();
+        }
+        return;
+    }
+
     var newsBtn = e.target && e.target.closest ? e.target.closest('[data-action="newsletter-focus"]') : null;
     if (newsBtn) {
         e.preventDefault();
@@ -62,7 +115,7 @@ document.addEventListener('submit', function (e) {
 });
 
 /* ============================================================
-   REDESIGN extras (index-new) — every block is guarded, so the
+   REDESIGN extras (homepage) — every block is guarded, so the
    original pages are completely unaffected.
    ============================================================ */
 

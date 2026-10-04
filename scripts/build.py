@@ -193,56 +193,38 @@ def generate_authors_section(index_data):
     return '\n'.join(html_parts)
 
 def generate_index_html(base_dir, docs_dir, index_data):
-    """Generate the main index.html from template"""
+    """Generate the main index.html from template (redesign homepage)."""
     template_path = base_dir / 'templates' / 'index.html'
     output_path = docs_dir / 'index.html'
-    
+
     if not template_path.exists():
         print('  [WARNING] Template not found, generating minimal index.html')
         generate_minimal_index(output_path, index_data)
         return
-    
+
     with open(template_path, 'r', encoding='utf-8') as f:
-        template = f.read()
-    
-    # Inject book lists from categories.json
-    categories_path = base_dir / 'categories.json'
-    if categories_path.exists():
-        with open(categories_path, 'r', encoding='utf-8') as f:
-            cats = json.load(f)['categories']
-        
-        ot_books = cats['old_testament']['books']
-        ot_html = chr(10).join([f'    <a href="#book-{b["slug"]}">{b["name_ar"]}</a>' for b in ot_books])
-        template = template.replace('<!-- BOOKS_OT_PLACEHOLDER -->', ot_html)
-        
-        nt_books = cats['new_testament']['books']
-        nt_html = chr(10).join([f'    <a href="#book-{b["slug"]}">{b["name_ar"]}</a>' for b in nt_books])
-        template = template.replace('<!-- BOOKS_NT_PLACEHOLDER -->', nt_html)
-        
-        topic_books = cats['topics']['books']
-        topics_html = chr(10).join([f'    <a href="#topic-{b["slug"]}">{b["name_ar"]}</a>' for b in topic_books])
-        template = template.replace('<!-- BOOKS_TOPICS_PLACEHOLDER -->', topics_html)
-        
-        print(f'  [OK] Injected {len(ot_books)} OT, {len(nt_books)} NT, {len(topic_books)} topic books')
-    
-    authors_html = generate_authors_section(index_data)
-    html = template.replace('<!-- AUTHORS_PLACEHOLDER -->', authors_html)
-    
-    # Generate random articles for home page
-    random_articles_html = generate_random_articles(index_data)
-    html = template.replace('<!-- RANDOM_ARTICLES_PLACEHOLDER -->', random_articles_html)
-    
+        html = f.read()
+
+    html = html.replace('<!-- RANDOM_ARTICLES_PLACEHOLDER -->', generate_random_articles_v2(index_data))
+    html = html.replace('<!-- LATEST_PLACEHOLDER -->', generate_latest_html(index_data))
+
     total_count = index_data.get('total_count', 0)
+    completed_count = index_data.get('completed_count', 0)
+    author_count = len(index_data.get('authors', {}))
+    html = html.replace('id="totalDocs">0</strong>', f'id="totalDocs">{total_count}</strong>')
+    html = html.replace('id="rxCompletedDocs">0</strong>', f'id="rxCompletedDocs">{completed_count}</strong>')
+    html = html.replace('id="rxAuthorCount">0</strong>', f'id="rxAuthorCount">{author_count}</strong>')
+    # Legacy span form (kept for parity with the original template contract)
     html = html.replace('id="totalDocs">0</span>', f'id="totalDocs">{total_count}</span>')
-    
+
     with open(output_path, 'w', encoding='utf-8') as f:
         f.write(html)
-    
-    print(f'  [OK] index.html generated')
+
+    print(f'  [OK] index.html generated (redesign homepage)')
 
 
 def generate_random_articles_v2(index_data):
-    """Redesign cards (rx-card schema) for templates/index-new.html — build-time fallback."""
+    """Redesign cards (rx-card schema) for the homepage — build-time fallback."""
     import random
 
     documents = index_data.get('documents', [])
@@ -288,10 +270,11 @@ def generate_random_articles_v2(index_data):
 
 
 def generate_latest_html(index_data, limit=14):
-    """'الأحدث على الموقع' list for index-new.html (Slide1 NEUES section, no dates).
+    """'الأحدث على الموقع' list for the homepage (NEUES section, no dates).
 
-    Docs carry no publication date; numeric id order (scan order) is the
-    best available recency signal - highest id = most recently added.
+    Sorted by source-file modification time (mtime recorded by convert.py),
+    so re-edited documents resurface as latest. Falls back to numeric id
+    order when mtime is absent (old index.json).
     """
     documents = index_data.get('documents', [])
 
@@ -299,7 +282,14 @@ def generate_latest_html(index_data, limit=14):
         digits = ''.join(c for c in str(doc.get('id', '')) if c.isdigit())
         return int(digits) if digits else -1
 
-    latest = sorted(documents, key=id_num, reverse=True)[:limit]
+    def sort_key(doc):
+        try:
+            mtime = float(doc.get('mtime') or 0)
+        except (TypeError, ValueError):
+            mtime = 0
+        return (mtime, id_num(doc))
+
+    latest = sorted(documents, key=sort_key, reverse=True)[:limit]
     html_parts = []
     for doc in latest:
         title = escape_html(doc.get('title', 'بدون عنوان'))
@@ -310,36 +300,6 @@ def generate_latest_html(index_data, limit=14):
             f'<span class="rx-latest-author">{author}</span></li>'
         )
     return '\n'.join(html_parts)
-
-
-def generate_index_new_html(base_dir, docs_dir, index_data):
-    """Optional dual-version redesign page: templates/index-new.html -> docs/index-new.html.
-    The original index.html build path is completely untouched."""
-    template_path = base_dir / 'templates' / 'index-new.html'
-    if not template_path.exists():
-        print('  [SKIP] templates/index-new.html not found')
-        return
-
-    with open(template_path, 'r', encoding='utf-8') as f:
-        html = f.read()
-
-    html = html.replace('<!-- RANDOM_ARTICLES_PLACEHOLDER -->', generate_random_articles_v2(index_data))
-    html = html.replace('<!-- LATEST_PLACEHOLDER -->', generate_latest_html(index_data))
-
-    total_count = index_data.get('total_count', 0)
-    completed_count = index_data.get('completed_count', 0)
-    author_count = len(index_data.get('authors', {}))
-    html = html.replace('id="totalDocs">0</strong>', f'id="totalDocs">{total_count}</strong>')
-    html = html.replace('id="rxCompletedDocs">0</strong>', f'id="rxCompletedDocs">{completed_count}</strong>')
-    html = html.replace('id="rxAuthorCount">0</strong>', f'id="rxAuthorCount">{author_count}</strong>')
-    # Legacy span form (kept for parity with the original template contract)
-    html = html.replace('id="totalDocs">0</span>', f'id="totalDocs">{total_count}</span>')
-
-    output_path = docs_dir / 'index-new.html'
-    with open(output_path, 'w', encoding='utf-8') as f:
-        f.write(html)
-
-    print('  [OK] index-new.html generated (redesign preview)')
 
 
 # ------------------------------------------------------------------
@@ -1952,10 +1912,6 @@ def main():
     # Ensure index.html loads data file
     if inject_data_script_tag(docs_dir / 'index.html'):
         print(f'  [OK] data script tag added to index.html')
-
-    # Optional dual-version redesign page (original index.html remains untouched)
-    print('\n[BUILD] Generating index-new.html (redesign preview)...')
-    generate_index_new_html(base_dir, docs_dir, visible_index_data)
 
     # Bible book & chapter navigator (bibles.html)
     print('\n[BUILD] Generating bibles.html (book & chapter navigator)...')

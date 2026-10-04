@@ -122,8 +122,7 @@ Your site will be live at: `https://osamasla.github.io/Arabic-Bible-documentary/
 ```
 Arabic-Bible-documentary/
 ├── docs/                    # Generated site (GitHub Pages root — public only)
-│   ├── index.html           # Homepage (original design)
-│   ├── index-new.html       # Redesign preview (Slide1-style, static cards + latest list)
+│   ├── index.html           # Homepage (Slide1-style, static cards + latest list)
 │   ├── translations.html    # Translations landing (3 count cards)
 │   ├── translations-ot.html # Old Testament books category page
 │   ├── translations-nt.html # New Testament books category page
@@ -145,7 +144,7 @@ Arabic-Bible-documentary/
 │   ├── serve.py             # Localhost-only server + token-gated /api/*
 │   └── git_ops.py           # Shared git add/commit/push helper
 ├── templates/
-│   ├── index-new.html       # Redesign homepage template
+│   ├── index.html           # Homepage template (Slide1-style)
 │   ├── translations*.html   # Translations landing + 3 category pages
 │   └── bibles.html          # Book & chapter navigator template
 ├── css/

@@ -28,29 +28,47 @@
             padding: 0;
         }
         .books-list {
-            display: flex;
-            flex-direction: column;
-            background: var(--bg-white);
-            border: 1px solid var(--border-light);
-            border-radius: var(--radius-lg);
-            overflow: hidden;
+            display: grid;
+            grid-template-columns: repeat(6, minmax(0, 1fr));
+            gap: 12px;
+            background: transparent;
+            border: none;
+            border-radius: 0;
+            overflow: visible;
+            min-height: 260px;
+        }
+        @media (max-width: 1024px) {
+            .books-list {
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+            }
+        }
+        @media (max-width: 768px) {
+            .books-list {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+        }
+        @media (max-width: 480px) {
+            .books-list {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
         }
         .book-item {
             display: flex;
+            flex-direction: column;
             align-items: center;
-            justify-content: space-between;
-            gap: 16px;
-            min-height: 64px;
-            padding: 14px 24px;
+            justify-content: center;
+            text-align: center;
+            gap: 10px;
+            min-height: 122px;
+            min-width: 0;
+            padding: 16px 10px;
             background: var(--bg-white);
-            border-top: 1px solid var(--border-light);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-lg);
             color: var(--text-primary);
             text-decoration: none;
             cursor: pointer;
-            transition: background var(--transition-fast);
-        }
-        .books-list > .book-item:first-child {
-            border-top: none;
+            transition: background var(--transition-fast), border-color var(--transition-fast);
         }
         .book-item:hover,
         .book-item.active {
@@ -62,13 +80,17 @@
             outline-offset: -3px;
         }
         .book-item .book-name {
-            font-size: var(--font-size-xl);
+            font-size: var(--font-size-lg);
             font-weight: 700;
+            line-height: 1.7;
+            overflow-wrap: anywhere;
         }
         .book-badges {
             display: flex;
             align-items: center;
-            gap: 14px;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 8px;
             flex-shrink: 0;
         }
         .book-item .book-count {
@@ -98,6 +120,7 @@
         }
         .book-docs {
             display: none;
+            grid-column: 1 / -1;
             background: var(--bg-light);
             border-top: 1px solid var(--border-light);
             border-radius: 0;
@@ -139,9 +162,9 @@
         }
         @media (max-width: 640px) {
             .book-item {
-                min-height: 56px;
-                padding: 12px 16px;
-                gap: 10px;
+                min-height: 108px;
+                padding: 12px 8px;
+                gap: 8px;
             }
             .book-item .book-name {
                 font-size: var(--font-size-lg);
@@ -171,6 +194,28 @@
         }
         .translations-stats .stat-completed {
             color: var(--color-secondary);
+        }
+        /* Unique translucent tint per book card (--book-h set by translations.js) */
+        .books-list .book-item {
+            background: hsl(var(--book-h, 212) 65% 72% / 0.18);
+            border-color: hsl(var(--book-h, 212) 65% 58% / 0.35);
+        }
+        .books-list .book-item:hover,
+        .books-list .book-item.active {
+            background: hsl(var(--book-h, 212) 72% 62% / 0.32);
+            border-color: var(--color-primary);
+        }
+        .books-list .book-item:focus-visible {
+            outline: 3px solid var(--focus-ring);
+            outline-offset: 2px;
+        }
+        [data-theme="dark"] .books-list .book-item {
+            background: hsl(var(--book-h, 212) 60% 55% / 0.25);
+            border-color: hsl(var(--book-h, 212) 60% 55% / 0.4);
+        }
+        [data-theme="dark"] .books-list .book-item:hover,
+        [data-theme="dark"] .books-list .book-item.active {
+            background: hsl(var(--book-h, 212) 65% 48% / 0.38);
         }
     </style>
     <script defer src="js/vendor/umami.js" data-website-id="4bf9e517-428f-466b-a83e-5873974e1e8f"></script>
@@ -206,7 +251,7 @@
                 <div class="nav-item">
                     <a href="index.html" class="nav-link">الرئيسية</a>
                 </div>
-                <div class="nav-item has-mega"><a href="translations.html" class="nav-link active" aria-current="page">الترجمات</a><div class="nav-mega" id="navMega" aria-label="قائمة الترجمات"><div class="mega-inner"><div class="mega-col mega-col-books"><div class="nav-dropdown-section"><button type="button" class="nav-dropdown-toggle" aria-expanded="false" aria-controls="megaGridOt"><span>العهد القديم</span><span class="toggle-mark" aria-hidden="true">[+]</span></button><div class="nav-book-grid" id="megaGridOt"><a href="translations-ot.html#book-takwin"><span class="mega-book-name">التكوين</span><span class="mega-count">3</span></a><a href="translations-ot.html#book-kharuj"><span class="mega-book-name">الخروج</span><span class="mega-count">4</span></a><a href="translations-ot.html#book-lawiyyun"><span class="mega-book-name">اللاويين</span><span class="mega-count">3</span></a><a href="translations-ot.html#book-adad"><span class="mega-book-name">العدد</span><span class="mega-count">1</span></a><a href="translations-ot.html#book-tathniya"><span class="mega-book-name">التثنية</span><span class="mega-count">1</span></a><a href="translations-ot.html#book-yishu"><span class="mega-book-name">يشوع</span><span class="mega-count">3</span></a><a href="translations-ot.html#book-qudah"><span class="mega-book-name">القضاة</span><span class="mega-count">2</span></a><a href="translations-ot.html#book-rauth"><span class="mega-book-name">راعوث</span><span class="mega-count">3</span></a><a href="translations-ot.html#book-samuil-awwal"><span class="mega-book-name">صموئيل الأول</span><span class="mega-count">4</span></a><a href="translations-ot.html#book-samuil-thani"><span class="mega-book-name">صموئيل الثاني</span><span class="mega-count">2</span></a><a href="translations-ot.html#book-muluk-awwal"><span class="mega-book-name">الملوك الأول</span><span class="mega-count">1</span></a><a href="translations-ot.html#book-muluk-thani"><span class="mega-book-name">الملوك الثاني</span><span class="mega-count">2</span></a><a href="translations-ot.html#book-akhbar-ayyam-awwal"><span class="mega-book-name">أخبار الأيام الأول</span></a><a href="translations-ot.html#book-akhbar-ayyam-thani"><span class="mega-book-name">أخبار الأيام الثاني</span><span class="mega-count">1</span></a><a href="translations-ot.html#book-ezra"><span class="mega-book-name">عزرا</span><span class="mega-count">3</span></a><a href="translations-ot.html#book-nahumya"><span class="mega-book-name">نحميا</span><span class="mega-count">4</span></a><a href="translations-ot.html#book-astar"><span class="mega-book-name">أستر</span><span class="mega-count">1</span></a><a href="translations-ot.html#book-ayyub"><span class="mega-book-name">أيوب</span><span class="mega-count">2</span></a><a href="translations-ot.html#book-mazamir"><span class="mega-book-name">المزامير</span><span class="mega-count">14</span></a><a href="translations-ot.html#book-amthal"><span class="mega-book-name">الأمثال</span><span class="mega-count">1</span></a><a href="translations-ot.html#book-jamiya"><span class="mega-book-name">الجامعة</span></a><a href="translations-ot.html#book-nashid"><span class="mega-book-name">نشيد الأنشاد</span><span class="mega-count">5</span></a><a href="translations-ot.html#book-ishaiya"><span class="mega-book-name">إشعياء</span><span class="mega-count">3</span></a><a href="translations-ot.html#book-irmiya"><span class="mega-book-name">إرميا</span><span class="mega-count">2</span></a><a href="translations-ot.html#book-marathi"><span class="mega-book-name">مراثي إرميا</span><span class="mega-count">1</span></a><a href="translations-ot.html#book-hizqiyal"><span class="mega-book-name">حزقيال</span><span class="mega-count">7</span></a><a href="translations-ot.html#book-daniyal"><span class="mega-book-name">دانيال</span><span class="mega-count">5</span></a><a href="translations-ot.html#book-husha"><span class="mega-book-name">هوشع</span><span class="mega-count">2</span></a><a href="translations-ot.html#book-yuil"><span class="mega-book-name">يوئيل</span><span class="mega-count">1</span></a><a href="translations-ot.html#book-amus"><span class="mega-book-name">عاموس</span></a><a href="translations-ot.html#book-ubadiya"><span class="mega-book-name">عوبديا</span><span class="mega-count">4</span></a><a href="translations-ot.html#book-yunan"><span class="mega-book-name">يونان</span><span class="mega-count">1</span></a><a href="translations-ot.html#book-mikha"><span class="mega-book-name">ميخا</span><span class="mega-count">1</span></a><a href="translations-ot.html#book-nahum"><span class="mega-book-name">ناحوم</span><span class="mega-count">2</span></a><a href="translations-ot.html#book-haqquq"><span class="mega-book-name">حبقوق</span><span class="mega-count">1</span></a><a href="translations-ot.html#book-safaniya"><span class="mega-book-name">صفنيا</span><span class="mega-count">2</span></a><a href="translations-ot.html#book-hajjai"><span class="mega-book-name">حجى</span></a><a href="translations-ot.html#book-zakariya"><span class="mega-book-name">زكريا</span><span class="mega-count">4</span></a><a href="translations-ot.html#book-malakhi"><span class="mega-book-name">ملخي</span><span class="mega-count">2</span></a></div></div><div class="nav-dropdown-section"><button type="button" class="nav-dropdown-toggle" aria-expanded="false" aria-controls="megaGridNt"><span>العهد الجديد</span><span class="toggle-mark" aria-hidden="true">[+]</span></button><div class="nav-book-grid" id="megaGridNt"><a href="translations-nt.html#book-matta"><span class="mega-book-name">متى</span><span class="mega-count">10</span></a><a href="translations-nt.html#book-marqus"><span class="mega-book-name">مرقس</span><span class="mega-count">4</span></a><a href="translations-nt.html#book-luqa"><span class="mega-book-name">لوقا</span><span class="mega-count">6</span></a><a href="translations-nt.html#book-yuanna"><span class="mega-book-name">يوحنا</span><span class="mega-count">18</span></a><a href="translations-nt.html#book-aamal-rusul"><span class="mega-book-name">أعمال الرسل</span><span class="mega-count">3</span></a><a href="translations-nt.html#book-rumiyaya"><span class="mega-book-name">رومية</span><span class="mega-count">9</span></a><a href="translations-nt.html#book-kurunthus-awwal"><span class="mega-book-name">كورنثوس الأولى</span><span class="mega-count">2</span></a><a href="translations-nt.html#book-kurunthus-thani"><span class="mega-book-name">كورنثوس الثانية</span></a><a href="translations-nt.html#book-ghalatiya"><span class="mega-book-name">غلاطية</span><span class="mega-count">5</span></a><a href="translations-nt.html#book-afsus"><span class="mega-book-name">أفسس</span><span class="mega-count">2</span></a><a href="translations-nt.html#book-filippi"><span class="mega-book-name">فيلبي</span><span class="mega-count">4</span></a><a href="translations-nt.html#book-kulusi"><span class="mega-book-name">كولوسي</span><span class="mega-count">2</span></a><a href="translations-nt.html#book-tassaluniki-awwal"><span class="mega-book-name">تسالونيكي الأولى</span><span class="mega-count">4</span></a><a href="translations-nt.html#book-tassaluniki-thani"><span class="mega-book-name">تسالونيكي الثانية</span><span class="mega-count">2</span></a><a href="translations-nt.html#book-timuthawus-awwal"><span class="mega-book-name">تيموثاوس الأولى</span><span class="mega-count">3</span></a><a href="translations-nt.html#book-timuthawus-thani"><span class="mega-book-name">تيموثاوس الثانية</span><span class="mega-count">3</span></a><a href="translations-nt.html#book-tits"><span class="mega-book-name">تيطس</span><span class="mega-count">3</span></a><a href="translations-nt.html#book-filemun"><span class="mega-book-name">فليمون</span><span class="mega-count">2</span></a><a href="translations-nt.html#book-ibranin"><span class="mega-book-name">العبرانيين</span><span class="mega-count">11</span></a><a href="translations-nt.html#book-yaqub"><span class="mega-book-name">يعقوب</span><span class="mega-count">6</span></a><a href="translations-nt.html#book-butrus-awwal"><span class="mega-book-name">بطرس الأولى</span><span class="mega-count">6</span></a><a href="translations-nt.html#book-butrus-thani"><span class="mega-book-name">بطرس الثانية</span><span class="mega-count">4</span></a><a href="translations-nt.html#book-yuanna-awwal"><span class="mega-book-name">يوحنا الأولى</span><span class="mega-count">5</span></a><a href="translations-nt.html#book-yuanna-thani"><span class="mega-book-name">يوحنا الثانية</span></a><a href="translations-nt.html#book-yuanna-thalitha"><span class="mega-book-name">يوحنا الثالثة</span></a><a href="translations-nt.html#book-yahuda"><span class="mega-book-name">يهوذا</span><span class="mega-count">5</span></a><a href="translations-nt.html#book-mukashafa"><span class="mega-book-name">المكشوف</span><span class="mega-count">11</span></a></div></div></div><div class="mega-col mega-col-links"><a class="mega-link" href="translations-subjects.html">مواضيع</a><div class="nav-dropdown-divider"></div><a class="mega-link" href="translations.html">كل الترجمات</a><a class="mega-link" href="authors.html">المؤلفون</a><a class="mega-link" href="bibles.html">فهرس الآيات</a></div></div></div></div>
+                <div class="nav-item has-mega"><a href="translations.html" class="nav-link active" aria-current="page">الترجمات</a><div class="nav-mega" id="navMega" aria-label="قائمة الترجمات"><div class="mega-inner"><div class="mega-col mega-col-books"><div class="nav-dropdown-section"><button type="button" class="nav-dropdown-toggle" aria-expanded="false" aria-controls="megaGridOt"><span>العهد القديم</span><span class="toggle-mark" aria-hidden="true">[+]</span></button><div class="nav-book-grid" id="megaGridOt"><a href="translations-ot.html#book-takwin"><span class="mega-book-name">التكوين</span><span class="mega-count">3</span></a><a href="translations-ot.html#book-kharuj"><span class="mega-book-name">الخروج</span><span class="mega-count">4</span></a><a href="translations-ot.html#book-lawiyyun"><span class="mega-book-name">اللاويين</span><span class="mega-count">3</span></a><a href="translations-ot.html#book-adad"><span class="mega-book-name">العدد</span><span class="mega-count">1</span></a><a href="translations-ot.html#book-tathniya"><span class="mega-book-name">التثنية</span><span class="mega-count">1</span></a><a href="translations-ot.html#book-yishu"><span class="mega-book-name">يشوع</span><span class="mega-count">3</span></a><a href="translations-ot.html#book-qudah"><span class="mega-book-name">القضاة</span><span class="mega-count">2</span></a><a href="translations-ot.html#book-rauth"><span class="mega-book-name">راعوث</span><span class="mega-count">3</span></a><a href="translations-ot.html#book-samuil-awwal"><span class="mega-book-name">صموئيل الأول</span><span class="mega-count">4</span></a><a href="translations-ot.html#book-samuil-thani"><span class="mega-book-name">صموئيل الثاني</span><span class="mega-count">2</span></a><a href="translations-ot.html#book-muluk-awwal"><span class="mega-book-name">الملوك الأول</span><span class="mega-count">1</span></a><a href="translations-ot.html#book-muluk-thani"><span class="mega-book-name">الملوك الثاني</span><span class="mega-count">2</span></a><a href="translations-ot.html#book-akhbar-ayyam-awwal"><span class="mega-book-name">أخبار الأيام الأول</span></a><a href="translations-ot.html#book-akhbar-ayyam-thani"><span class="mega-book-name">أخبار الأيام الثاني</span><span class="mega-count">1</span></a><a href="translations-ot.html#book-ezra"><span class="mega-book-name">عزرا</span><span class="mega-count">3</span></a><a href="translations-ot.html#book-nahumya"><span class="mega-book-name">نحميا</span><span class="mega-count">4</span></a><a href="translations-ot.html#book-astar"><span class="mega-book-name">أستير</span><span class="mega-count">1</span></a><a href="translations-ot.html#book-ayyub"><span class="mega-book-name">أيوب</span><span class="mega-count">2</span></a><a href="translations-ot.html#book-mazamir"><span class="mega-book-name">المزامير</span><span class="mega-count">14</span></a><a href="translations-ot.html#book-amthal"><span class="mega-book-name">الأمثال</span><span class="mega-count">1</span></a><a href="translations-ot.html#book-jamiya"><span class="mega-book-name">الجامعة</span></a><a href="translations-ot.html#book-nashid"><span class="mega-book-name">نشيد الأنشاد</span><span class="mega-count">5</span></a><a href="translations-ot.html#book-ishaiya"><span class="mega-book-name">إشعياء</span><span class="mega-count">3</span></a><a href="translations-ot.html#book-irmiya"><span class="mega-book-name">إرميا</span><span class="mega-count">2</span></a><a href="translations-ot.html#book-marathi"><span class="mega-book-name">مراثي إرميا</span><span class="mega-count">1</span></a><a href="translations-ot.html#book-hizqiyal"><span class="mega-book-name">حزقيال</span><span class="mega-count">7</span></a><a href="translations-ot.html#book-daniyal"><span class="mega-book-name">دانيال</span><span class="mega-count">5</span></a><a href="translations-ot.html#book-husha"><span class="mega-book-name">هوشع</span><span class="mega-count">2</span></a><a href="translations-ot.html#book-yuil"><span class="mega-book-name">يوئيل</span><span class="mega-count">1</span></a><a href="translations-ot.html#book-amus"><span class="mega-book-name">عاموس</span></a><a href="translations-ot.html#book-ubadiya"><span class="mega-book-name">عوبديا</span><span class="mega-count">4</span></a><a href="translations-ot.html#book-yunan"><span class="mega-book-name">يونان</span><span class="mega-count">1</span></a><a href="translations-ot.html#book-mikha"><span class="mega-book-name">ميخا</span><span class="mega-count">1</span></a><a href="translations-ot.html#book-nahum"><span class="mega-book-name">ناحوم</span><span class="mega-count">2</span></a><a href="translations-ot.html#book-haqquq"><span class="mega-book-name">حبقوق</span><span class="mega-count">1</span></a><a href="translations-ot.html#book-safaniya"><span class="mega-book-name">صفنيا</span><span class="mega-count">2</span></a><a href="translations-ot.html#book-hajjai"><span class="mega-book-name">حجى</span></a><a href="translations-ot.html#book-zakariya"><span class="mega-book-name">زكريا</span><span class="mega-count">4</span></a><a href="translations-ot.html#book-malakhi"><span class="mega-book-name">ملاخي</span><span class="mega-count">4</span></a></div></div><div class="nav-dropdown-section"><button type="button" class="nav-dropdown-toggle" aria-expanded="false" aria-controls="megaGridNt"><span>العهد الجديد</span><span class="toggle-mark" aria-hidden="true">[+]</span></button><div class="nav-book-grid" id="megaGridNt"><a href="translations-nt.html#book-matta"><span class="mega-book-name">متى</span><span class="mega-count">10</span></a><a href="translations-nt.html#book-marqus"><span class="mega-book-name">مرقس</span><span class="mega-count">4</span></a><a href="translations-nt.html#book-luqa"><span class="mega-book-name">لوقا</span><span class="mega-count">6</span></a><a href="translations-nt.html#book-yuanna"><span class="mega-book-name">يوحنا</span><span class="mega-count">19</span></a><a href="translations-nt.html#book-aamal-rusul"><span class="mega-book-name">أعمال الرسل</span><span class="mega-count">3</span></a><a href="translations-nt.html#book-rumiyaya"><span class="mega-book-name">رومية</span><span class="mega-count">9</span></a><a href="translations-nt.html#book-kurunthus-awwal"><span class="mega-book-name">كورنثوس الأولى</span><span class="mega-count">2</span></a><a href="translations-nt.html#book-kurunthus-thani"><span class="mega-book-name">كورنثوس الثانية</span></a><a href="translations-nt.html#book-ghalatiya"><span class="mega-book-name">غلاطية</span><span class="mega-count">5</span></a><a href="translations-nt.html#book-afsus"><span class="mega-book-name">أفسس</span><span class="mega-count">2</span></a><a href="translations-nt.html#book-filippi"><span class="mega-book-name">فيلبي</span><span class="mega-count">4</span></a><a href="translations-nt.html#book-kulusi"><span class="mega-book-name">كولوسي</span><span class="mega-count">2</span></a><a href="translations-nt.html#book-tassaluniki-awwal"><span class="mega-book-name">تسالونيكي الأولى</span><span class="mega-count">4</span></a><a href="translations-nt.html#book-tassaluniki-thani"><span class="mega-book-name">تسالونيكي الثانية</span><span class="mega-count">2</span></a><a href="translations-nt.html#book-timuthawus-awwal"><span class="mega-book-name">تيموثاوس الأولى</span><span class="mega-count">3</span></a><a href="translations-nt.html#book-timuthawus-thani"><span class="mega-book-name">تيموثاوس الثانية</span><span class="mega-count">3</span></a><a href="translations-nt.html#book-tits"><span class="mega-book-name">تيطس</span><span class="mega-count">3</span></a><a href="translations-nt.html#book-filemun"><span class="mega-book-name">فليمون</span><span class="mega-count">2</span></a><a href="translations-nt.html#book-ibranin"><span class="mega-book-name">العبرانيين</span><span class="mega-count">11</span></a><a href="translations-nt.html#book-yaqub"><span class="mega-book-name">يعقوب</span><span class="mega-count">6</span></a><a href="translations-nt.html#book-butrus-awwal"><span class="mega-book-name">بطرس الأولى</span><span class="mega-count">6</span></a><a href="translations-nt.html#book-butrus-thani"><span class="mega-book-name">بطرس الثانية</span><span class="mega-count">4</span></a><a href="translations-nt.html#book-yuanna-awwal"><span class="mega-book-name">يوحنا الأولى</span><span class="mega-count">5</span></a><a href="translations-nt.html#book-yuanna-thani"><span class="mega-book-name">يوحنا الثانية</span></a><a href="translations-nt.html#book-yuanna-thalitha"><span class="mega-book-name">يوحنا الثالثة</span></a><a href="translations-nt.html#book-yahuda"><span class="mega-book-name">يهوذا</span><span class="mega-count">5</span></a><a href="translations-nt.html#book-mukashafa"><span class="mega-book-name">سفر الرؤيا</span><span class="mega-count">11</span></a></div></div></div><div class="mega-col mega-col-links"><a class="mega-link" href="translations-subjects.html">مواضيع</a><div class="nav-dropdown-divider"></div><a class="mega-link" href="translations.html">كل الترجمات</a><a class="mega-link" href="authors.html">المؤلفون</a><a class="mega-link" href="bibles.html">فهرس الآيات</a></div></div></div></div>
                 <div class="nav-item">
                     <a href="authors.html" class="nav-link">المؤلفون</a>
                 </div>

@@ -28,29 +28,47 @@
             padding: 0;
         }
         .books-list {
-            display: flex;
-            flex-direction: column;
-            background: var(--bg-white);
-            border: 1px solid var(--border-light);
-            border-radius: var(--radius-lg);
-            overflow: hidden;
+            display: grid;
+            grid-template-columns: repeat(6, minmax(0, 1fr));
+            gap: 12px;
+            background: transparent;
+            border: none;
+            border-radius: 0;
+            overflow: visible;
+            min-height: 260px;
+        }
+        @media (max-width: 1024px) {
+            .books-list {
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+            }
+        }
+        @media (max-width: 768px) {
+            .books-list {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+        }
+        @media (max-width: 480px) {
+            .books-list {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
         }
         .book-item {
             display: flex;
+            flex-direction: column;
             align-items: center;
-            justify-content: space-between;
-            gap: 16px;
-            min-height: 64px;
-            padding: 14px 24px;
+            justify-content: center;
+            text-align: center;
+            gap: 10px;
+            min-height: 122px;
+            min-width: 0;
+            padding: 16px 10px;
             background: var(--bg-white);
-            border-top: 1px solid var(--border-light);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-lg);
             color: var(--text-primary);
             text-decoration: none;
             cursor: pointer;
-            transition: background var(--transition-fast);
-        }
-        .books-list > .book-item:first-child {
-            border-top: none;
+            transition: background var(--transition-fast), border-color var(--transition-fast);
         }
         .book-item:hover,
         .book-item.active {
@@ -62,13 +80,17 @@
             outline-offset: -3px;
         }
         .book-item .book-name {
-            font-size: var(--font-size-xl);
+            font-size: var(--font-size-lg);
             font-weight: 700;
+            line-height: 1.7;
+            overflow-wrap: anywhere;
         }
         .book-badges {
             display: flex;
             align-items: center;
-            gap: 14px;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 8px;
             flex-shrink: 0;
         }
         .book-item .book-count {
@@ -98,6 +120,7 @@
         }
         .book-docs {
             display: none;
+            grid-column: 1 / -1;
             background: var(--bg-light);
             border-top: 1px solid var(--border-light);
             border-radius: 0;
@@ -139,9 +162,9 @@
         }
         @media (max-width: 640px) {
             .book-item {
-                min-height: 56px;
-                padding: 12px 16px;
-                gap: 10px;
+                min-height: 108px;
+                padding: 12px 8px;
+                gap: 8px;
             }
             .book-item .book-name {
                 font-size: var(--font-size-lg);
@@ -171,6 +194,28 @@
         }
         .translations-stats .stat-completed {
             color: var(--color-secondary);
+        }
+        /* Unique translucent tint per book card (--book-h set by translations.js) */
+        .books-list .book-item {
+            background: hsl(var(--book-h, 212) 65% 72% / 0.18);
+            border-color: hsl(var(--book-h, 212) 65% 58% / 0.35);
+        }
+        .books-list .book-item:hover,
+        .books-list .book-item.active {
+            background: hsl(var(--book-h, 212) 72% 62% / 0.32);
+            border-color: var(--color-primary);
+        }
+        .books-list .book-item:focus-visible {
+            outline: 3px solid var(--focus-ring);
+            outline-offset: 2px;
+        }
+        [data-theme="dark"] .books-list .book-item {
+            background: hsl(var(--book-h, 212) 60% 55% / 0.25);
+            border-color: hsl(var(--book-h, 212) 60% 55% / 0.4);
+        }
+        [data-theme="dark"] .books-list .book-item:hover,
+        [data-theme="dark"] .books-list .book-item.active {
+            background: hsl(var(--book-h, 212) 65% 48% / 0.38);
         }
     </style>
     <script defer src="js/vendor/umami.js" data-website-id="4bf9e517-428f-466b-a83e-5873974e1e8f"></script>

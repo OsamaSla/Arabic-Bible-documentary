@@ -3,138 +3,202 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="ترجمات عربية لتعليقات الكتاب المقدس">
+    <meta name="description" content="مكتبة مجانية من 774 ترجمة وتعليقا عربيا للكتاب المقدس. تصفح تفاسير موثوقة لكل سفر وإصحاح، وقراءتها أو تحميلها مجانا.">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://gateway.umami.is; object-src 'none'; base-uri 'self'; form-action 'self'">
-    <title>ترجمات تعليقات الكتاب المقدس</title>
+
+    <link rel="canonical" href="index.html">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="ترجمات تعليقات الكتاب المقدس — تعليقات ومقالات عربية مجانية">
+    <meta property="og:description" content="مكتبة مجانية من 774 ترجمة وتعليقا عربيا للكتاب المقدس. تصفح تفاسير موثوقة لكل سفر وإصحاح، وقراءتها أو تحميلها مجانا.">
+    <meta property="og:url" content="https://osamasla.github.io/Arabic-Bible-documentary/index.html">
+    <meta property="og:image" content="https://osamasla.github.io/Arabic-Bible-documentary/assets/og-image.svg">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="ترجمات تعليقات الكتاب المقدس — تعليقات ومقالات عربية مجانية">
+    <meta name="twitter:description" content="مكتبة مجانية من 774 ترجمة وتعليقا عربيا للكتاب المقدس. تصفح تفاسير موثوقة لكل سفر وإصحاح، وقراءتها أو تحميلها مجانا.">
+    <meta name="twitter:image" content="https://osamasla.github.io/Arabic-Bible-documentary/assets/og-image.svg">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "ترجمات تعليقات الكتاب المقدس",
+      "url": "https://osamasla.github.io/Arabic-Bible-documentary/",
+      "description": "مكتبة مجانية من 774 ترجمة وتعليقا عربيا للكتاب المقدس. تصفح تفاسير موثوقة لكل سفر وإصحاح، وقراءتها أو تحميلها مجانا.",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://osamasla.github.io/Arabic-Bible-documentary/search.html?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+    <title>ترجمات تعليقات الكتاب المقدس — تعليقات ومقالات عربية مجانية</title>
     <link rel="stylesheet" href="css/fonts.css">
     <link rel="stylesheet" href="css/style.css">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✝</text></svg>">
     <script src="js/theme-init.js"></script>
     <script defer src="js/vendor/umami.js" data-website-id="4bf9e517-428f-466b-a83e-5873974e1e8f"></script>
 </head>
-<body>
+<body class="page-redesign">
     <a class="skip-link" href="#main-content">تخطي إلى المحتوى الرئيسي</a>
-    <header class="site-header">
-        <div class="header-top">
-            <div class="container">
-                <a href="index.html" class="logo">
-                    <span class="cross">&#10013;</span>
-                    <span class="logo-text">ترجمات تعليقات الكتاب المقدس</span>
-                </a>
-                <div class="header-search">
-                    <input type="text" id="searchInput" placeholder="ابحث..." autocomplete="off">
-                    <span class="search-icon-btn">&#128269;</span>
-                    <div class="search-results" id="searchResults"></div>
-                </div>
-                <div class="search-toggle" id="searchToggle">&#128269;</div>
-                <div class="header-actions">
-                    <button type="button" class="theme-toggle" id="themeToggle" aria-pressed="false" aria-label="تبديل المظهر">
-                        <span class="theme-icon-moon" aria-hidden="true">&#9790;</span>
-                        <span class="theme-icon-sun" aria-hidden="true">&#9728;</span>
-                    </button>
-                </div>
-                <div class="nav-toggle" id="navToggle">
-                    <span class="nav-toggle-open">&#9776;</span>
-                    <span class="nav-toggle-close">&times;</span>
-                </div>
+
+    <!-- ======================= Sticky header ======================= -->
+    <header class="rx-header">
+        <div class="rx-header-bar">
+            <a href="index.html" class="rx-brand">
+                <span class="rx-cross" aria-hidden="true">&#10013;</span>
+                <span class="rx-brand-text">
+                    <span class="rx-brand-title">ترجمات تعليقات الكتاب المقدس</span>
+                    <span class="rx-brand-tagline">دراسة متعمقة لكلمة الله وفقاً لمؤلفين موثوقين</span>
+                </span>
+            </a>
+
+            <div class="rx-search" data-rx-search>
+                <label class="visually-hidden" for="searchInput">ابحث في التعليقات والمؤلفين</label>
+    <input type="text" id="searchInput" class="rx-search-input" placeholder="ابحث في التعليقات والمؤلفين..." autocomplete="off">
+                <span class="rx-search-icon" aria-hidden="true">&#128269;</span>
+                <div class="search-results" id="searchResults"></div>
+            </div>
+
+            <div class="rx-header-actions">
+                <button type="button" class="rx-icon-btn" id="themeToggle" aria-pressed="false" aria-label="تبديل المظهر">
+                    <span class="rx-icon-moon" aria-hidden="true">&#9790;</span>
+                    <span class="rx-icon-sun" aria-hidden="true">&#9728;</span>
+                </button>
+                <button type="button" class="rx-icon-btn rx-search-toggle" id="searchToggle" aria-label="فتح البحث" aria-expanded="false" aria-controls="rx-search">
+                    <span aria-hidden="true">&#128269;</span>
+                </button>
+                <button type="button" class="rx-icon-btn rx-nav-toggle" id="navToggle" aria-label="القائمة" aria-expanded="false" aria-controls="navBar">
+                    <span class="nav-toggle-open" aria-hidden="true">&#9776;</span>
+                    <span class="nav-toggle-close" aria-hidden="true">&times;</span>
+                </button>
             </div>
         </div>
-        <nav class="nav-bar" id="navBar">
-            <div class="container">
-                <div class="nav-item">
-                    <a href="index.html" class="nav-link">الرئيسية</a>
-                </div>
-                <div class="nav-item">
-                    <a href="translations.html" class="nav-link">الترجمات</a>
-                </div>
-                <div class="nav-item">
-                    <a href="authors.html" class="nav-link">المؤلفون</a>
-                </div>
+
+        <nav class="rx-nav" id="navBar" aria-label="التنقل الرئيسي">
+            <div class="rx-nav-inner">
+                <a href="index.html" class="rx-nav-link active" aria-current="page">الرئيسية</a>
+                <a href="bibles.html" class="rx-nav-link">الكتاب المقدس</a>
+                <!-- MEGA_RX prefix="" -->
+                <a href="authors.html" class="rx-nav-link">المؤلفون</a>
             </div>
         </nav>
     </header>
 
-    <main id="main-content">
-        <section class="welcome container">
-            <div>
-                <p class="eyebrow">دراسة الكتاب المقدس. فهم السياق.</p>
-                <h1>تعليقات ومقالات الكتاب المقدس</h1>
-                <p class="intro">تجد هنا مجموعة شاملة من التعليقات والمقالات والمقالات المفيدة حول الكتاب المقدس لفهم كلمة الله بشكل أعمق.</p>
+    <!-- ======================= Quick lookup ======================= -->
+    <section class="rx-lookup" aria-label="استعراض سريع حسب السفر">
+        <form class="rx-lookup-inner" id="rxLookup" novalidate>
+            <span class="rx-lookup-label"><span aria-hidden="true">&#128214;</span> استعراض سريع حسب السفر:</span>
+            <div class="rx-lookup-fields">
+                <label class="visually-hidden" for="rxTestament">العهد</label>
+                <select id="rxTestament" class="rx-select">
+                    <option value="nt" selected>العهد الجديد</option>
+                    <option value="ot">العهد القديم</option>
+                    <option value="topics">مواضيع أخرى</option>
+                </select>
+                <label class="visually-hidden" for="rxBook">السفر</label>
+                <select id="rxBook" class="rx-select" required>
+                    <option value="">— اختر سفراً —</option>
+                </select>
+                <label class="visually-hidden" for="rxChapter">الإصحاح</label>
+                <input type="number" id="rxChapter" class="rx-chapter-input" min="1" max="150" inputmode="numeric" placeholder="إصحاح" dir="ltr">
+                <button type="submit" class="rx-btn rx-btn-primary" id="rxLookupBtn">استعراض</button>
             </div>
-        </section>
+        </form>
+    </section>
 
-        <section class="container two-column">
-            <div class="main-column">
-                <div class="section-title-row">
-                    <h2>مقالات منتخبة</h2>
+    <!-- ======================= Welcome banner ======================= -->
+    <section class="rx-welcome">
+        <div class="rx-welcome-inner">
+            <p class="rx-eyebrow">دراسة الكتاب المقدس. فهم السياق.</p>
+            <h1>تعليقات ومقالات الكتاب المقدس</h1>
+            <p class="rx-welcome-intro">تجد هنا مجموعة شاملة من التعليقات والمقالات المفيدة حول الكتاب المقدس، منقولة عن مؤلفين موثوقين، لفهم كلمة الله بشكل أعمق وأدق.</p>
+        </div>
+    </section>
+
+    <!-- ======================= Main content ======================= -->
+    <main id="main-content" class="rx-main">
+        <section id="articles" class="rx-panel" aria-labelledby="rxArticlesTitle">
+            <div class="rx-panel-head">
+                <div>
+                    <span class="rx-eyebrow">مكتبة الدراسات</span>
+                    <h2 id="rxArticlesTitle">مقالات وتفسيرات مختارة</h2>
+                    <p class="rx-panel-desc">تصفح مجموعة منتقاة من التعليقات الروحية والتفاسير لفهم كلمة الله بدقة وتعمق.</p>
                 </div>
-                <div id="randomArticles" class="articles-grid">
-                    <!-- RANDOM_ARTICLES_PLACEHOLDER -->
+                <div>
+                    <label class="visually-hidden" for="rxFilter">ابحث في العناوين</label>
+                    <input type="text" id="rxFilter" class="rx-filter-input" placeholder="ابحث في العناوين...">
                 </div>
             </div>
-
-            <aside class="sidebar">
-                <div class="sidebar-section">
-                    <h3>آخر التحديثات</h3>
-                    <div class="recent-updates" id="recentUpdates">
-                        <ul><li>جاري التحديث...</li></ul>
-                    </div>
-                </div>
-                <div class="sidebar-section">
-                    <h3>النشرة البريدية</h3>
-                    <form class="newsletter-form" id="newsletterForm">
-                        <input type="email" placeholder="بريدك الإلكتروني" dir="ltr">
-                        <button type="submit">اشترك</button>
-                    </form>
-                </div>
-            </aside>
-        </section>
-
-        <section class="about-strip">
-            <div class="container about-inner">
-                <div>
-                    <span class="large-mark">&#10013;</span>
-                </div>
-                <div>
-                    <p class="eyebrow light">حول هذا الموقع</p>
-                    <h2>الكتاب المقدس في المقام الأول</h2>
-                    <p>هدفنا هو تعزيز فهم الكتاب المقدس. النصوص من مؤلفين موثوقين تساعد في دراسة كلمة الله بشكل شامل ومترابط.</p>
-                    <button type="button" data-href="authors.html">المؤلفون ←</button>
-                </div>
+            <div id="articlesGrid" class="rx-grid" data-source="static">
+                <!-- RANDOM_ARTICLES_PLACEHOLDER -->
             </div>
         </section>
     </main>
 
-    <footer class="site-footer">
-        <div class="container footer-grid">
-            <div class="footer-brand">
-                <p>تعليقات ومقالات الكتاب المقدس - للقراءة والدراسة والتنزيل مجاناً.</p>
+    <!-- ======================= Latest articles ======================= -->
+    <section id="latestSection" class="rx-latest" aria-labelledby="rxLatestTitle">
+        <div class="rx-latest-head">
+            <span class="rx-eyebrow">مكتبة التعليقات</span>
+            <h2 id="rxLatestTitle">الأحدث على الموقع</h2>
+        </div>
+        <ul class="rx-latest-list">
+            <!-- LATEST_PLACEHOLDER -->
+        </ul>
+    </section>
+
+    <!-- ======================= Footer ======================= -->
+    <footer class="rx-footer">
+        <div class="rx-footer-stats rx-welcome-stats" aria-label="إحصاءات الموقع">
+            <span class="rx-stat-chip">إجمالي المستندات: <strong id="totalDocs">0</strong></span>
+            <span class="rx-stat-chip">مكتملة: <strong id="rxCompletedDocs">0</strong></span>
+            <span class="rx-stat-chip">المؤلفون: <strong id="rxAuthorCount">0</strong></span>
+        </div>
+        <div class="rx-footer-grid">
+            <div class="rx-footer-brand">
+                <span class="rx-footer-logo"><span class="rx-cross" aria-hidden="true">&#10013;</span> تعليقات الكتاب المقدس</span>
+                <p>للقراءة والدراسة والتنزيل مجاناً. نقدم مراجع كتابية أصيلة وموثوقة لدراسة الكلمة المقدسة.</p>
             </div>
             <div>
-                <h3>المحتوى</h3>
-                <button type="button" data-href="index.html">الرئيسية</button>
-                <button type="button" data-href="translations.html">الترجمات</button>
-                <button type="button" data-href="authors.html">المؤلفون</button>
+                <h3>روابط سريعة</h3>
+                <ul>
+                    <li><a href="index.html">الرئيسية</a></li>
+                    <li><a href="bibles.html">فهرس الكتب والفصول</a></li>
+                    <li><a href="translations.html">الترجمات</a></li>
+                    <li><a href="authors.html">قائمة المؤلفين</a></li>
+                </ul>
             </div>
             <div>
-                <h3>الخدمات</h3>
-                <button type="button">آخر التحديثات</button>
-                <button type="button" data-action="newsletter-focus">النشرة البريدية</button>
-                <button type="button">التحميل</button>
-                <button type="button">اتصل بنا</button>
+                <h3>المساعدة والدعم</h3>
+                <ul>
+                    <li><span class="rx-footer-inactive" aria-disabled="true">اتصل بنا</span></li>
+                    <li><a href="index.html#latestSection">الأحدث على الموقع</a></li>
+                </ul>
             </div>
             <div>
-                <h3>حول</h3>
-                <button type="button">ملاحظات</button>
-                <button type="button">الشروط</button>
-                <button type="button">الخصوصية</button>
+                <h3>اللغة والمظهر</h3>
+                <p>يمكنك التبديل بين الوضع الفاتح والداكن باستخدام الزر في أعلى الصفحة.</p>
             </div>
         </div>
-        <div class="footer-bottom container">
-            <span>© 2024 - 2026 ترجمات تعليقات الكتاب المقدس</span>
-            <span>العربية</span>
+        <div class="rx-footer-bottom">
+            <span>© 2024 - 2026 جميع الحقوق محفوظة لترجمات تعليقات الكتاب المقدس</span>
         </div>
     </footer>
+
+    <!-- ======================= Preview modal ======================= -->
+    <div class="rx-modal" id="rxModal" role="dialog" aria-modal="true" aria-labelledby="rxModalTitle" aria-hidden="true">
+        <div class="rx-modal-card">
+            <button type="button" class="rx-modal-close" data-rx-close aria-label="إغلاق">&times;</button>
+            <span class="rx-modal-author" id="rxModalAuthor"></span>
+            <h2 id="rxModalTitle"></h2>
+            <div class="rx-modal-body" id="rxModalBody"></div>
+            <div class="rx-modal-actions">
+                <a class="rx-btn rx-btn-primary" id="rxModalOpen" href="#">فتح المقال</a>
+                <button type="button" class="rx-btn rx-btn-ghost" data-rx-close>إغلاق</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================= Toast ======================= -->
+    <div class="rx-toast" id="rxToast" role="status" aria-live="polite"></div>
 
     <script src="js/data-visible.js"></script>
     <script src="js/dom.js"></script>

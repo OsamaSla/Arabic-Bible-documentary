@@ -267,6 +267,25 @@
     border-bottom: 1px solid var(--border-light);
 }
 
+/* Share button: same .btn sizing, explicit touch target + width reserve (no CLS on "تم النسخ ✓") */
+.btn-share {
+    background: var(--bg-light);
+    color: var(--text-primary);
+    border: 1px solid var(--border-medium);
+    min-height: 44px;
+    min-width: 140px;
+    justify-content: center;
+}
+
+.btn-share:hover {
+    background: var(--border-light);
+}
+
+.btn-share:focus-visible {
+    outline: 3px solid var(--focus-ring, #c5a03f);
+    outline-offset: 2px;
+}
+
 /* Document footer */
 /* (unified .document-footer lives in css/style.css) */
 

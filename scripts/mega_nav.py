@@ -4,7 +4,7 @@ Markers embedded by templates / page generators are replaced at build time:
 
     <!-- MEGA_BAR prefix="" active="1" -->      (classic .nav-bar pages)
     <!-- MEGA_MAIN prefix="../" -->             (.main-nav: doc & author pages)
-    <!-- MEGA_RX prefix="" -->                  (index-new rx-nav)
+    <!-- MEGA_RX prefix="" -->                  (homepage rx-nav)
 
 The panel content is fully static (build-time counts) - no client data
 fetch, no CLS (absolute overlay), strict CSP compliant.
