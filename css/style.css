@@ -4055,6 +4055,74 @@ body.page-redesign .search-result-more {
     min-height: 46px;
 }
 
+/* Preview-card action line: page count + PDF + share between the
+   quick-preview button and the read-more link. Muted, compact,
+   wraps gracefully on narrow screens; no layout shift. */
+.rx-card-meta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 4px 10px;
+    margin-inline: auto;
+    min-width: 0;
+}
+
+.rx-meta-pages {
+    font-size: 12px;
+    color: var(--rx-muted);
+    white-space: nowrap;
+}
+
+.rx-meta-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    min-height: 28px;
+    padding: 2px 8px;
+    border: 1px solid var(--rx-border);
+    border-radius: 14px;
+    background: transparent;
+    color: var(--rx-muted);
+    font-family: var(--font-arabic);
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+a.rx-meta-btn:hover,
+button.rx-meta-btn:hover {
+    color: var(--rx-link-hover);
+    border-color: var(--rx-link-hover);
+}
+
+.rx-meta-btn:focus-visible,
+.rx-preview-btn:focus-visible,
+.rx-read-link:focus-visible {
+    outline: 2px solid var(--rx-accent, #c9a227);
+    outline-offset: 2px;
+}
+
+.rx-meta-btn svg {
+    width: 1em;
+    height: 1em;
+    fill: currentColor;
+    vertical-align: -0.12em;
+}
+
+@media (max-width: 480px) {
+    .rx-meta-btn .rx-meta-label {
+        display: none;
+    }
+
+    .rx-meta-btn {
+        padding: 2px 7px;
+        font-size: 13px;
+    }
+}
+
 .rx-card-date {
     font-size: 12px;
     color: var(--rx-muted);
@@ -4574,66 +4642,7 @@ body.page-redesign .rx-brand:hover .rx-brand-title {
    Scroll to Top
    ======================================== */
 
-.scroll-top {
-    position: fixed;
-    bottom: 24px;
-    inset-inline-end: 24px;
-    width: 48px;
-    height: 48px;
-    padding: 0;
-    border: none;
-    border-radius: 50%;
-    background: var(--color-primary);
-    color: var(--text-light);
-    font-family: var(--font-arabic);
-    font-size: 24px;
-    line-height: 48px;
-    text-align: center;
-    cursor: pointer;
-    box-shadow: var(--shadow-md);
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(12px);
-    transition: opacity var(--transition-fast), transform var(--transition-fast),
-        visibility var(--transition-fast), background var(--transition-fast);
-    z-index: 900;
-}
-
-.scroll-top.is-visible {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0);
-}
-
-.scroll-top:hover {
-    background: var(--color-primary-dark);
-}
-
-.scroll-top:focus-visible {
-    outline: 3px solid var(--focus-ring);
-    outline-offset: 2px;
-}
-
-[data-theme="dark"] .scroll-top {
-    background: var(--color-primary-light);
-    color: #fff;
-}
-
-@media (max-width: 600px) {
-    .scroll-top {
-        bottom: 16px;
-        inset-inline-end: 16px;
-        width: 44px;
-        height: 44px;
-        line-height: 44px;
-    }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .scroll-top {
-        transition: none;
-    }
-}
+/* (Floating .scroll-top removed: ruler الأعلى button covers it.) */
 
 /* ---- Search results page (search.html) ---- */
 .search-page-form {
@@ -4725,4 +4734,84 @@ body.page-redesign .rx-brand:hover .rx-brand-title {
 .search-result-all .search-result-title {
     color: var(--color-primary);
     font-weight: 700;
+}
+
+/* ============================================================
+   Homepage minimal utility bar (replaces the old multi-column
+   .rx-footer on index.html only). Quiet, single row, non-sticky.
+   ============================================================ */
+
+.rx-footbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    min-height: 48px;
+    padding: 8px 1rem;
+    background: transparent;
+    border-top: 1px solid #e0e0e0;
+}
+
+.rx-footbar-title {
+    font-size: 0.85rem;
+    font-weight: 400;
+    color: #666;
+    margin: 0;
+    white-space: nowrap;
+}
+
+.rx-footbar-links {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.rx-footbar-links a {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    min-height: 28px;
+    padding: 6px 10px;
+    border: 1px solid transparent;
+    border-radius: 14px;
+    color: var(--rx-muted, #666);
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.rx-footbar-links a:hover {
+    color: var(--rx-link-hover);
+    background: rgba(0, 0, 0, 0.04);
+}
+
+.rx-footbar-links a:focus-visible {
+    outline: 2px solid var(--rx-accent, #c9a227);
+    outline-offset: 2px;
+}
+
+[data-theme="dark"] .rx-footbar {
+    border-top-color: var(--rx-border, #3a3a44);
+}
+
+[data-theme="dark"] .rx-footbar-title {
+    color: #9a968b;
+}
+
+[data-theme="dark"] .rx-footbar-links a:hover {
+    background: rgba(255, 255, 255, 0.07);
+}
+
+@media (max-width: 480px) {
+    .rx-footbar .rx-footbar-label {
+        display: none;
+    }
+
+    .rx-footbar-links a {
+        padding: 6px 7px;
+        font-size: 13px;
+    }
 }

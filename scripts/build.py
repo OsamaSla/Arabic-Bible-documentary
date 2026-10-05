@@ -223,6 +223,34 @@ def generate_index_html(base_dir, docs_dir, index_data):
     print(f'  [OK] index.html generated (redesign homepage)')
 
 
+
+
+def render_rx_card_meta(doc, path, title):
+    """Middle action line for preview cards: page count (only when known),
+    PDF (article print view) and share. Shared by server + JS renderers."""
+    parts = ['<div class="rx-card-meta">']
+    page_count = doc.get('page_count') if isinstance(doc, dict) else None
+    try:
+        page_count = int(page_count) if page_count is not None else 0
+    except (TypeError, ValueError):
+        page_count = 0
+    if page_count > 0:
+        parts.append(
+            f'<span class="rx-meta-pages">عدد الصفحات: {page_count}</span>')
+    parts.append(
+        f'<a class="rx-meta-btn" href="{path}?print=1" target="_blank" rel="noopener"'
+        f' aria-label="عرض المقال كملف PDF">'
+        f'<span aria-hidden="true">🖨</span>'
+        f'<span class="rx-meta-label">PDF</span></a>')
+    parts.append(
+        f'<button type="button" class="rx-meta-btn" data-action="share"'
+        f' data-share-title="{title}" data-share-url="{path}"'
+        f' aria-label="مشاركة المقال">'
+        f'<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/></svg>'
+        f'<span class="rx-meta-label">مشاركة</span></button>')
+    parts.append('</div>')
+    return ''.join(parts)
+
 def generate_random_articles_v2(index_data):
     """Redesign cards (rx-card schema) for the homepage — build-time fallback."""
     import random
@@ -261,6 +289,7 @@ def generate_random_articles_v2(index_data):
             f' data-rx-title="{title}" data-rx-author="{author}"'
             f' data-rx-desc="{desc_full}" data-rx-path="{path}">معاينة سريعة</button>'
         )
+        html_parts.append('        ' + render_rx_card_meta(doc, path, title))
         html_parts.append(f'        <a href="{path}" class="rx-read-link">اقرأ المزيد \u2190</a>')
         html_parts.append('    </div>')
         html_parts.append('</article>')
@@ -1143,8 +1172,7 @@ def generate_search_index(base_dir, docs_dir, visible_documents):
     payload = {'docs': docs_meta, 'index': postings}
     out = docs_dir / 'search-index.json'
     raw = json.dumps(payload, ensure_ascii=False).encode('utf-8')
-    with open(out, 'wb') as f:
-        f.write(raw)
+    _write_if_changed(out, raw)
     try:
         import gzip as _gzip
         gz = len(_gzip.compress(raw, 9))
@@ -1162,6 +1190,42 @@ def copy_search_page(base_dir, docs_dir):
         return
     shutil.copy2(src, docs_dir / 'search.html')
     print('  [OK] search.html copied')
+
+
+
+def _write_if_changed(path, text):
+    """Write text to path, skipping identical files and retrying once.
+
+    Bulk rewrites of 1000+ unchanged files churn cloud-sync clients
+    (MegaDrive) into locking the next file mid-build (Errno 22); skipping
+    identical content avoids both the churn and the crash.
+    """
+    try:
+        if path.is_file():
+            try:
+                if path.read_text(encoding='utf-8') == text:
+                    return False
+            except (OSError, UnicodeDecodeError):
+                pass
+    except OSError:
+        pass
+    import time
+    data = text.encode('utf-8') if isinstance(text, str) else text
+    for attempt in (0, 1, 2):
+        try:
+            if path.is_file():
+                try:
+                    if path.read_bytes() == data:
+                        return False
+                except OSError:
+                    pass
+            path.write_bytes(data)
+            return True
+        except OSError:
+            if attempt >= 2:
+                raise
+            time.sleep(1.0)
+    return True
 
 
 def generate_bible_chapter_pages(base_dir, docs_dir, scripture):
@@ -1188,8 +1252,8 @@ def generate_bible_chapter_pages(base_dir, docs_dir, scripture):
             html = _bible_chapter_page(
                 name, slug, ch, total, verses_map[ch_str], has_docs
             )
-            (out_dir / f'{ch}.html').write_text(html, encoding='utf-8')
-            written += 1
+            if _write_if_changed(out_dir / f'{ch}.html', html):
+                written += 1
     print(f'  [OK] {written} chapter text pages generated under bible/')
 
 
@@ -1911,6 +1975,46 @@ def _asset_stamp(docs_dir):
     return h.hexdigest()[:8]
 
 
+
+def inject_ruler_assets(docs_dir):
+    """Ensure every generated page loads the study ruler (css/ruler.css +
+    js/ruler.js). Document pages get the tags from convert.py; this covers
+    all other generated pages (home, authors, bible, translations...).
+    Idempotent: skips pages that already reference ruler.js.
+    """
+    files = 0
+    for path in docs_dir.rglob('*.html'):
+        try:
+            text = path.read_text(encoding='utf-8')
+        except (OSError, UnicodeDecodeError):
+            continue
+        if 'ruler.js' in text:
+            continue
+        depth = max(len(path.relative_to(docs_dir).parts) - 1, 0)
+        prefix = '../' * depth
+        if '</head>' in text:
+            text = text.replace(
+                '</head>',
+                f'    <link rel="stylesheet" href="{prefix}css/ruler.css">\n</head>',
+                1)
+        else:
+            continue
+        if '</body>' in text:
+            text = text.replace(
+                '</body>',
+                f'    <script src="{prefix}js/ruler.js"></script>\n</body>',
+                1)
+        else:
+            continue
+        try:
+            path.write_text(text, encoding='utf-8')
+            files += 1
+        except OSError:
+            continue
+    print(f'  [OK] ruler assets injected into {files} pages')
+    return files
+
+
 def bust_asset_cache(docs_dir):
     """Append ?v=<hash> to local CSS/JS URLs in every generated page.
 
@@ -2086,6 +2190,11 @@ def main():
 
     # Cache-bust local CSS/JS (?v=<content-hash>) so browsers and Pages CDN
     # fetch fresh assets after every deploy; hash only changes when assets do.
+    # Study ruler on every page (document pages already carry the tags
+    # via convert.py; this covers home/authors/bible/translations pages).
+    print('\n[BUILD] Injecting study ruler assets...')
+    inject_ruler_assets(docs_dir)
+
     print('\n[BUILD] Stamping asset URLs for cache busting...')
     bust_asset_cache(docs_dir)
 

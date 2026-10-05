@@ -145,6 +145,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 var done = doc.completed === true;
                 var badgeCls = done ? 'rx-badge' : 'rx-badge rx-badge-progress';
                 var status = done ? '\u2713 \u0645\u0643\u062a\u0645\u0644' : '\u25cf \u0642\u064a\u062f \u0627\u0644\u062a\u0631\u062c\u0645\u0629';
+                var pageCount = parseInt(doc.page_count, 10) || 0;
+                var metaHtml = '<div class="rx-card-meta">' +
+                    (pageCount > 0 ? '<span class="rx-meta-pages">عدد الصفحات: ' + pageCount + '</span>' : '') +
+                    '<a class="rx-meta-btn" href="' + path + '?print=1" target="_blank" rel="noopener"' +
+                    ' aria-label="عرض المقال كملف PDF">' +
+                    '<span aria-hidden="true">🖨</span><span class="rx-meta-label">PDF</span></a>' +
+                    '<button type="button" class="rx-meta-btn" data-action="share"' +
+                    ' data-share-title="' + title + '" data-share-url="' + path + '"' +
+                    ' aria-label="مشاركة المقال">' +
+                    '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/></svg><span class="rx-meta-label">مشاركة</span></button>' +
+                    '</div>';
                 return '<article class="rx-card" data-title="' + title + '">' +
                     '<div class="rx-card-top">' +
                     '<span class="' + badgeCls + '">' + status + '</span>' +
@@ -157,6 +168,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     ' data-rx-title="' + title + '" data-rx-author="' + author + '"' +
                     ' data-rx-desc="' + descFull + '" data-rx-path="' + path + '">' +
                     '\u0645\u0639\u0627\u064a\u0646\u0629 \u0633\u0631\u064a\u0639\u0629</button>' +
+                    metaHtml +
                     '<a href="' + path + '" class="rx-read-link">\u0627\u0642\u0631\u0623 \u0645\u0632\u064a\u062f \u2190</a>' +
                     '</div>' +
                     '</article>';

@@ -1,0 +1,478 @@
+/* ============================================================
+   Study ruler — multi-stage bottom toolbar (global + commentary).
+   Fixed to viewport bottom; article gets bottom padding = ruler
+   height so text is never covered. Fully RTL-native.
+   ============================================================ */
+
+:root {
+    --ruler-h: 34px;          /* base bar height; JS updates when panels open */
+    --ruler-bg: #232329;
+    --ruler-bg-soft: #2e2e36;
+    --ruler-fg: #f2f0ea;
+    --ruler-fg-dim: #b9b6ad;
+    --ruler-accent: #c9a227;
+    --ruler-active: #4caf7d;
+    --ruler-border: #43434e;
+    --ruler-radius: 10px;
+}
+
+html {
+    /* Ruler must not trigger pull-to-refresh itself; page keeps global rule. */
+    scrollbar-gutter: stable;
+}
+
+/* Bottom clearance lives on the footers (not body): a body-level
+   strip rendered as a blank block below the footer. Applied only when
+   the ruler actually mounted (body.has-ruler). */
+body.has-ruler > footer.site-footer,
+body.has-ruler > footer.rx-footer,
+body.has-ruler > footer.rx-footbar {
+    padding-bottom: var(--ruler-h);
+}
+
+#study-ruler {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 9999;
+    direction: rtl;
+    font-family: var(--font-arabic, inherit);
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* ---------- Base bar (Stage A, always visible) ---------- */
+
+.ruler-base {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    height: 34px;
+    padding: 0 8px;
+    background: var(--ruler-bg);
+    color: var(--ruler-fg);
+    border-top: 1px solid var(--ruler-border);
+    box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.25);
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.ruler-base::-webkit-scrollbar {
+    display: none;
+}
+
+.ruler-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    min-height: 28px;
+    min-width: 28px;
+    padding: 2px 8px;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 7px;
+    color: var(--ruler-fg-dim);
+    font-size: 12.5px;
+    line-height: 1;
+    white-space: nowrap;
+    cursor: pointer;
+    flex: 0 0 auto;
+}
+
+.ruler-btn:hover {
+    background: var(--ruler-bg-soft);
+    color: var(--ruler-fg);
+}
+
+.ruler-btn:focus-visible {
+    outline: 2px solid var(--ruler-accent);
+    outline-offset: 1px;
+}
+
+.ruler-btn .r-ico {
+    font-size: 14px;
+    line-height: 1;
+}
+
+/* Vector icons inherit button color and size. */
+.ruler-btn .r-ico svg,
+.ruler-chip svg {
+    width: 1em;
+    height: 1em;
+    fill: currentColor;
+    vertical-align: -0.12em;
+}
+
+.ruler-btn .r-ico svg {
+    font-size: 14px;
+}
+
+.ruler-btn.is-active {
+    background: rgba(76, 175, 125, 0.18);
+    border-color: var(--ruler-active);
+    color: #fff;
+}
+
+.ruler-btn[aria-expanded="true"] {
+    background: var(--ruler-bg-soft);
+    color: #fff;
+    border-color: var(--ruler-border);
+}
+
+.ruler-btn:disabled {
+    opacity: 0.35;
+    cursor: default;
+}
+
+.ruler-sep {
+    width: 1px;
+    height: 18px;
+    margin: 0 4px;
+    background: var(--ruler-border);
+    flex: 0 0 auto;
+}
+
+.ruler-spacer {
+    flex: 1 1 auto;
+    min-width: 4px;
+}
+
+/* ---------- Panels (slide-up sheets) ---------- */
+
+.ruler-panels {
+    position: relative;
+}
+
+.ruler-panel {
+    display: none;
+    max-height: 62vh;
+    overflow-y: auto;
+    background: var(--ruler-bg-soft);
+    color: var(--ruler-fg);
+    border-top: 1px solid var(--ruler-border);
+    border-radius: var(--ruler-radius) var(--ruler-radius) 0 0;
+    padding: 10px 14px 14px;
+}
+
+.ruler-panel.is-open {
+    display: block;
+    animation: ruler-slide-up 0.22s ease-out;
+}
+
+@keyframes ruler-slide-up {
+    from {
+        opacity: 0;
+        transform: translateY(14px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ruler-panel.is-open {
+        animation: none;
+    }
+}
+
+.ruler-panel h4 {
+    margin: 8px 0 6px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--ruler-accent);
+}
+
+.ruler-panel h4:first-child {
+    margin-top: 0;
+}
+
+.ruler-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 4px;
+}
+
+.ruler-row > .ruler-label {
+    font-size: 12px;
+    color: var(--ruler-fg-dim);
+    min-width: 86px;
+}
+
+.ruler-chip {
+    padding: 4px 10px;
+    border: 1px solid var(--ruler-border);
+    border-radius: 20px;
+    background: transparent;
+    color: var(--ruler-fg-dim);
+    font-size: 12.5px;
+    cursor: pointer;
+    min-height: 28px;
+}
+
+.ruler-chip:hover {
+    color: #fff;
+    border-color: var(--ruler-fg-dim);
+}
+
+.ruler-chip:focus-visible {
+    outline: 2px solid var(--ruler-accent);
+    outline-offset: 1px;
+}
+
+.ruler-chip.is-active {
+    background: rgba(76, 175, 125, 0.2);
+    border-color: var(--ruler-active);
+    color: #fff;
+}
+
+.ruler-switch {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 12.5px;
+    color: var(--ruler-fg);
+    cursor: pointer;
+    padding: 5px 8px;
+    border-radius: 7px;
+    min-height: 30px;
+}
+
+.ruler-switch:hover {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.ruler-switch input {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--ruler-active);
+}
+
+.ruler-input {
+    background: var(--ruler-bg);
+    border: 1px solid var(--ruler-border);
+    border-radius: 7px;
+    color: var(--ruler-fg);
+    font-size: 13px;
+    padding: 6px 10px;
+    min-height: 30px;
+    min-width: 140px;
+}
+
+.ruler-input:focus-visible {
+    outline: 2px solid var(--ruler-accent);
+    outline-offset: 1px;
+}
+
+.ruler-hint {
+    font-size: 11.5px;
+    color: var(--ruler-fg-dim);
+}
+
+.ruler-link-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.ruler-link-list a,
+.ruler-link-list button.ruler-link {
+    display: block;
+    width: 100%;
+    text-align: right;
+    padding: 7px 10px;
+    border-radius: 7px;
+    color: var(--ruler-fg);
+    font-size: 13px;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+}
+
+.ruler-link-list a:hover,
+.ruler-link-list button.ruler-link:hover {
+    background: rgba(255, 255, 255, 0.07);
+}
+
+.ruler-link-list a:focus-visible,
+.ruler-link-list button.ruler-link:focus-visible {
+    outline: 2px solid var(--ruler-accent);
+    outline-offset: -2px;
+}
+
+/* ---------- Reading-space hooks (article side) ---------- */
+
+/* View settings applied through body classes — no inline styles. */
+body.r-fs-1 .document-content { font-size: 0.95rem; }
+body.r-fs-2 .document-content { font-size: 1.05rem; }
+body.r-fs-3 .document-content { font-size: 1.15rem; }
+body.r-fs-4 .document-content { font-size: 1.28rem; }
+body.r-fs-5 .document-content { font-size: 1.42rem; }
+
+/* NOTE: line-height must target paragraphs/items directly — the base
+   stylesheet sets .document-content p explicitly, which beats inheritance
+   from the container. Headings keep their own tighter rhythm. */
+body.r-lh-1 .document-content,
+body.r-lh-1 .document-content p,
+body.r-lh-1 .document-content li,
+body.r-lh-1 .document-content blockquote { line-height: 1.7; }
+body.r-lh-2 .document-content,
+body.r-lh-2 .document-content p,
+body.r-lh-2 .document-content li,
+body.r-lh-2 .document-content blockquote { line-height: 1.9; }
+body.r-lh-3 .document-content,
+body.r-lh-3 .document-content p,
+body.r-lh-3 .document-content li,
+body.r-lh-3 .document-content blockquote { line-height: 2.1; }
+
+body.r-w-compact .document-content { max-width: 42rem; margin-inline: auto; }
+body.r-w-normal .document-content { max-width: 56rem; margin-inline: auto; }
+body.r-w-wide .document-content { max-width: 72rem; margin-inline: auto; }
+
+/* Reading modes: full presets, not just a line-height nudge.
+   Modes set rhythm; the font-size/line-height chips fine-tune on top. */
+body.r-mode-comfortable .document-content { font-size: 1.25rem; }
+body.r-mode-comfortable .document-content p,
+body.r-mode-comfortable .document-content li,
+body.r-mode-comfortable .document-content blockquote { line-height: 2.0; }
+body.r-mode-comfortable .document-content {
+    max-width: 56rem;
+    margin-inline: auto;
+}
+body.r-mode-study .document-content { font-size: 1.1rem; }
+body.r-mode-study .document-content p,
+body.r-mode-study .document-content li,
+body.r-mode-study .document-content blockquote { line-height: 1.8; }
+body.r-mode-study .document-content {
+    max-width: 44rem;
+    margin-inline: auto;
+}
+/* Study mode always shows notes even if their toggle is off. */
+body.r-mode-study.r-hide-notes .document-content .doc-footnotes,
+body.r-mode-study.r-hide-notes .document-content .doc-notes {
+    display: block;
+}
+body.r-mode-minimal .document-content,
+body.r-mode-minimal .document-content p,
+body.r-mode-minimal .document-content li,
+body.r-mode-minimal .document-content blockquote { line-height: 1.65; }
+body.r-mode-minimal .document-content .doc-status-chip { display: none; }
+body.r-mode-minimal .document-content .doc-footnotes,
+body.r-mode-minimal .document-content .doc-notes,
+body.r-mode-minimal .doc-aside,
+body.r-mode-minimal .doc-toc-box { display: none; }
+
+/* Toggles */
+body.r-hide-notes .document-content .doc-footnotes,
+body.r-hide-notes .document-content .doc-notes {
+    display: none;
+}
+
+body.r-hide-fnrefs .document-content sup a[href^="#fn"],
+body.r-hide-fnrefs .document-content a[href^="#fn"] {
+    display: none;
+}
+
+body.r-hide-refs .document-content a[href*="/bible/"] {
+    color: inherit;
+    text-decoration: none;
+    pointer-events: none;
+}
+
+/* Focus mode: header, footer and side extras step aside. */
+body.focus-mode .site-header,
+body.focus-mode .site-footer,
+body.focus-mode .doc-aside,
+body.focus-mode .document-footer,
+body.focus-mode .doc-toc-box {
+    display: none;
+}
+
+body.focus-mode .document-viewer {
+    padding-top: 0.25rem;
+}
+
+/* Highlight matches */
+.document-content mark.ruler-hit {
+    background: #ffe08a;
+    color: inherit;
+    border-radius: 3px;
+    padding: 0 1px;
+}
+
+.document-content mark.ruler-hit.is-current {
+    background: #ffb84d;
+    outline: 1px solid #b97a1a;
+}
+
+/* Verse numbers (only where source markup provides them). */
+.document-content .verse-num {
+    color: var(--text-muted, #8a8578);
+    font-size: 0.75em;
+    vertical-align: super;
+    margin-inline-end: 2px;
+}
+
+body.r-hide-verses .document-content .verse-num {
+    display: none;
+}
+
+/* Resume-position chip */
+.ruler-resume {
+    display: none;
+    align-items: center;
+    gap: 5px;
+    margin-inline-start: auto;
+    padding: 2px 10px;
+    min-height: 26px;
+    border: 1px dashed var(--ruler-accent);
+    border-radius: 14px;
+    background: transparent;
+    color: var(--ruler-accent);
+    font-size: 12px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.ruler-resume.has-saved {
+    display: inline-flex;
+}
+
+.ruler-resume:focus-visible {
+    outline: 2px solid var(--ruler-accent);
+    outline-offset: 1px;
+}
+
+/* ---------- Small screens ---------- */
+
+@media (max-width: 640px) {
+    .ruler-btn .r-label {
+        display: none;
+    }
+
+    .ruler-btn {
+        padding: 2px 6px;
+    }
+
+    .ruler-panel {
+        padding: 8px 10px 12px;
+        max-height: 70vh;
+    }
+}
+
+/* ---------- Print: ruler never prints ---------- */
+
+@media print {
+    #study-ruler {
+        display: none !important;
+    }
+
+    body {
+        padding-bottom: 0 !important;
+    }
+}

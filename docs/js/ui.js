@@ -34,28 +34,38 @@ document.addEventListener('click', function (e) {
     var shareBtn = e.target && e.target.closest ? e.target.closest('[data-action="share"]') : null;
     if (shareBtn) {
         e.preventDefault();
-        var pageUrl = window.location.href;
-        var titleEl = document.querySelector('h1.document-title');
-        var docTitle = titleEl ? titleEl.textContent.replace(/\s+/g, ' ').trim() : document.title;
-        var shareText = docTitle + '\n' + pageUrl;
-        if (navigator.share) {
-            try {
-                var p = navigator.share({ title: document.title, text: docTitle, url: pageUrl });
-                if (p && p.catch) p.catch(function () {});
-            } catch (err) { /* user cancelled or unavailable - ignore */ }
-            return;
+        // Resolve + validate the URL: navigator.share() has killed the
+        // renderer (RESULT_CODE_KILLED_BAD_MESSAGE) on raw/relative URLs,
+        // so never feed it anything but a verified absolute http(s) URL.
+        var rawUrl = shareBtn.getAttribute('data-share-url') || window.location.href;
+        var pageUrl = null;
+        try {
+            var resolved = new URL(rawUrl, window.location.href).href;
+            if (/^https?:\/\//i.test(resolved)) pageUrl = resolved;
+        } catch (err) { pageUrl = null; }
+        var docTitle = shareBtn.getAttribute('data-share-title');
+        if (!docTitle) {
+            var titleEl = document.querySelector('h1.document-title');
+            docTitle = titleEl ? titleEl.textContent.replace(/\s+/g, ' ').trim() : document.title;
         }
+        docTitle = (docTitle || document.title || '').replace(/\s+/g, ' ').trim();
+        var shareText = pageUrl ? (docTitle + '\n' + pageUrl) : docTitle;
+        var toast = window.rxShowToast || function () {};
         var done = function (ok) {
-            var label = shareBtn.querySelector('.btn-text');
-            if (!label) return;
-            if (!label.getAttribute('data-orig')) {
-                label.setAttribute('data-orig', label.textContent);
+            // Button label restore works for every label variant
+            // (.btn-text classic, .r-label ruler, .rx-meta-label cards).
+            var label = shareBtn.querySelector('.btn-text, .r-label, .rx-meta-label');
+            if (label) {
+                if (!label.getAttribute('data-orig')) {
+                    label.setAttribute('data-orig', label.textContent);
+                }
+                label.textContent = ok ? 'تم النسخ ✓' : 'تعذر النسخ';
+                clearTimeout(window.__shareTimer);
+                window.__shareTimer = setTimeout(function () {
+                    label.textContent = label.getAttribute('data-orig');
+                }, 2000);
             }
-            label.textContent = ok ? 'تم النسخ ✓' : 'تعذر النسخ';
-            clearTimeout(window.__shareTimer);
-            window.__shareTimer = setTimeout(function () {
-                label.textContent = label.getAttribute('data-orig');
-            }, 2000);
+            toast(ok ? 'تم نسخ الرابط ✓' : 'تعذر النسخ — انسخ الرابط يدويًا');
         };
         var legacyCopy = function () {
             try {
@@ -72,14 +82,83 @@ document.addEventListener('click', function (e) {
                 done(ok);
             } catch (err) { done(false); }
         };
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(shareText).then(function () {
-                done(true);
-            }, function () {
+        var copied = false;
+        var fallbacksDone = function () {
+            if (!copied) done(false);
+        };
+        if (navigator.share) {
+            // Share sheet first; ANY failure (sync throw, async reject,
+            // invalid payload) cascades to clipboard copy — never silent.
+            var payload = { title: document.title, text: docTitle };
+            if (pageUrl) payload.url = pageUrl;
+            try {
+                var p = navigator.share(payload);
+                if (p && p.then) {
+                    p.then(function () {
+                        copied = true;
+                        done(true);
+                    }, function (err) {
+                        // User-cancelled sheet (AbortError) is intentional:
+                        // do nothing instead of surprising them with a copy.
+                        if (err && err.name === 'AbortError') return;
+                        copyViaClipboard();
+                    });
+                } else {
+                    copied = true;
+                    done(true);
+                }
+            } catch (err) {
+                copyViaClipboard();
+            }
+        } else {
+            copyViaClipboard();
+        }
+        var copyTimer = null;
+        function copyViaClipboard() {
+            if (copied) return;
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(shareText).then(function () {
+                    copied = true;
+                    done(true);
+                }, function () {
+                    legacyCopy();
+                });
+            } else {
                 legacyCopy();
+            }
+            // Safety net: clipboard promises that never settle.
+            clearTimeout(copyTimer);
+            copyTimer = setTimeout(fallbacksDone, 4000);
+        }
+        return;
+    }
+
+    var copyBtn = e.target && e.target.closest ? e.target.closest('[data-action="copy-text"]') : null;
+    if (copyBtn) {
+        e.preventDefault();
+        var art = document.querySelector('.document-layout > .document-content, article.document-content');
+        var text = art ? (art.innerText || art.textContent || '') : '';
+        text = text.replace(/\s+\n/g, '\n').trim();
+        var mark = function (ok) {
+            var prev = copyBtn.textContent;
+            copyBtn.textContent = ok ? '✓ تم النسخ' : 'تعذر النسخ';
+            clearTimeout(window.__copyTimer);
+            window.__copyTimer = setTimeout(function () {
+                copyBtn.textContent = prev;
+            }, 2000);
+        };
+        if (!text) {
+            mark(false);
+            return;
+        }
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(function () {
+                mark(true);
+            }, function () {
+                mark(false);
             });
         } else {
-            legacyCopy();
+            mark(false);
         }
         return;
     }
@@ -102,6 +181,44 @@ document.addEventListener('click', function (e) {
         if (section) section.classList.toggle('open');
     }
 });
+
+(function () {
+    // Card "PDF" buttons link to <article>?print=1 : open print-ready so the
+    // user can Save-as-PDF. Waits for full render (pager + fonts).
+    var params = null;
+    try {
+        params = new URLSearchParams(window.location.search || '');
+    } catch (e) {
+        return;
+    }
+    if (!params || params.get('print') !== '1') return;
+    var fired = false;
+    var fire = function () {
+        if (fired) return;
+        fired = true;
+        try {
+            window.print();
+        } catch (e) { /* ignore */ }
+    };
+    // Print only after full render AND embedded fonts: early printing
+    // is what produced blurry fallback-glyph PDFs.
+    var ready = function () {
+        setTimeout(fire, 400);
+    };
+    var onLoad = function () {
+        try {
+            if (document.fonts && document.fonts.ready) {
+                document.fonts.ready.then(ready, ready);
+            } else {
+                ready();
+            }
+        } catch (e) {
+            ready();
+        }
+    };
+    window.addEventListener('load', onLoad);
+    setTimeout(fire, 8000);
+})();
 
 document.addEventListener('submit', function (e) {
     if (e.target && e.target.id === 'newsletterForm') {
@@ -253,47 +370,5 @@ document.addEventListener('DOMContentLoaded', function () {
     findItem();
 });
 
-// Floating scroll-to-top button (loaded on every page via ui.js)
-(function () {
-    document.addEventListener('DOMContentLoaded', function () {
-        if (document.querySelector('.scroll-top')) return;
+// (Floating back-to-top button removed: the ruler Stage-A الأعلى button covers it.)
 
-        var btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'scroll-top';
-        btn.setAttribute('aria-label', 'العودة إلى أعلى الصفحة');
-        btn.innerHTML = '&#8593;';
-        document.body.appendChild(btn);
-
-        var threshold = 300;
-        var update = function () {
-            btn.classList.toggle('is-visible', window.scrollY > threshold);
-        };
-
-        var ticking = false;
-        window.addEventListener('scroll', function () {
-            if (ticking) return;
-            ticking = true;
-            requestAnimationFrame(function () {
-                update();
-                ticking = false;
-            });
-        }, { passive: true });
-        update();
-
-        btn.addEventListener('click', function () {
-            window.scrollTo(0, 0);
-            var main = document.getElementById('main-content');
-            if (main) {
-                main.setAttribute('tabindex', '-1');
-                try {
-                    main.focus({ preventScroll: true });
-                } catch (e) {
-                    main.focus();
-                }
-            } else {
-                btn.blur();
-            }
-        });
-    });
-})();

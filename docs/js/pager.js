@@ -129,18 +129,6 @@
         this.pages = [];
         this.sheets = [];
         this.current = 0;
-        this.bar = null; /* single bottom bar (scroll reference) */
-        this.bars = [];
-        this.prevBtns = [];
-        this.nextBtns = [];
-        this.countEls = [];
-        this.barHandlers = [];
-        this.mini = null; /* tiny top button (scroll mode only) */
-        this.miniHandler = null;
-        this.floats = null; /* fixed side-edge arrows (pages mode only) */
-        this.floatPrev = null;
-        this.floatNext = null;
-        this.floatHandler = null;
         this.touchX = null;
         this.touchY = null;
         this.onTouchStart = null;
@@ -206,7 +194,6 @@
         var doc = this.article.ownerDocument;
         var self = this;
 
-        this.removeBars();
         this.article.classList.add('paged');
         this.sheets = plan.map(function (idxs, pi) {
             var sheet = doc.createElement('div');
@@ -218,7 +205,6 @@
             return sheet;
         });
         this.pages = plan;
-        this.buildBars();
         // Restore the reader's page (clamped — a narrower screen can add
         // pages, a wider one can remove them).
         var at = Math.max(0, Math.min(keep, plan.length - 1));
@@ -226,294 +212,7 @@
         return true;
     };
 
-    Pager.prototype.topAnchor = function () {
-        // Narrow centered row above the article (mini button only).
-        var layout = this.article.closest
-            ? this.article.closest('.document-layout') : null;
-        if (layout && layout.parentNode) {
-            return { parent: layout.parentNode, before: layout };
-        }
-        return { parent: this.article.parentNode, before: this.article };
-    };
-
-    Pager.prototype.bottomAnchor = function () {
-        // Full-width row directly under the article: right after it inside
-        // the (now single-column) layout, so the related dropdown follows.
-        var parent = this.article.parentNode;
-        if (parent) {
-            return { parent: parent, before: this.article.nextSibling };
-        }
-        return { parent: this.article.parentNode, before: null };
-    };
-
-    Pager.prototype.makeBar = function () {
-        var doc = this.article.ownerDocument;
-        var bar = doc.createElement('div');
-        bar.className = 'pager-bar' + (this.mode === 'scroll' ? ' scroll-mode' : '');
-        bar.setAttribute('role', 'navigation');
-        bar.setAttribute('aria-label', 'التنقل بين الصفحات');
-
-        var prev = doc.createElement('button');
-        prev.type = 'button';
-        prev.className = 'btn btn-print pager-btn';
-        prev.setAttribute('data-pager', 'prev');
-        prev.setAttribute('aria-label', 'الصفحة السابقة');
-        prev.innerHTML = '<span aria-hidden="true">&#8594;</span><span class="btn-text">السابق</span>';
-
-        var count = doc.createElement('span');
-        count.className = 'pager-count';
-        count.setAttribute('aria-live', 'polite');
-
-        var view = doc.createElement('button');
-        view.type = 'button';
-        view.className = 'btn btn-print pager-btn pager-view';
-        view.setAttribute('data-pager', 'view');
-        view.innerHTML = '<span class="btn-text">' +
-            (this.mode === 'scroll' ? 'عرض الصفحات' : 'عرض متصل') + '</span>';
-
-        var next = doc.createElement('button');
-        next.type = 'button';
-        next.className = 'btn btn-print pager-btn';
-        next.setAttribute('data-pager', 'next');
-        next.setAttribute('aria-label', 'الصفحة التالية');
-        next.innerHTML = '<span class="btn-text">التالي</span><span aria-hidden="true">&#8592;</span>';
-
-        var edgeR = doc.createElement('span');
-        edgeR.className = 'pager-edge pager-edge-r';
-        edgeR.appendChild(prev);
-        var center = doc.createElement('span');
-        center.className = 'pager-center';
-        center.appendChild(view);
-        center.appendChild(count);
-        var edgeL = doc.createElement('span');
-        edgeL.className = 'pager-edge pager-edge-l';
-        edgeL.appendChild(next);
-        bar.appendChild(edgeR);
-        bar.appendChild(center);
-        bar.appendChild(edgeL);
-
-        var self = this;
-        var handler = function (e) {
-            var btn = e.target && e.target.closest
-                ? e.target.closest('[data-pager]') : null;
-            if (!btn || !bar.contains(btn)) return;
-            var action = btn.getAttribute('data-pager');
-            if (action === 'prev') self.show(self.current - 1);
-            else if (action === 'next') self.show(self.current + 1);
-            else if (action === 'view') {
-                self.setMode(self.mode === 'scroll' ? 'pages' : 'scroll');
-            }
-        };
-        bar.addEventListener('click', handler);
-
-        this.bars.push(bar);
-        this.prevBtns.push(prev);
-        this.nextBtns.push(next);
-        this.countEls.push(count);
-        this.barHandlers.push({ bar: bar, handler: handler });
-        return bar;
-    };
-
-    Pager.prototype.makeMini = function () {
-        // Tiny "back to pages" button above the article (scroll mode only).
-        var doc = this.article.ownerDocument;
-        var wrap = doc.createElement('div');
-        wrap.className = 'pager-mini-wrap';
-        var btn = doc.createElement('button');
-        btn.type = 'button';
-        btn.className = 'btn btn-print pager-mini';
-        btn.setAttribute('data-pager', 'view');
-        btn.setAttribute('aria-label', 'العودة إلى عرض الصفحات');
-        btn.innerHTML = '<span class="btn-text">عرض الصفحات</span>';
-        wrap.appendChild(btn);
-        var self = this;
-        var handler = function (e) {
-            e.preventDefault();
-            self.setMode('pages');
-        };
-        btn.addEventListener('click', handler);
-        this.mini = wrap;
-        this.miniHandler = { btn: btn, handler: handler };
-        return wrap;
-    };
-
-    Pager.prototype.makeFloats = function () {
-        // Fixed side-edge flip arrows for touch screens (CSS shows them
-        // only on small viewports; hidden on desktop and in scroll mode).
-        // RTL: previous sits at inline-start (right), next at inline-end.
-        var doc = this.article.ownerDocument;
-        var wrap = doc.createElement('div');
-        wrap.className = 'pager-floats';
-        wrap.setAttribute('aria-hidden', 'false');
-
-        var prev = doc.createElement('button');
-        prev.type = 'button';
-        prev.className = 'pager-float pager-float-prev';
-        prev.setAttribute('data-pager', 'prev');
-        prev.setAttribute('aria-label', 'الصفحة السابقة');
-        prev.setAttribute('tabindex', '0');
-        prev.innerHTML = '<span aria-hidden="true">&#8594;</span>';
-
-        var next = doc.createElement('button');
-        next.type = 'button';
-        next.className = 'pager-float pager-float-next';
-        next.setAttribute('data-pager', 'next');
-        next.setAttribute('aria-label', 'الصفحة التالية');
-        next.setAttribute('tabindex', '0');
-        next.innerHTML = '<span aria-hidden="true">&#8592;</span>';
-
-        wrap.appendChild(prev);
-        wrap.appendChild(next);
-
-        var self = this;
-        var handler = function (e) {
-            var btn = e.target && e.target.closest
-                ? e.target.closest('[data-pager]') : null;
-            if (!btn || !wrap.contains(btn)) return;
-            e.preventDefault();
-            var action = btn.getAttribute('data-pager');
-            if (action === 'prev') self.show(self.current - 1);
-            else if (action === 'next') self.show(self.current + 1);
-        };
-        wrap.addEventListener('click', handler);
-
-        this.floats = wrap;
-        this.floatPrev = prev;
-        this.floatNext = next;
-        this.floatHandler = { wrap: wrap, handler: handler };
-        return wrap;
-    };
-
-    Pager.prototype.buildBars = function () {
-        // Single bottom bar below the article (no top bar above the text).
-        var bottom = this.bottomAnchor();
-        bottom.parent.insertBefore(this.makeBar(), bottom.before);
-        this.bar = this.bars[0];
-        // Pages mode: fixed side-edge arrows for quick flipping.
-        if (this.mode === 'pages') {
-            var floats = this.makeFloats();
-            try {
-                this.article.ownerDocument.body.appendChild(floats);
-            } catch (e) { /* ignore */ }
-        }
-        // Scroll mode only: tiny button above the article to go back.
-        if (this.mode === 'scroll') {
-            var top = this.topAnchor();
-            top.parent.insertBefore(this.makeMini(), top.before);
-        }
-    };
-
-    Pager.prototype.show = function (n, silent) {
-        if (!this.sheets.length) return;
-        if (n < 0) n = 0;
-        if (n > this.sheets.length - 1) n = this.sheets.length - 1;
-        this.current = n;
-        savePage(n);
-        for (var i = 0; i < this.sheets.length; i++) {
-            this.sheets[i].hidden = (i !== n);
-        }
-        var label = (n + 1) + ' / ' + this.sheets.length;
-        var full = 'صفحة ' + (n + 1) + ' من ' + this.sheets.length;
-        this.countEls.forEach(function (el) {
-            el.textContent = label;
-            el.setAttribute('aria-label', full);
-        });
-        var first = (n === 0);
-        var last = (n === this.sheets.length - 1);
-        this.prevBtns.forEach(function (btn) { btn.disabled = first; });
-        this.nextBtns.forEach(function (btn) { btn.disabled = last; });
-        // Keep the floating side arrows in sync; hide them entirely for
-        // single-page articles where there is nothing to flip.
-        try {
-            if (this.floatPrev) this.floatPrev.disabled = first;
-            if (this.floatNext) this.floatNext.disabled = last;
-            if (this.floats) {
-                if (this.sheets.length < 2) this.floats.setAttribute('hidden', '');
-                else this.floats.removeAttribute('hidden');
-            }
-        } catch (e) { /* ignore */ }
-        if (!silent) {
-            // Single bottom bar lives below the article: scroll back to the
-            // article top (not to the bar) on page change, leaving room for
-            // the sticky site header so no text hides behind it. The header
-            // is much taller on mobile (stacked layout), so measure it live
-            // instead of trusting the desktop STICKY_GAP constant.
-            var gap = STICKY_GAP;
-            try {
-                var hdr = document.querySelector('.site-header, .rx-header');
-                if (hdr) gap = Math.ceil(hdr.getBoundingClientRect().height) + 16;
-            } catch (e) { /* keep default */ }
-            var top = 0;
-            try {
-                var r = this.article.getBoundingClientRect();
-                top = r.top + (window.scrollY || window.pageYOffset || 0);
-            } catch (e) { top = 0; }
-            try {
-                window.scrollTo(0, Math.max(0, top - gap));
-            } catch (e) { /* ignore */ }
-        }
-    };
-
-    Pager.prototype.pageOf = function (el) {
-        for (var i = 0; i < this.sheets.length; i++) {
-            if (this.sheets[i].contains(el)) return i;
-        }
-        return -1;
-    };
-
-    Pager.prototype.jumpToId = function (id) {
-        var doc = this.article.ownerDocument;
-        var target = doc.getElementById(id);
-        if (!target) return false;
-        var pi = this.pageOf(target);
-        if (pi >= 0 && pi !== this.current) this.show(pi, true);
-        try {
-            target.scrollIntoView({ block: 'start' });
-        } catch (e) {
-            target.scrollIntoView();
-        }
-        if (window.location.hash !== '#' + id) {
-            window.location.hash = id;
-        }
-        return true;
-    };
-
-    Pager.prototype.removeBars = function () {
-        this.barHandlers.forEach(function (entry) {
-            if (entry.bar && entry.bar.parentNode) {
-                entry.bar.removeEventListener('click', entry.handler);
-                entry.bar.parentNode.removeChild(entry.bar);
-            }
-        });
-        this.bars = [];
-        this.prevBtns = [];
-        this.nextBtns = [];
-        this.countEls = [];
-        this.barHandlers = [];
-        this.bar = null;
-        if (this.miniHandler) {
-            try {
-                this.miniHandler.btn.removeEventListener('click', this.miniHandler.handler);
-            } catch (e) { /* ignore */ }
-            this.miniHandler = null;
-        }
-        if (this.mini && this.mini.parentNode) {
-            this.mini.parentNode.removeChild(this.mini);
-        }
-        this.mini = null;
-        if (this.floatHandler) {
-            try {
-                this.floatHandler.wrap.removeEventListener('click', this.floatHandler.handler);
-            } catch (e) { /* ignore */ }
-            this.floatHandler = null;
-        }
-        if (this.floats && this.floats.parentNode) {
-            this.floats.parentNode.removeChild(this.floats);
-        }
-        this.floats = null;
-        this.floatPrev = null;
-        this.floatNext = null;
-    };
+    // Navigation UI moved to the study ruler (js/ruler.js).
 
     Pager.prototype.restoreNodes = function () {
         if (!this.nodes.length && !this.sheets.length) return;
@@ -536,9 +235,7 @@
         if (mode === this.mode) return;
         if (mode === 'scroll') {
             this.restoreNodes();
-            this.removeBars();
             this.mode = 'scroll';
-            this.buildBars();
         } else {
             this.mode = 'pages';
             this.build();
@@ -675,6 +372,9 @@
             saved = window.localStorage.getItem('docPagerMode');
         } catch (e) { /* ignore */ }
         var pager = new Pager(article);
+        try {
+            window.__docPager = pager;
+        } catch (e) { /* ignore */ }
         pager.bindGlobal();
         pager.watchResize();
         if (saved === 'scroll') {

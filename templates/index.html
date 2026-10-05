@@ -105,14 +105,9 @@
         </form>
     </section>
 
-    <!-- ======================= Welcome banner ======================= -->
-    <section class="rx-welcome">
-        <div class="rx-welcome-inner">
-            <p class="rx-eyebrow">دراسة الكتاب المقدس. فهم السياق.</p>
-            <h1>تعليقات ومقالات الكتاب المقدس</h1>
-            <p class="rx-welcome-intro">تجد هنا مجموعة شاملة من التعليقات والمقالات المفيدة حول الكتاب المقدس، منقولة عن مؤلفين موثوقين، لفهم كلمة الله بشكل أعمق وأدق.</p>
-        </div>
-    </section>
+    <!-- Wide welcome banner removed (reading-space optimization).
+         Page keeps a screen-reader-only h1 for outline/SEO. -->
+    <h1 class="visually-hidden">تعليقات ومقالات الكتاب المقدس</h1>
 
     <!-- ======================= Main content ======================= -->
     <main id="main-content" class="rx-main">
@@ -145,42 +140,15 @@
         </ul>
     </section>
 
-    <!-- ======================= Footer ======================= -->
-    <footer class="rx-footer">
-        <div class="rx-footer-stats rx-welcome-stats" aria-label="إحصاءات الموقع">
-            <span class="rx-stat-chip">إجمالي المستندات: <strong id="totalDocs">0</strong></span>
-            <span class="rx-stat-chip">مكتملة: <strong id="rxCompletedDocs">0</strong></span>
-            <span class="rx-stat-chip">المؤلفون: <strong id="rxAuthorCount">0</strong></span>
-        </div>
-        <div class="rx-footer-grid">
-            <div class="rx-footer-brand">
-                <span class="rx-footer-logo"><span class="rx-cross" aria-hidden="true">&#10013;</span> تعليقات الكتاب المقدس</span>
-                <p>للقراءة والدراسة والتنزيل مجاناً. نقدم مراجع كتابية أصيلة وموثوقة لدراسة الكلمة المقدسة.</p>
-            </div>
-            <div>
-                <h3>روابط سريعة</h3>
-                <ul>
-                    <li><a href="index.html">الرئيسية</a></li>
-                    <li><a href="bibles.html">فهرس الكتب والفصول</a></li>
-                    <li><a href="translations.html">الترجمات</a></li>
-                    <li><a href="authors.html">قائمة المؤلفين</a></li>
-                </ul>
-            </div>
-            <div>
-                <h3>المساعدة والدعم</h3>
-                <ul>
-                    <li><span class="rx-footer-inactive" aria-disabled="true">اتصل بنا</span></li>
-                    <li><a href="index.html#latestSection">الأحدث على الموقع</a></li>
-                </ul>
-            </div>
-            <div>
-                <h3>اللغة والمظهر</h3>
-                <p>يمكنك التبديل بين الوضع الفاتح والداكن باستخدام الزر في أعلى الصفحة.</p>
-            </div>
-        </div>
-        <div class="rx-footer-bottom">
-            <span>© 2024 - 2026 جميع الحقوق محفوظة لترجمات تعليقات الكتاب المقدس</span>
-        </div>
+    <!-- ======================= Footer: single minimal utility bar ======================= -->
+    <footer class="rx-footbar" aria-label="روابط سريعة">
+        <span class="rx-footbar-title">روابط سريعة</span>
+        <nav class="rx-footbar-links" aria-label="روابط سريعة">
+            <a href="index.html" aria-label="الرئيسية"><span aria-hidden="true">⌂</span><span class="rx-footbar-label">الرئيسية</span></a>
+            <a href="bibles.html" aria-label="الكتاب المقدس"><span aria-hidden="true">📖</span><span class="rx-footbar-label">الكتاب المقدس</span></a>
+            <a href="translations.html" aria-label="الترجمات"><span aria-hidden="true">🌐</span><span class="rx-footbar-label">الترجمات</span></a>
+            <a href="authors.html" aria-label="المؤلفون"><span aria-hidden="true">👥</span><span class="rx-footbar-label">المؤلفون</span></a>
+        </nav>
     </footer>
 
     <!-- ======================= Preview modal ======================= -->

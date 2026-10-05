@@ -847,9 +847,21 @@ def create_document_page(title, content, doc_id, author_name, completed, prefix=
         download_url = download_rel
     else:
         download_url = f'downloads/{author_slug}/{doc_id}.docx'
-    status_badge = '<span class="badge completed">مكتمل</span>' if completed else '<span class="badge in-progress">قيد الترجمة</span>'
+    # Status chip lives inside the article window (top-left corner, floated)
+    # instead of the page header — see .doc-status-chip in document.css.
+    if completed:
+        status_chip = '<span class="doc-status-chip completed">مكتمل</span>'
+    else:
+        status_chip = '<span class="doc-status-chip in-progress">قيد الترجمة</span>'
     safe_title = escape_html(title)
     safe_author = escape_html(author_name)
+    # Header title/author are redundant when the article text itself opens
+    # with them (verified: ~99% titles, ~64% authors). Keep the author line
+    # only as a fallback when the body does not mention the author.
+    plain_body = re.sub(r'<[^>]+>', '', content or '')
+    show_author = author_name and (author_name not in plain_body)
+    author_line = f'\n                <p class="document-author">المؤلف: {safe_author}</p>' if show_author else ''
+    article_body = status_chip + '\n' + (content or '')
     return f'''<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -865,6 +877,7 @@ def create_document_page(title, content, doc_id, author_name, completed, prefix=
     {fonts_tag(prefix)}
     <link rel="stylesheet" href="{prefix}css/style.css">
     <link rel="stylesheet" href="{prefix}css/document.css">
+    <link rel="stylesheet" href="{prefix}css/ruler.css">
     <script src="{prefix}js/theme-init.js"></script>
     {umami_tag(prefix)}
 </head>
@@ -892,33 +905,17 @@ def create_document_page(title, content, doc_id, author_name, completed, prefix=
     </header>
     <main id="main-content" class="document-viewer">
         <div class="container">
-            <div class="document-header">
+            <div class="document-header slim">
                 <div class="breadcrumb">
                     <a href="{prefix}index.html">الرئيسية</a>
                     <span class="separator">&larr;</span>
                     <a href="{prefix}authors/{author_slug}/index.html">{safe_author}</a>
-                </div>
-                <h1 class="document-title">{safe_title} {status_badge}</h1>
-                <p class="document-author">المؤلف: {safe_author}</p>
-                <div class="document-actions">
-                    <a href="{escape_html(prefix + download_url)}" class="btn btn-download" download>
-                        <span class="btn-icon">&#128229;</span>
-                        <span class="btn-text">تحميل الملف الأصلي</span>
-                    </a>
-                    <button type="button" data-action="print" class="btn btn-print">
-                        <span class="btn-icon">&#128424;</span>
-                        <span class="btn-text">طباعة</span>
-                    </button>
-                    <button type="button" data-action="share" class="btn btn-share" aria-label="مشاركة المقال">
-                        <span class="btn-icon" aria-hidden="true">&#128279;</span>
-                        <span class="btn-text">مشاركة</span>
-                    </button>
-                </div>
+                </div>{author_line}
             </div>
             <div class="document-layout">
                 <!-- CHAPTERS_NAV -->
-                <article class="document-content">
-                    {content}
+                <article class="document-content" data-download-url="{escape_html(prefix + download_url)}">
+                    {article_body}
                 </article>
                 <!-- RELATED_SIDEBAR -->
             </div>
@@ -941,6 +938,7 @@ def create_document_page(title, content, doc_id, author_name, completed, prefix=
     <script src="{prefix}js/search.js"></script>
     <script src="{prefix}js/nav.js"></script>
     <script src="{prefix}js/pager.js"></script>
+    <script src="{prefix}js/ruler.js"></script>
 </body>
 </html>'''
 
@@ -1096,6 +1094,7 @@ def main():
             'html_path': html_rel,
             'download_path': dl_rel,
             'chapters': chapters if len(chapters) > 1 else [],
+            'page_count': None,
             'mtime': int(os.path.getmtime(source_doc['filepath'])),
             'file_hash': get_file_hash(source_doc['filepath'])
         })
