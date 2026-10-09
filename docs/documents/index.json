@@ -8226,8 +8226,8 @@
       "download_path": "downloads/john-nelson-darby/doc_0287.docx",
       "chapters": [],
       "page_count": null,
-      "mtime": 1626601962,
-      "file_hash": "aa5a5053",
+      "mtime": 1791236684,
+      "file_hash": "50a26644",
       "refs": []
     },
     {
@@ -8333,8 +8333,8 @@
         }
       ],
       "page_count": null,
-      "mtime": 1759236073,
-      "file_hash": "c8992dfe",
+      "mtime": 1791334978,
+      "file_hash": "f8329ec1",
       "refs": []
     },
     {
@@ -10442,8 +10442,8 @@
     },
     {
       "id": "doc_0376",
-      "title": "دراسة في النبي أرميا",
-      "description": "سفر النبي أرميا له طابع يختلف عن سفر أشعياء؛ فهو لا يحتوي على ذات التوسع في مشورات الله بخصوص هذه الأرض مثل ذاك.",
+      "title": "إنجيل لوقا",
+      "description": "في إنجيل لوقا يُقدّم لنا الرب في طابعه كابن الإنسان كمَن يُظهر الله في نعمته المخلصة بين الناس.",
       "author": "John Nelson Darby",
       "author_slug": "john-nelson-darby",
       "completed": false,
@@ -10452,79 +10452,10 @@
         "irmiya"
       ],
       "category": "irmiya",
-      "filename": "تأمل في نبوة أرمياء.docx",
-      "rel_path": "سينوبسيس\\إرميا سينوبسيس",
-      "html_path": "documents/john-nelson-darby/سينوبسيس-إرميا-سينوبسيس/doc_0376.html",
-      "download_path": "downloads/john-nelson-darby/سينوبسيس-إرميا-سينوبسيس/doc_0376.docx",
-      "chapters": [
-        {
-          "n": 1,
-          "title": "دراسة في النبي أرميا",
-          "anchor": "ch-1"
-        },
-        {
-          "n": 2,
-          "title": "إصحاح 1 – 9",
-          "anchor": "ch-2"
-        },
-        {
-          "n": 3,
-          "title": "في الإصحاح 7 تبدأ نبوة جديدة، والتي تنظر بشكل خاص إلى...",
-          "anchor": "ch-3"
-        },
-        {
-          "n": 4,
-          "title": "إصحاح 10 – 14",
-          "anchor": "ch-4"
-        },
-        {
-          "n": 5,
-          "title": "إصحاح 15",
-          "anchor": "ch-5"
-        },
-        {
-          "n": 6,
-          "title": "إصحاح 16 – 18",
-          "anchor": "ch-6"
-        },
-        {
-          "n": 7,
-          "title": "إصحاح 19 - 23",
-          "anchor": "ch-7"
-        },
-        {
-          "n": 8,
-          "title": "إصحاح 24 – 25",
-          "anchor": "ch-8"
-        },
-        {
-          "n": 9,
-          "title": "إصحاح 26 – 29",
-          "anchor": "ch-9"
-        }
-      ],
-      "page_count": null,
-      "mtime": 1662460567,
-      "file_hash": "8f9ea002",
-      "refs": []
-    },
-    {
-      "id": "doc_0377",
-      "title": "إنجيل لوقا",
-      "description": "في إنجيل لوقا يُقدّم لنا الرب في طابعه كابن الإنسان كمَن يُظهر الله في نعمته المخلصة بين الناس.",
-      "author": "John Nelson Darby",
-      "author_slug": "john-nelson-darby",
-      "completed": false,
-      "hidden": false,
-      "categories": [
-        "luqa",
-        "gospel"
-      ],
-      "category": "luqa",
       "filename": "إنجيل لوقا.docx",
       "rel_path": "سينوبسيس\\العهد الجديد\\الأناجيل",
-      "html_path": "documents/john-nelson-darby/سينوبسيس-العهد-الجديد-الأناجيل/doc_0377.html",
-      "download_path": "downloads/john-nelson-darby/سينوبسيس-العهد-الجديد-الأناجيل/doc_0377.docx",
+      "html_path": "documents/john-nelson-darby/سينوبسيس-العهد-الجديد-الأناجيل/doc_0376.html",
+      "download_path": "downloads/john-nelson-darby/سينوبسيس-العهد-الجديد-الأناجيل/doc_0376.docx",
       "chapters": [
         {
           "n": 1,
@@ -10573,7 +10504,7 @@
       "refs": []
     },
     {
-      "id": "doc_0378",
+      "id": "doc_0377",
       "title": "إنجيل مرقس",
       "description": "لكل إنجيل من الأناجيل له طابعه الخاص؛ فكل واحد منها مشغول بشخص الرب من نظرة مختلفة، إذ أنه إما مشغول به كشخص إلهي، كابن الله، أو كابن الإنسان، أو كابن داود، المسيا المُقدّم لليهود، عمانوئيل.",
       "author": "John Nelson Darby",
@@ -10581,14 +10512,14 @@
       "completed": false,
       "hidden": false,
       "categories": [
-        "marqus",
+        "luqa",
         "gospel"
       ],
-      "category": "marqus",
+      "category": "luqa",
       "filename": "إنجيل مرقس - سينوبسيس - John Nelson Darby.docx",
       "rel_path": "سينوبسيس\\العهد الجديد\\الأناجيل",
-      "html_path": "documents/john-nelson-darby/سينوبسيس-العهد-الجديد-الأناجيل/doc_0378.html",
-      "download_path": "downloads/john-nelson-darby/سينوبسيس-العهد-الجديد-الأناجيل/doc_0378.docx",
+      "html_path": "documents/john-nelson-darby/سينوبسيس-العهد-الجديد-الأناجيل/doc_0377.html",
+      "download_path": "downloads/john-nelson-darby/سينوبسيس-العهد-الجديد-الأناجيل/doc_0377.docx",
       "chapters": [
         {
           "n": 1,
@@ -10612,7 +10543,7 @@
       "refs": []
     },
     {
-      "id": "doc_0379",
+      "id": "doc_0378",
       "title": "إنجيل يوحنا - سينوبسيس",
       "description": "هو لا يقدم لأنظارنا لا مولد المسيح في هذا العالم باعتباره ابن داود، ولا يتابع سجل نسله حتى آدم، لإظهار لقب اسمه كابن الإنسان؛ وأخيرًا لا يعرض لنا النبي الذي قام بخدمة أبيه على الأرض بواسطة شهادته.",
       "author": "John Nelson Darby",
@@ -10620,14 +10551,14 @@
       "completed": false,
       "hidden": false,
       "categories": [
-        "yuanna",
+        "marqus",
         "gospel"
       ],
-      "category": "yuanna",
+      "category": "marqus",
       "filename": "إنجيل يوحنا - سينوبسيس.docx",
       "rel_path": "سينوبسيس\\العهد الجديد\\الأناجيل",
-      "html_path": "documents/john-nelson-darby/سينوبسيس-العهد-الجديد-الأناجيل/doc_0379.html",
-      "download_path": "downloads/john-nelson-darby/سينوبسيس-العهد-الجديد-الأناجيل/doc_0379.docx",
+      "html_path": "documents/john-nelson-darby/سينوبسيس-العهد-الجديد-الأناجيل/doc_0378.html",
+      "download_path": "downloads/john-nelson-darby/سينوبسيس-العهد-الجديد-الأناجيل/doc_0378.docx",
       "chapters": [
         {
           "n": 1,
@@ -10686,7 +10617,7 @@
       "refs": []
     },
     {
-      "id": "doc_0380",
+      "id": "doc_0379",
       "title": "تأملات في رسالة بطرس الأولى (سينوبسيس)",
       "description": "رسالة بطرس الأولى كُتبت لمؤمنين من مشتتي إسرائيل الذين كانوا موجودين في أقاليم آسيا الصغرى التي عدّدها الرسول في العدد الأول.",
       "author": "John Nelson Darby",
@@ -10694,13 +10625,14 @@
       "completed": false,
       "hidden": false,
       "categories": [
-        "butrus-awwal"
+        "yuanna",
+        "gospel"
       ],
-      "category": "butrus-awwal",
+      "category": "yuanna",
       "filename": "تأملات في رسالة بطرس الأولى.docx",
       "rel_path": "سينوبسيس\\العهد الجديد\\رسائل بطرس",
-      "html_path": "documents/john-nelson-darby/سينوبسيس-العهد-الجديد-رسائل-بطرس/doc_0380.html",
-      "download_path": "downloads/john-nelson-darby/سينوبسيس-العهد-الجديد-رسائل-بطرس/doc_0380.docx",
+      "html_path": "documents/john-nelson-darby/سينوبسيس-العهد-الجديد-رسائل-بطرس/doc_0379.html",
+      "download_path": "downloads/john-nelson-darby/سينوبسيس-العهد-الجديد-رسائل-بطرس/doc_0379.docx",
       "chapters": [
         {
           "n": 1,
@@ -10729,7 +10661,7 @@
       "refs": []
     },
     {
-      "id": "doc_0381",
+      "id": "doc_0380",
       "title": "رسالة بطرس الأولى – سينوبسيس",
       "description": "إن رسالة بطرس الأولى كُتبت إلى مؤمنين من شتات إسرائيل الذين كانوا في مقاطعات آسيا الصغرى قد ذكرها الرسول في العدد الأول.",
       "author": "John Nelson Darby",
@@ -10742,8 +10674,8 @@
       "category": "butrus-awwal",
       "filename": "رسالة بطرس الأولى.docx",
       "rel_path": "سينوبسيس\\العهد الجديد\\رسائل بطرس",
-      "html_path": "documents/john-nelson-darby/سينوبسيس-العهد-الجديد-رسائل-بطرس/doc_0381.html",
-      "download_path": "downloads/john-nelson-darby/سينوبسيس-العهد-الجديد-رسائل-بطرس/doc_0381.docx",
+      "html_path": "documents/john-nelson-darby/سينوبسيس-العهد-الجديد-رسائل-بطرس/doc_0380.html",
+      "download_path": "downloads/john-nelson-darby/سينوبسيس-العهد-الجديد-رسائل-بطرس/doc_0380.docx",
       "chapters": [
         {
           "n": 1,
@@ -10777,7 +10709,7 @@
       "refs": []
     },
     {
-      "id": "doc_0382",
+      "id": "doc_0381",
       "title": "أعمال الرسل",
       "description": "نجد في أعمال الرسل ثلاث مقاطع رئيسية: إصحاح 1، وإصحاح 2 – 12 وإصحاح 13 إلى نهاية الرسالة.",
       "author": "John Nelson Darby",
@@ -10785,13 +10717,13 @@
       "completed": false,
       "hidden": false,
       "categories": [
-        "aamal-rusul"
+        "butrus-awwal"
       ],
-      "category": "aamal-rusul",
+      "category": "butrus-awwal",
       "filename": "أعمال الرسل.docx",
       "rel_path": "سينوبسيس\\العهد الجديد\\رسائل بولس",
-      "html_path": "documents/john-nelson-darby/سينوبسيس-العهد-الجديد-رسائل-بولس/doc_0382.html",
-      "download_path": "downloads/john-nelson-darby/سينوبسيس-العهد-الجديد-رسائل-بولس/doc_0382.docx",
+      "html_path": "documents/john-nelson-darby/سينوبسيس-العهد-الجديد-رسائل-بولس/doc_0381.html",
+      "download_path": "downloads/john-nelson-darby/سينوبسيس-العهد-الجديد-رسائل-بولس/doc_0381.docx",
       "chapters": [
         {
           "n": 1,
@@ -10865,7 +10797,7 @@
       "refs": []
     },
     {
-      "id": "doc_0383",
+      "id": "doc_0382",
       "title": "رسالة تسالونيكي الأولى",
       "description": "نجد في رسالتي تسالونيكي حالة المسيحي ورجاءه في هذا العالم بكل نضارتهما – بالتحديد في الرسالة الأولى؛ ففي الثانية كانت هنالك ضرورة بحماية تلك النضارة من مكايد هجومات العدو.",
       "author": "John Nelson Darby",
@@ -10873,13 +10805,13 @@
       "completed": false,
       "hidden": false,
       "categories": [
-        "tassaluniki-awwal"
+        "aamal-rusul"
       ],
-      "category": "tassaluniki-awwal",
+      "category": "aamal-rusul",
       "filename": "رسالة تسالونيكي الأولى.docx",
       "rel_path": "سينوبسيس\\العهد الجديد\\رسائل بولس",
-      "html_path": "documents/john-nelson-darby/سينوبسيس-العهد-الجديد-رسائل-بولس/doc_0383.html",
-      "download_path": "downloads/john-nelson-darby/سينوبسيس-العهد-الجديد-رسائل-بولس/doc_0383.docx",
+      "html_path": "documents/john-nelson-darby/سينوبسيس-العهد-الجديد-رسائل-بولس/doc_0382.html",
+      "download_path": "downloads/john-nelson-darby/سينوبسيس-العهد-الجديد-رسائل-بولس/doc_0382.docx",
       "chapters": [
         {
           "n": 1,
@@ -10908,7 +10840,7 @@
       "refs": []
     },
     {
-      "id": "doc_0384",
+      "id": "doc_0383",
       "title": "رسالة غلاطية",
       "description": "ترينا رسالة غلاطية المصدر الأساسي لأحزان الرسول وصراعاته في الضواحي التي كرز فيها بالبشارة السارة، كما وبالتالي أيضًا الوسيلة الرئيسية التي استخدمها العدو لإفساد الإنجيل.",
       "author": "John Nelson Darby",
@@ -10916,13 +10848,13 @@
       "completed": false,
       "hidden": false,
       "categories": [
-        "ghalatiya"
+        "tassaluniki-awwal"
       ],
-      "category": "ghalatiya",
+      "category": "tassaluniki-awwal",
       "filename": "رسالة غلاطية.docx",
       "rel_path": "سينوبسيس\\العهد الجديد\\رسائل بولس",
-      "html_path": "documents/john-nelson-darby/سينوبسيس-العهد-الجديد-رسائل-بولس/doc_0384.html",
-      "download_path": "downloads/john-nelson-darby/سينوبسيس-العهد-الجديد-رسائل-بولس/doc_0384.docx",
+      "html_path": "documents/john-nelson-darby/سينوبسيس-العهد-الجديد-رسائل-بولس/doc_0383.html",
+      "download_path": "downloads/john-nelson-darby/سينوبسيس-العهد-الجديد-رسائل-بولس/doc_0383.docx",
       "chapters": [
         {
           "n": 1,
@@ -10951,7 +10883,7 @@
       "refs": []
     },
     {
-      "id": "doc_0385",
+      "id": "doc_0384",
       "title": "رسالة كورنثوس الأولى – سينوبسيس",
       "description": "تقدم لنا رسالة كورنثوس الأولى مواضيعًا تختلف كثيرًا عن التي أشغلتنا فيها في رسالة رومية.",
       "author": "John Nelson Darby",
@@ -10959,13 +10891,13 @@
       "completed": false,
       "hidden": false,
       "categories": [
-        "kurunthus-awwal"
+        "ghalatiya"
       ],
-      "category": "kurunthus-awwal",
+      "category": "ghalatiya",
       "filename": "رسالة كورنثوس الأولى.docx",
       "rel_path": "سينوبسيس\\العهد الجديد\\رسائل بولس",
-      "html_path": "documents/john-nelson-darby/سينوبسيس-العهد-الجديد-رسائل-بولس/doc_0385.html",
-      "download_path": "downloads/john-nelson-darby/سينوبسيس-العهد-الجديد-رسائل-بولس/doc_0385.docx",
+      "html_path": "documents/john-nelson-darby/سينوبسيس-العهد-الجديد-رسائل-بولس/doc_0384.html",
+      "download_path": "downloads/john-nelson-darby/سينوبسيس-العهد-الجديد-رسائل-بولس/doc_0384.docx",
       "chapters": [
         {
           "n": 1,
@@ -10984,7 +10916,7 @@
       "refs": []
     },
     {
-      "id": "doc_0386",
+      "id": "doc_0385",
       "title": "رسالة يوحنا الأولى",
       "description": "موضوعها هو الحياة الأبدية المُعلنة في يسوع وقد مُنحنا إياها؛ فهي الحياة التي كانت عند الآب وفي الابن.",
       "author": "John Nelson Darby",
@@ -10992,13 +10924,13 @@
       "completed": false,
       "hidden": false,
       "categories": [
-        "yuanna-awwal"
+        "kurunthus-awwal"
       ],
-      "category": "yuanna-awwal",
+      "category": "kurunthus-awwal",
       "filename": "رسالة يوحنا الأولى.docx",
       "rel_path": "سينوبسيس\\العهد الجديد\\رسائل يوحنا",
-      "html_path": "documents/john-nelson-darby/سينوبسيس-العهد-الجديد-رسائل-يوحنا/doc_0386.html",
-      "download_path": "downloads/john-nelson-darby/سينوبسيس-العهد-الجديد-رسائل-يوحنا/doc_0386.docx",
+      "html_path": "documents/john-nelson-darby/سينوبسيس-العهد-الجديد-رسائل-يوحنا/doc_0385.html",
+      "download_path": "downloads/john-nelson-darby/سينوبسيس-العهد-الجديد-رسائل-يوحنا/doc_0385.docx",
       "chapters": [
         {
           "n": 1,
@@ -11017,7 +10949,7 @@
       "refs": []
     },
     {
-      "id": "doc_0387",
+      "id": "doc_0386",
       "title": "سفر الرؤيا",
       "description": "وما يرينا إياه هنا هو كيف هو تعامل الله مع الشر، ولكنه يعترف بالبقية قبل ذلك ويضعها جانبًا.",
       "author": "John Nelson Darby",
@@ -11025,13 +10957,13 @@
       "completed": false,
       "hidden": false,
       "categories": [
-        "mukashafa"
+        "yuanna-awwal"
       ],
-      "category": "mukashafa",
+      "category": "yuanna-awwal",
       "filename": "سفر الرؤيا 14.docx",
       "rel_path": "سينوبسيس\\العهد الجديد\\رسائل يوحنا",
-      "html_path": "documents/john-nelson-darby/سينوبسيس-العهد-الجديد-رسائل-يوحنا/doc_0387.html",
-      "download_path": "downloads/john-nelson-darby/سينوبسيس-العهد-الجديد-رسائل-يوحنا/doc_0387.docx",
+      "html_path": "documents/john-nelson-darby/سينوبسيس-العهد-الجديد-رسائل-يوحنا/doc_0386.html",
+      "download_path": "downloads/john-nelson-darby/سينوبسيس-العهد-الجديد-رسائل-يوحنا/doc_0386.docx",
       "chapters": [],
       "page_count": null,
       "mtime": 1755696598,
@@ -11039,7 +10971,7 @@
       "refs": []
     },
     {
-      "id": "doc_0388",
+      "id": "doc_0387",
       "title": "سفر الرؤيا",
       "description": "فكما هو مع الوحش هكذا هنا أيضًا يوجد موضوع واحد ووحيد فقط، الذي ستقع عليه الدينونة؛ أما في مفهوم أخلاقي فبابلون هي أهم وبالغة الأهمية أكثر من باقي مواضيع الدينونة.",
       "author": "John Nelson Darby",
@@ -11052,8 +10984,8 @@
       "category": "mukashafa",
       "filename": "سفر الرؤيا 17.docx",
       "rel_path": "سينوبسيس\\العهد الجديد\\رسائل يوحنا",
-      "html_path": "documents/john-nelson-darby/سينوبسيس-العهد-الجديد-رسائل-يوحنا/doc_0388.html",
-      "download_path": "downloads/john-nelson-darby/سينوبسيس-العهد-الجديد-رسائل-يوحنا/doc_0388.docx",
+      "html_path": "documents/john-nelson-darby/سينوبسيس-العهد-الجديد-رسائل-يوحنا/doc_0387.html",
+      "download_path": "downloads/john-nelson-darby/سينوبسيس-العهد-الجديد-رسائل-يوحنا/doc_0387.docx",
       "chapters": [],
       "page_count": null,
       "mtime": 1761296574,
@@ -11061,7 +10993,7 @@
       "refs": []
     },
     {
-      "id": "doc_0389",
+      "id": "doc_0388",
       "title": "سفر الرؤيا",
       "description": "من جهة الرسولين بطرس وبولس يقول لنا الكتاب، بأننا تأملنا في الأول باعتباره رسول الختان، والآخر كرسول الأمم.",
       "author": "John Nelson Darby",
@@ -11074,8 +11006,8 @@
       "category": "mukashafa",
       "filename": "سفر الرؤيا.docx",
       "rel_path": "سينوبسيس\\العهد الجديد\\رسائل يوحنا",
-      "html_path": "documents/john-nelson-darby/سينوبسيس-العهد-الجديد-رسائل-يوحنا/doc_0389.html",
-      "download_path": "downloads/john-nelson-darby/سينوبسيس-العهد-الجديد-رسائل-يوحنا/doc_0389.docx",
+      "html_path": "documents/john-nelson-darby/سينوبسيس-العهد-الجديد-رسائل-يوحنا/doc_0388.html",
+      "download_path": "downloads/john-nelson-darby/سينوبسيس-العهد-الجديد-رسائل-يوحنا/doc_0388.docx",
       "chapters": [
         {
           "n": 1,
@@ -11104,7 +11036,7 @@
       "refs": []
     },
     {
-      "id": "doc_0390",
+      "id": "doc_0389",
       "title": "سفر الخروج – سينوبسيس",
       "description": "في صورة عامة وكموضوع متميز لدينا في سفر الخروج خلاص وتحرير شعب الله وإقامته كشعب أمامه، إن في حُكم الناموس أو في حُكم عدالة الله في أناته – أمام إله الذي من بعد أن قادهم إليه اهتم بشعبه الغير أمين.",
       "author": "John Nelson Darby",
@@ -11112,13 +11044,13 @@
       "completed": false,
       "hidden": false,
       "categories": [
-        "kharuj"
+        "mukashafa"
       ],
-      "category": "kharuj",
+      "category": "mukashafa",
       "filename": "سفر الخروج.docx",
       "rel_path": "سينوبسيس\\العهد القديم\\أسفار موسى الخمسة",
-      "html_path": "documents/john-nelson-darby/سينوبسيس-العهد-القديم-أسفار-موسى-الخمسة/doc_0390.html",
-      "download_path": "downloads/john-nelson-darby/سينوبسيس-العهد-القديم-أسفار-موسى-الخمسة/doc_0390.docx",
+      "html_path": "documents/john-nelson-darby/سينوبسيس-العهد-القديم-أسفار-موسى-الخمسة/doc_0389.html",
+      "download_path": "downloads/john-nelson-darby/سينوبسيس-العهد-القديم-أسفار-موسى-الخمسة/doc_0389.docx",
       "chapters": [
         {
           "n": 1,
@@ -11142,7 +11074,7 @@
       "refs": []
     },
     {
-      "id": "doc_0391",
+      "id": "doc_0390",
       "title": "تأمل في سفر 1. صموئيل (سينوبسيس)",
       "description": "لقد رأينا بأن سفر راعوث يحتل بحسب محتواه على مكانة متوسطة ما بين نهاية فترة حُكم الله على إسرائيل مستخدمًا قضاة من حين إلى آخر، وتعيين الملك الذي هو اختاره لهم.",
       "author": "John Nelson Darby",
@@ -11150,13 +11082,13 @@
       "completed": false,
       "hidden": false,
       "categories": [
-        "samuil-awwal"
+        "kharuj"
       ],
-      "category": "samuil-awwal",
+      "category": "kharuj",
       "filename": "تأمل في سفر 1. صموئيل.docx",
       "rel_path": "سينوبسيس\\العهد القديم\\الأسفار التاريخية",
-      "html_path": "documents/john-nelson-darby/سينوبسيس-العهد-القديم-الأسفار-التاريخية/doc_0391.html",
-      "download_path": "downloads/john-nelson-darby/سينوبسيس-العهد-القديم-الأسفار-التاريخية/doc_0391.docx",
+      "html_path": "documents/john-nelson-darby/سينوبسيس-العهد-القديم-الأسفار-التاريخية/doc_0390.html",
+      "download_path": "downloads/john-nelson-darby/سينوبسيس-العهد-القديم-الأسفار-التاريخية/doc_0390.docx",
       "chapters": [
         {
           "n": 1,
@@ -11200,7 +11132,7 @@
       "refs": []
     },
     {
-      "id": "doc_0392",
+      "id": "doc_0391",
       "title": "تأمل في سفر 2. صموئيل",
       "description": "إن سفر صموئيل الثاني يعرض لنا تثبيت داود النهائي في المملكة ومن ثم أحزان بيته حينما فتحت حياة الراحة بابها للإرادة الذاتية.",
       "author": "John Nelson Darby",
@@ -11208,13 +11140,13 @@
       "completed": false,
       "hidden": false,
       "categories": [
-        "samuil-thani"
+        "samuil-awwal"
       ],
-      "category": "samuil-thani",
+      "category": "samuil-awwal",
       "filename": "تأمل في سفر 2. صموئيل.docx",
       "rel_path": "سينوبسيس\\العهد القديم\\الأسفار التاريخية",
-      "html_path": "documents/john-nelson-darby/سينوبسيس-العهد-القديم-الأسفار-التاريخية/doc_0392.html",
-      "download_path": "downloads/john-nelson-darby/سينوبسيس-العهد-القديم-الأسفار-التاريخية/doc_0392.docx",
+      "html_path": "documents/john-nelson-darby/سينوبسيس-العهد-القديم-الأسفار-التاريخية/doc_0391.html",
+      "download_path": "downloads/john-nelson-darby/سينوبسيس-العهد-القديم-الأسفار-التاريخية/doc_0391.docx",
       "chapters": [
         {
           "n": 1,
@@ -11243,7 +11175,7 @@
       "refs": []
     },
     {
-      "id": "doc_0393",
+      "id": "doc_0392",
       "title": "تأمل في سفر الملوك الثاني (سينوبسيس)",
       "description": "عندما أظهر الله بأنه لاحظ خطأ عبده وبأنه لم يكن من السهل عليه أن يتخطاه، لم يسمح دون أن يُظهر له رقّة أو أمانة نحوه.",
       "author": "John Nelson Darby",
@@ -11251,13 +11183,13 @@
       "completed": false,
       "hidden": false,
       "categories": [
-        "muluk-thani"
+        "samuil-thani"
       ],
-      "category": "muluk-thani",
+      "category": "samuil-thani",
       "filename": "تأمل في سفر الملوك الثاني.docx",
       "rel_path": "سينوبسيس\\العهد القديم\\الأسفار التاريخية",
-      "html_path": "documents/john-nelson-darby/سينوبسيس-العهد-القديم-الأسفار-التاريخية/doc_0393.html",
-      "download_path": "downloads/john-nelson-darby/سينوبسيس-العهد-القديم-الأسفار-التاريخية/doc_0393.docx",
+      "html_path": "documents/john-nelson-darby/سينوبسيس-العهد-القديم-الأسفار-التاريخية/doc_0392.html",
+      "download_path": "downloads/john-nelson-darby/سينوبسيس-العهد-القديم-الأسفار-التاريخية/doc_0392.docx",
       "chapters": [
         {
           "n": 1,
@@ -11286,7 +11218,7 @@
       "refs": []
     },
     {
-      "id": "doc_0394",
+      "id": "doc_0393",
       "title": "سفر القضاة - سينوبسيس",
       "description": "يشوع يضع أمام عيوننا قوة الله، التي وعلى الرغم من أنه قد يكون هنالك فشل، فهي تعمل وسط الشعب.",
       "author": "John Nelson Darby",
@@ -11294,13 +11226,13 @@
       "completed": true,
       "hidden": false,
       "categories": [
-        "qudah"
+        "muluk-thani"
       ],
-      "category": "qudah",
+      "category": "muluk-thani",
       "filename": "سفر القضاة.docx",
       "rel_path": "سينوبسيس\\العهد القديم\\الأسفار التاريخية\\تم",
-      "html_path": "documents/john-nelson-darby/سينوبسيس-العهد-القديم-الأسفار-التاريخية-تم/doc_0394.html",
-      "download_path": "downloads/john-nelson-darby/سينوبسيس-العهد-القديم-الأسفار-التاريخية-تم/doc_0394.docx",
+      "html_path": "documents/john-nelson-darby/سينوبسيس-العهد-القديم-الأسفار-التاريخية-تم/doc_0393.html",
+      "download_path": "downloads/john-nelson-darby/سينوبسيس-العهد-القديم-الأسفار-التاريخية-تم/doc_0393.docx",
       "chapters": [
         {
           "n": 1,
@@ -11349,7 +11281,7 @@
       "refs": []
     },
     {
-      "id": "doc_0395",
+      "id": "doc_0394",
       "title": "سفر ملوك الأول",
       "description": "إن سفري الملوك يريانا  سقوط السلطة الملكية التي قامت في كل مجدها، وشهادة الله وسط الانهيار وتفاصيل حول يهوذا من بعد رفض إسرائيل، إلى أن أُطلق اسم لوعمي على كل الأمة.",
       "author": "John Nelson Darby",
@@ -11357,13 +11289,13 @@
       "completed": false,
       "hidden": false,
       "categories": [
-        "muluk-awwal"
+        "qudah"
       ],
-      "category": "muluk-awwal",
+      "category": "qudah",
       "filename": "سفر ملوك الأول.docx",
       "rel_path": "سينوبسيس\\العهد القديم\\الأسفار التاريخية",
-      "html_path": "documents/john-nelson-darby/سينوبسيس-العهد-القديم-الأسفار-التاريخية/doc_0395.html",
-      "download_path": "downloads/john-nelson-darby/سينوبسيس-العهد-القديم-الأسفار-التاريخية/doc_0395.docx",
+      "html_path": "documents/john-nelson-darby/سينوبسيس-العهد-القديم-الأسفار-التاريخية/doc_0394.html",
+      "download_path": "downloads/john-nelson-darby/سينوبسيس-العهد-القديم-الأسفار-التاريخية/doc_0394.docx",
       "chapters": [
         {
           "n": 1,
@@ -11382,7 +11314,7 @@
       "refs": []
     },
     {
-      "id": "doc_0396",
+      "id": "doc_0395",
       "title": "سفر يشوع – سينوبسيس",
       "description": "من جانب واحد قدّمت لنا أمام عيوننا المبادئ الأساسية المؤسسة عليها روابط الإنسان مع الله والله مع الإنسان في عناصرها كالفداء، الذبائح وما شابه ذلك، ومن الجانب الآخر خلاص شعب مُخصص له، ومختلف الشروط...",
       "author": "John Nelson Darby",
@@ -11390,13 +11322,13 @@
       "completed": false,
       "hidden": false,
       "categories": [
-        "yishu"
+        "muluk-awwal"
       ],
-      "category": "yishu",
+      "category": "muluk-awwal",
       "filename": "سفر يشوع - سينوبسيس.docx",
       "rel_path": "سينوبسيس\\العهد القديم\\الأسفار التاريخية",
-      "html_path": "documents/john-nelson-darby/سينوبسيس-العهد-القديم-الأسفار-التاريخية/doc_0396.html",
-      "download_path": "downloads/john-nelson-darby/سينوبسيس-العهد-القديم-الأسفار-التاريخية/doc_0396.docx",
+      "html_path": "documents/john-nelson-darby/سينوبسيس-العهد-القديم-الأسفار-التاريخية/doc_0395.html",
+      "download_path": "downloads/john-nelson-darby/سينوبسيس-العهد-القديم-الأسفار-التاريخية/doc_0395.docx",
       "chapters": [
         {
           "n": 1,
@@ -11415,7 +11347,7 @@
       "refs": []
     },
     {
-      "id": "doc_0397",
+      "id": "doc_0396",
       "title": "تأمل في المزامير (سينوبسيس)",
       "description": "هو لا يحتوي على تاريخ شعب الله أو على طرق الله معه، ولا على بلاغ لتعاليم معينة أو التزامات ولا الخبر النبوي الرسمي عن أحداث المستقبل.",
       "author": "John Nelson Darby",
@@ -11423,13 +11355,13 @@
       "completed": false,
       "hidden": false,
       "categories": [
-        "mazamir"
+        "yishu"
       ],
-      "category": "mazamir",
+      "category": "yishu",
       "filename": "تأمل في المزامير.docx",
       "rel_path": "سينوبسيس\\العهد القديم\\الأسفار الشعرية",
-      "html_path": "documents/john-nelson-darby/سينوبسيس-العهد-القديم-الأسفار-الشعرية/doc_0397.html",
-      "download_path": "downloads/john-nelson-darby/سينوبسيس-العهد-القديم-الأسفار-الشعرية/doc_0397.docx",
+      "html_path": "documents/john-nelson-darby/سينوبسيس-العهد-القديم-الأسفار-الشعرية/doc_0396.html",
+      "download_path": "downloads/john-nelson-darby/سينوبسيس-العهد-القديم-الأسفار-الشعرية/doc_0396.docx",
       "chapters": [
         {
           "n": 1,
@@ -11483,7 +11415,7 @@
       "refs": []
     },
     {
-      "id": "doc_0398",
+      "id": "doc_0397",
       "title": "سفر الأمثال",
       "description": "يصف لنا سفر الأمثال تطبيق تلك الحكمة التي سبق وخلقت السماوات والأرض، على تفاصيل الحياة اليومية في عالم تملؤه الحيرة والشر.",
       "author": "John Nelson Darby",
@@ -11491,13 +11423,13 @@
       "completed": false,
       "hidden": false,
       "categories": [
-        "amthal"
+        "mazamir"
       ],
-      "category": "amthal",
+      "category": "mazamir",
       "filename": "سفر الأمثال.docx",
       "rel_path": "سينوبسيس\\العهد القديم\\الأسفار الشعرية",
-      "html_path": "documents/john-nelson-darby/سينوبسيس-العهد-القديم-الأسفار-الشعرية/doc_0398.html",
-      "download_path": "downloads/john-nelson-darby/سينوبسيس-العهد-القديم-الأسفار-الشعرية/doc_0398.docx",
+      "html_path": "documents/john-nelson-darby/سينوبسيس-العهد-القديم-الأسفار-الشعرية/doc_0397.html",
+      "download_path": "downloads/john-nelson-darby/سينوبسيس-العهد-القديم-الأسفار-الشعرية/doc_0397.docx",
       "chapters": [
         {
           "n": 1,
@@ -11531,7 +11463,7 @@
       "refs": []
     },
     {
-      "id": "doc_0399",
+      "id": "doc_0398",
       "title": "تأمل في النبي حبقوق (سينوبسيس)",
       "description": "يا لها من طريقة متنوعة وكاملة يُعلن فيها الله عن طرقه في كلمته!",
       "author": "John Nelson Darby",
@@ -11539,13 +11471,13 @@
       "completed": false,
       "hidden": false,
       "categories": [
-        "haqquq"
+        "amthal"
       ],
-      "category": "haqquq",
+      "category": "amthal",
       "filename": "تأمل في النبي حبقوق - John Nelson Darby.docx",
       "rel_path": "سينوبسيس\\العهد القديم\\الأنبياء الصغار",
-      "html_path": "documents/john-nelson-darby/سينوبسيس-العهد-القديم-الأنبياء-الصغار/doc_0399.html",
-      "download_path": "downloads/john-nelson-darby/سينوبسيس-العهد-القديم-الأنبياء-الصغار/doc_0399.docx",
+      "html_path": "documents/john-nelson-darby/سينوبسيس-العهد-القديم-الأنبياء-الصغار/doc_0398.html",
+      "download_path": "downloads/john-nelson-darby/سينوبسيس-العهد-القديم-الأنبياء-الصغار/doc_0398.docx",
       "chapters": [
         {
           "n": 1,
@@ -11574,7 +11506,7 @@
       "refs": []
     },
     {
-      "id": "doc_0400",
+      "id": "doc_0399",
       "title": "تأمل في النبي ميخا",
       "description": "نبوة ميخا تذكر ذات المعطى التاريخي الذي نشأت فيه كمُعطى التاريخي الذي في أشعياء وهي مطابقة في جزء منه.",
       "author": "John Nelson Darby",
@@ -11582,13 +11514,13 @@
       "completed": false,
       "hidden": false,
       "categories": [
-        "mikha"
+        "haqquq"
       ],
-      "category": "mikha",
+      "category": "haqquq",
       "filename": "تأمل في النبي ميخا.docx",
       "rel_path": "سينوبسيس\\العهد القديم\\الأنبياء الصغار",
-      "html_path": "documents/john-nelson-darby/سينوبسيس-العهد-القديم-الأنبياء-الصغار/doc_0400.html",
-      "download_path": "downloads/john-nelson-darby/سينوبسيس-العهد-القديم-الأنبياء-الصغار/doc_0400.docx",
+      "html_path": "documents/john-nelson-darby/سينوبسيس-العهد-القديم-الأنبياء-الصغار/doc_0399.html",
+      "download_path": "downloads/john-nelson-darby/سينوبسيس-العهد-القديم-الأنبياء-الصغار/doc_0399.docx",
       "chapters": [
         {
           "n": 1,
@@ -11622,7 +11554,7 @@
       "refs": []
     },
     {
-      "id": "doc_0401",
+      "id": "doc_0400",
       "title": "تأملات حول نبوة ناحوم – سينوبسيس",
       "description": "إن أردنا بأن نتأمل الملامح الخاصة بأكثر دقة في كل أمة من الأمم التي كانت في تلامس مع شعب الله، فربما سنجد بأن في كل واحدة منها يوجد انطباع واضح جدًا لنوع محدد من الشر.",
       "author": "John Nelson Darby",
@@ -11630,13 +11562,13 @@
       "completed": false,
       "hidden": false,
       "categories": [
-        "nahum"
+        "mikha"
       ],
-      "category": "nahum",
+      "category": "mikha",
       "filename": "تأملات حول نبوة ناحوم.docx",
       "rel_path": "سينوبسيس\\العهد القديم\\الأنبياء الصغار",
-      "html_path": "documents/john-nelson-darby/سينوبسيس-العهد-القديم-الأنبياء-الصغار/doc_0401.html",
-      "download_path": "downloads/john-nelson-darby/سينوبسيس-العهد-القديم-الأنبياء-الصغار/doc_0401.docx",
+      "html_path": "documents/john-nelson-darby/سينوبسيس-العهد-القديم-الأنبياء-الصغار/doc_0400.html",
+      "download_path": "downloads/john-nelson-darby/سينوبسيس-العهد-القديم-الأنبياء-الصغار/doc_0400.docx",
       "chapters": [],
       "page_count": null,
       "mtime": 1668494172,
@@ -11644,9 +11576,31 @@
       "refs": []
     },
     {
-      "id": "doc_0402",
+      "id": "doc_0401",
       "title": "سفر عوبديا",
       "description": "وقد جاء مثل يعقوب كنسل من إسحاق، غير أنه كان يضمر داخل قلبه كراهية لنسل الابن الأصغر، والذين أُنعموا ليكونوا شعبًا للرب.",
+      "author": "John Nelson Darby",
+      "author_slug": "john-nelson-darby",
+      "completed": true,
+      "hidden": false,
+      "categories": [
+        "nahum"
+      ],
+      "category": "nahum",
+      "filename": "سفر عوبديا.docx",
+      "rel_path": "سينوبسيس\\العهد القديم\\الأنبياء الصغار\\تم",
+      "html_path": "documents/john-nelson-darby/سينوبسيس-العهد-القديم-الأنبياء-الصغار-تم/doc_0401.html",
+      "download_path": "downloads/john-nelson-darby/سينوبسيس-العهد-القديم-الأنبياء-الصغار-تم/doc_0401.docx",
+      "chapters": [],
+      "page_count": null,
+      "mtime": 1787645335,
+      "file_hash": "4d901edd",
+      "refs": []
+    },
+    {
+      "id": "doc_0402",
+      "title": "سفر نحميا",
+      "description": "إن سفر نحميا لا يتطلب إلا القليل من الملاحظات، ولكن من المهم بأن نحدد معناه.",
       "author": "John Nelson Darby",
       "author_slug": "john-nelson-darby",
       "completed": true,
@@ -11655,32 +11609,10 @@
         "ubadiya"
       ],
       "category": "ubadiya",
-      "filename": "سفر عوبديا.docx",
+      "filename": "سفر نحميا.docx",
       "rel_path": "سينوبسيس\\العهد القديم\\الأنبياء الصغار\\تم",
       "html_path": "documents/john-nelson-darby/سينوبسيس-العهد-القديم-الأنبياء-الصغار-تم/doc_0402.html",
       "download_path": "downloads/john-nelson-darby/سينوبسيس-العهد-القديم-الأنبياء-الصغار-تم/doc_0402.docx",
-      "chapters": [],
-      "page_count": null,
-      "mtime": 1787645335,
-      "file_hash": "4d901edd",
-      "refs": []
-    },
-    {
-      "id": "doc_0403",
-      "title": "سفر نحميا",
-      "description": "إن سفر نحميا لا يتطلب إلا القليل من الملاحظات، ولكن من المهم بأن نحدد معناه.",
-      "author": "John Nelson Darby",
-      "author_slug": "john-nelson-darby",
-      "completed": true,
-      "hidden": false,
-      "categories": [
-        "nahumya"
-      ],
-      "category": "nahumya",
-      "filename": "سفر نحميا.docx",
-      "rel_path": "سينوبسيس\\العهد القديم\\الأنبياء الصغار\\تم",
-      "html_path": "documents/john-nelson-darby/سينوبسيس-العهد-القديم-الأنبياء-الصغار-تم/doc_0403.html",
-      "download_path": "downloads/john-nelson-darby/سينوبسيس-العهد-القديم-الأنبياء-الصغار-تم/doc_0403.docx",
       "chapters": [],
       "page_count": null,
       "mtime": 1768292673,
@@ -11688,7 +11620,7 @@
       "refs": []
     },
     {
-      "id": "doc_0404",
+      "id": "doc_0403",
       "title": "سفر هوشع",
       "description": "قبل أن أبدأ في التأمل بالأنبياء الصغار، أود بأن أقدم بعض الملاحظات حول الأسفار النبوية في صورة عامة وبالأخص بأن ألفت النظر إلى المواضيع المتضمنة فيها.",
       "author": "John Nelson Darby",
@@ -11696,13 +11628,13 @@
       "completed": false,
       "hidden": false,
       "categories": [
-        "husha"
+        "nahumya"
       ],
-      "category": "husha",
+      "category": "nahumya",
       "filename": "سفر هوشع.docx",
       "rel_path": "سينوبسيس\\العهد القديم\\الأنبياء الصغار",
-      "html_path": "documents/john-nelson-darby/سينوبسيس-العهد-القديم-الأنبياء-الصغار/doc_0404.html",
-      "download_path": "downloads/john-nelson-darby/سينوبسيس-العهد-القديم-الأنبياء-الصغار/doc_0404.docx",
+      "html_path": "documents/john-nelson-darby/سينوبسيس-العهد-القديم-الأنبياء-الصغار/doc_0403.html",
+      "download_path": "downloads/john-nelson-darby/سينوبسيس-العهد-القديم-الأنبياء-الصغار/doc_0403.docx",
       "chapters": [
         {
           "n": 1,
@@ -11731,7 +11663,7 @@
       "refs": []
     },
     {
-      "id": "doc_0405",
+      "id": "doc_0404",
       "title": "سفر يونان - سينوبسيس",
       "description": "إن التأمل في سفر يونان يقدم لنا فرصة بأن نطبق سيرته على بعض العواطف التي تظهر في قلوب الناس في كل الأزمنة.",
       "author": "John Nelson Darby",
@@ -11739,13 +11671,13 @@
       "completed": false,
       "hidden": false,
       "categories": [
-        "yunan"
+        "husha"
       ],
-      "category": "yunan",
+      "category": "husha",
       "filename": "سفر يونان - سينوبسيس.docx",
       "rel_path": "سينوبسيس\\العهد القديم\\الأنبياء الصغار",
-      "html_path": "documents/john-nelson-darby/سينوبسيس-العهد-القديم-الأنبياء-الصغار/doc_0405.html",
-      "download_path": "downloads/john-nelson-darby/سينوبسيس-العهد-القديم-الأنبياء-الصغار/doc_0405.docx",
+      "html_path": "documents/john-nelson-darby/سينوبسيس-العهد-القديم-الأنبياء-الصغار/doc_0404.html",
+      "download_path": "downloads/john-nelson-darby/سينوبسيس-العهد-القديم-الأنبياء-الصغار/doc_0404.docx",
       "chapters": [
         {
           "n": 1,
@@ -11766,6 +11698,74 @@
       "page_count": null,
       "mtime": 1677350318,
       "file_hash": "9312a7cc",
+      "refs": []
+    },
+    {
+      "id": "doc_0405",
+      "title": "دراسة في النبي أرميا",
+      "description": "سفر النبي أرميا له طابع يختلف عن سفر أشعياء؛ فهو لا يحتوي على ذات التوسع في مشورات الله بخصوص هذه الأرض مثل ذاك.",
+      "author": "John Nelson Darby",
+      "author_slug": "john-nelson-darby",
+      "completed": false,
+      "hidden": false,
+      "categories": [
+        "yunan"
+      ],
+      "category": "yunan",
+      "filename": "تأمل في نبوة أرمياء.docx",
+      "rel_path": "سينوبسيس\\العهد القديم\\الأنبياء الكبار\\إرميا سينوبسيس",
+      "html_path": "documents/john-nelson-darby/سينوبسيس-العهد-القديم-الأنبياء-الكبار-إرميا-سينوبس/doc_0405.html",
+      "download_path": "downloads/john-nelson-darby/سينوبسيس-العهد-القديم-الأنبياء-الكبار-إرميا-سينوبس/doc_0405.docx",
+      "chapters": [
+        {
+          "n": 1,
+          "title": "دراسة في النبي أرميا",
+          "anchor": "ch-1"
+        },
+        {
+          "n": 2,
+          "title": "إصحاح 1 – 9",
+          "anchor": "ch-2"
+        },
+        {
+          "n": 3,
+          "title": "في الإصحاح 7 تبدأ نبوة جديدة، والتي تنظر بشكل خاص إلى...",
+          "anchor": "ch-3"
+        },
+        {
+          "n": 4,
+          "title": "إصحاح 10 – 14",
+          "anchor": "ch-4"
+        },
+        {
+          "n": 5,
+          "title": "إصحاح 15",
+          "anchor": "ch-5"
+        },
+        {
+          "n": 6,
+          "title": "إصحاح 16 – 18",
+          "anchor": "ch-6"
+        },
+        {
+          "n": 7,
+          "title": "إصحاح 19 - 23",
+          "anchor": "ch-7"
+        },
+        {
+          "n": 8,
+          "title": "إصحاح 24 – 25",
+          "anchor": "ch-8"
+        },
+        {
+          "n": 9,
+          "title": "إصحاح 26 – 29",
+          "anchor": "ch-9"
+        }
+      ],
+      "page_count": null,
+      "mtime": 1662460567,
+      "file_hash": "8f9ea002",
       "refs": []
     },
     {
