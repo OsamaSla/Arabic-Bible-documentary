@@ -16,6 +16,8 @@ Security:
 Features:
   - Serves docs/ as a static site
   - Serves local-only admin panel + hidden documents
+  - Local-only: article pages gain an "open original .docx" bar (memory-only,
+    never written to docs/) + GET /local-source/<docId> streams the source file
   - GET  /api/changes        -> source + git changes since last build
   - GET  /api/documents      -> full document list (incl. hidden)
   - GET  /api/categories     -> category vocabulary + current assignments
@@ -27,6 +29,7 @@ Features:
 import sys
 import io
 import json
+import re
 import hmac
 import secrets
 import subprocess
@@ -35,7 +38,7 @@ import webbrowser
 import threading
 from datetime import datetime
 from pathlib import Path
-from urllib.parse import urlparse, unquote
+from urllib.parse import urlparse, unquote, quote
 from urllib.request import Request as UrlRequest, urlopen as url_open
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
@@ -220,6 +223,76 @@ def _load_assignments():
         return {}
 
 
+_DOC_LOOKUP = {'by_html': None, 'by_id': None}
+
+
+def _article_index():
+    """Cached {html_path -> doc, id -> doc} from the public index (local use only)."""
+    if _DOC_LOOKUP['by_html'] is not None:
+        return _DOC_LOOKUP
+    by_html, by_id = {}, {}
+    idx_path = DOCS_DIR / 'documents' / 'index.json'
+    try:
+        with open(idx_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        for doc in data.get('documents', []):
+            if doc.get('html_path'):
+                by_html[doc['html_path']] = doc
+            if doc.get('id'):
+                by_id[str(doc['id'])] = doc
+    except Exception:
+        pass
+    _DOC_LOOKUP['by_html'] = by_html
+    _DOC_LOOKUP['by_id'] = by_id
+    return _DOC_LOOKUP
+
+
+def _source_path_for(doc):
+    """Original editable .docx under SOURCE_DIR, or None. Never leaves SOURCE_DIR."""
+    if not doc:
+        return None
+    author = doc.get('author') or ''
+    filename = doc.get('filename') or ''
+    rel = doc.get('rel_path') or ''
+    if not author or not filename:
+        return None
+    if '..' in author or '..' in filename or '..' in rel:
+        return None
+    base = SOURCE_DIR / author
+    full = (base / rel / filename) if rel else (base / filename)
+    try:
+        resolved = full.resolve()
+        root = SOURCE_DIR.resolve()
+    except OSError:
+        return None
+    try:
+        if not resolved.is_relative_to(root):
+            return None
+    except Exception:
+        return None
+    return resolved if resolved.is_file() else None
+
+
+def _local_source_bar(doc_id, host):
+    """Localhost-only button bar (injected in memory; never written to docs/)."""
+    abs_url = 'http://%s/local-source/%s' % (host or '127.0.0.1:8000', doc_id)
+    word_url = 'ms-word:ofe|u|' + quote(abs_url, safe='')
+    return (
+        '<p class="local-src-bar" data-local-only="1" style="min-height:44px;display:flex;'
+        'flex-wrap:wrap;gap:.5rem;align-items:center;padding:.5rem .8rem;margin:0 0 1rem;'
+        'background:rgba(184,134,11,.12);border:1px dashed currentColor;border-radius:.5rem;'
+        'font-size:.85rem;">'
+        '<span aria-hidden="true">📂</span>'
+        '<a class="local-src-link" style="font-weight:700;" '
+        f'href="/local-source/{doc_id}">فتح الأصل Word</a>'
+        f'<a class="local-src-direct" href="{word_url}">فتح مباشر في Word</a>'
+        '<span style="opacity:.7;">(محلي فقط — لا يظهر على الموقع المنشور)</span>'
+        '</p>'
+        '<style>.local-src-bar a:focus-visible{outline:3px solid #b8860b;outline-offset:2px;'
+        'border-radius:.25rem;}</style>'
+    )
+
+
 def _valid_category_slugs(vocab):
     slugs = {'uncategorized'}
     for group in (vocab.get('categories') or {}).values():
@@ -379,6 +452,8 @@ class DevHandler(BaseHTTPRequestHandler):
                 self._deny(403, 'Forbidden origin.')
                 return
             self._serve_admin_panel()
+        elif path.startswith('/local-source/'):
+            self._handle_local_source()
         else:
             self._serve_static()
 
@@ -431,7 +506,58 @@ class DevHandler(BaseHTTPRequestHandler):
         if str(resolved) == str(BASE_DIR.resolve() / 'admin-panel.html'):
             self._serve_admin_panel()
             return
+        if self._serve_article_local(resolved):
+            return
         self._send_file(resolved, cache=True)
+
+    def _serve_article_local(self, resolved):
+        """Inject the localhost-only original-docx bar into article pages (memory only)."""
+        try:
+            docs_root = DOCS_DIR.resolve()
+            if not (str(resolved) == str(docs_root) or
+                    str(resolved).startswith(str(docs_root) + __import__('os').sep)):
+                return False
+            rel = resolved.relative_to(docs_root).as_posix()
+        except Exception:
+            return False
+        if not (rel.startswith('documents/') and rel.endswith('.html')):
+            return False
+        try:
+            doc = _article_index()['by_html'].get(rel)
+            src = _source_path_for(doc)
+            if src is None:
+                return False
+            html = resolved.read_text(encoding='utf-8')
+        except (OSError, UnicodeDecodeError):
+            return False
+        host = self.headers.get('Host') or '127.0.0.1:8000'
+        bar = _local_source_bar(str(doc.get('id')), host)
+        new_html, n = re.subn(r'(<article class="document-content"[^>]*>)',
+                              r'\1' + bar, html, count=1)
+        if not n:
+            return False
+        data = new_html.encode('utf-8')
+        self.send_response(200)
+        self.send_header('Content-Type', 'text/html; charset=utf-8')
+        self.send_header('Content-Length', str(len(data)))
+        self.send_header('Cache-Control', 'no-store')
+        self.send_header('X-Content-Type-Options', 'nosniff')
+        self.end_headers()
+        self.wfile.write(data)
+        return True
+
+    def _handle_local_source(self):
+        """Stream the original editable .docx for one document (localhost only)."""
+        raw = unquote((self.path.split('?', 1)[0])[len('/local-source/'):]).split('/')[0]
+        if not re.fullmatch(r'doc_\d+', raw or ''):
+            self.send_error(404, 'Not found')
+            return
+        doc = _article_index()['by_id'].get(raw)
+        src = _source_path_for(doc)
+        if src is None:
+            self.send_error(404, 'Not found')
+            return
+        self._send_file(src, cache=False)
 
     # ---- API handlers ----
 
@@ -823,6 +949,7 @@ def main():
     admin_url = f'http://{SERVER_HOST}:{args.port}/admin-panel.html'
     print(f'[SERVER] Serving docs/ at http://localhost:{args.port} (127.0.0.1 only)')
     print(f'[SERVER] Admin panel: {admin_url}')
+    print('[SERVER] Local-only: article pages show an original-.docx bar; /local-source/<docId>')
     print(f'[SERVER] API token (X-Serve-Token): {SERVE_TOKEN}')
     print('[SERVER] API endpoints (token required):')
     print('  GET  /api/changes        - Changes since last build')
