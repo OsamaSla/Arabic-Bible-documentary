@@ -531,3 +531,49 @@
     outline: 3px solid var(--color-secondary);
     outline-offset: 2px;
 }
+
+/* ---- Sticky book header on per-book pages (title + 2-row chapter strip) ---- */
+.book-sticky-head {
+    position: sticky;
+    top: var(--bibles-filter-top, 120px);
+    z-index: 500;
+    background: var(--bg-cream);
+    padding: 0.5rem 0 0.75rem;
+    margin-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-light);
+    min-height: 150px;
+}
+
+.book-sticky-head h1 {
+    margin-bottom: 0.25rem;
+}
+
+.book-sticky-head .ch-sub {
+    margin: 0 0 0.75rem;
+}
+
+.book-sticky-head .book-chapters-strip {
+    margin: 0;
+}
+
+.book-chapters-strip a.is-empty {
+    opacity: 0.55;
+    font-weight: 400;
+}
+
+.book-chapters-strip a.is-empty:hover {
+    opacity: 1;
+}
+
+@media (max-width: 768px) {
+    .book-sticky-head {
+        top: var(--bibles-filter-top, 170px);
+        min-height: 180px;
+    }
+}
+
+@media print {
+    .book-sticky-head {
+        position: static;
+    }
+}

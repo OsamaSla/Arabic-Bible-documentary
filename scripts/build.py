@@ -626,10 +626,13 @@ def _bible_book_card(slug, info, bucket, testament):
     )
 
 
-def _chapter_doc_row(entry, verses):
+def _chapter_doc_row(entry, verses, prefix=''):
     title = escape_html(entry.get('title', 'بدون عنوان'))
     author = escape_html(entry.get('author', ''))
-    path = escape_html(entry.get('html_path', '#'))
+    raw_path = entry.get('html_path', '#')
+    if raw_path and raw_path != '#' and not raw_path.startswith(('http://', 'https://', '/')):
+        raw_path = f'{prefix}{raw_path}'
+    path = escape_html(raw_path)
     badge = ('<span class="cd-status done" aria-label="مكتمل" title="مكتمل">&#10003;</span>'
              if entry.get('completed') else
              '<span class="cd-status prog" aria-label="قيد الترجمة" title="قيد الترجمة">&#9679;</span>')
@@ -784,22 +787,31 @@ def _bible_book_page_html(info, slug, bucket, total_chapters, prev_slug, next_sl
         return e
 
     strip = ''.join(
-        f'<a href="#book-{slug}-ch-{ch}">{ch}</a>'
+        (
+            f'<a href="#book-{slug}-ch-{ch}">{ch}</a>'
+            if entries_for(ch) else
+            f'<a class="is-empty" href="{ch}.html" title="نص الإصحاح">{ch}</a>'
+        )
         for ch in range(1, total_chapters + 1)
     )
-    parts = [f'<nav class="book-chapters-strip" aria-label="الإصحاحات">{strip}</nav>']
+    head_html = (
+        f'<div class="book-sticky-head">'
+        f'<h1>{name}</h1>'
+        f'<p class="ch-sub">{name_de} &middot; {testament} &middot; {total_chapters} إصحاح &middot; {bucket["docs"]} تعليقات</p>'
+        f'<nav class="book-chapters-strip" aria-label="الإصحاحات">{strip}</nav>'
+        f'</div>'
+    )
+    parts = []
     for ch in range(1, total_chapters + 1):
         entries = entries_for(ch)
-        if entries:
-            rows = ''.join(
-                _chapter_doc_row(e, (e.get('chapters') or {}).get(ch, []) or (e.get('chapters') or {}).get(str(ch), []))
-                for e in entries
-            )
-            docs_html = f'<ul class="chapter-docs">{rows}</ul>'
-            count = f'<span class="chapter-count">{len(entries)} تعليقات</span>'
-        else:
-            docs_html = '<p class="ch-empty-note">لا توجد تعليقات على هذا الإصحاح بعد.</p>'
-            count = '<span class="chapter-count">بدون تعليقات</span>'
+        if not entries:
+            continue
+        rows = ''.join(
+            _chapter_doc_row(e, (e.get('chapters') or {}).get(ch, []) or (e.get('chapters') or {}).get(str(ch), []), prefix)
+            for e in entries
+        )
+        docs_html = f'<ul class="chapter-docs">{rows}</ul>'
+        count = f'<span class="chapter-count">{len(entries)} تعليقات</span>'
         parts.append(
             f'<section class="chapter-block" id="book-{slug}-ch-{ch}">'
             f'<h3 class="chapter-title">الإصحاح {ch}'
@@ -808,7 +820,7 @@ def _bible_book_page_html(info, slug, bucket, total_chapters, prev_slug, next_sl
             f'{docs_html}</section>'
         )
     if loose:
-        rows = ''.join(_chapter_doc_row(e, []) for e in loose)
+        rows = ''.join(_chapter_doc_row(e, [], prefix) for e in loose)
         parts.append(
             '<section class="chapter-block loose">'
             '<h3 class="chapter-title">تعليقات عامة على السفر'
@@ -824,7 +836,7 @@ def _bible_book_page_html(info, slug, bucket, total_chapters, prev_slug, next_sl
     else:
         next_html = '<span class="ch-nav-fill" aria-hidden="true"></span>'
 
-    body = '\n'.join(parts)
+    body = '\n'.join(parts) if parts else '<p class="bp-empty">لا توجد تعليقات على هذا السفر بعد.</p>'
     return f"""<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -890,8 +902,7 @@ def _bible_book_page_html(info, slug, bucket, total_chapters, prev_slug, next_sl
                 <span aria-hidden="true">/</span>
                 <span aria-current="page">{name}</span>
             </nav>
-            <h1>{name}</h1>
-            <p class="ch-sub">{name_de} &middot; {testament} &middot; {total_chapters} إصحاح &middot; {bucket['docs']} تعليقات</p>
+            {head_html}
             {body}
             <nav class="ch-nav" aria-label="التنقل بين الأسفار">
                 {prev_html}
@@ -925,6 +936,7 @@ def _bible_book_page_html(info, slug, bucket, total_chapters, prev_slug, next_sl
     <script src="{prefix}js/ui.js"></script>
     <script src="{prefix}js/search.js"></script>
     <script src="{prefix}js/nav.js"></script>
+    <script src="{prefix}js/bibles.js"></script>
 </body>
 </html>
 """

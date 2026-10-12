@@ -9,7 +9,8 @@
 
     var panels = Array.prototype.slice.call(document.querySelectorAll('.book-panel'));
     var cards = Array.prototype.slice.call(document.querySelectorAll('.bible-book'));
-    if (!panels.length && !cards.length) {
+    var stickyHeadEarly = document.querySelector('.book-sticky-head');
+    if (!panels.length && !cards.length && !stickyHeadEarly) {
         return;
     }
 
@@ -134,16 +135,23 @@
     /* Floating filter bar: dock exactly under the sticky site header.
        CSS fallback --bibles-filter-top applies until measured (no-JS safe). */
     var filterBar = document.querySelector('.bibles-filter');
+    var stickyHead = document.querySelector('.book-sticky-head');
     function pinFilterOffset() {
-        if (!filterBar) {
+        if (!filterBar && !stickyHead) {
             return;
         }
         var header = document.querySelector('.site-header');
         if (!header || !header.getBoundingClientRect) {
             return;
         }
-        filterBar.style.setProperty('--bibles-filter-top',
-            Math.ceil(header.getBoundingClientRect().height) + 'px');
+        var top = Math.ceil(header.getBoundingClientRect().height) + 'px';
+        if (filterBar) {
+            filterBar.style.setProperty('--bibles-filter-top',
+                top);
+        }
+        if (stickyHead) {
+            stickyHead.style.setProperty('--bibles-filter-top', top);
+        }
     }
     pinFilterOffset();
     window.addEventListener('resize', pinFilterOffset);
