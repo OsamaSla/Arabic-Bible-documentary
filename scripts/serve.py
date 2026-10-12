@@ -29,6 +29,7 @@ Features:
 import sys
 import io
 import json
+import os
 import re
 import hmac
 import secrets
@@ -275,8 +276,6 @@ def _source_path_for(doc):
 
 def _local_source_bar(doc_id, host):
     """Localhost-only button bar (injected in memory; never written to docs/)."""
-    abs_url = 'http://%s/local-source/%s' % (host or '127.0.0.1:8000', doc_id)
-    word_url = 'ms-word:ofe|u|' + quote(abs_url, safe='')
     return (
         '<p class="local-src-bar" data-local-only="1" style="min-height:44px;display:flex;'
         'flex-wrap:wrap;gap:.5rem;align-items:center;padding:.5rem .8rem;margin:0 0 1rem;'
@@ -285,11 +284,14 @@ def _local_source_bar(doc_id, host):
         '<span aria-hidden="true">📂</span>'
         '<a class="local-src-link" style="font-weight:700;" '
         f'href="/local-source/{doc_id}">فتح الأصل Word</a>'
-        f'<a class="local-src-direct" href="{word_url}">فتح مباشر في Word</a>'
+        f'<form method="post" action="/local-source/{doc_id}/open" style="display:inline;margin:0;">'
+        '<button type="submit" style="font:inherit;font-weight:700;cursor:pointer;'
+        'background:none;border:none;padding:0;color:inherit;text-decoration:underline;'
+        'text-underline-offset:3px;">🖊 تحرير في Word</button></form>'
         '<span style="opacity:.7;">(محلي فقط — لا يظهر على الموقع المنشور)</span>'
         '</p>'
-        '<style>.local-src-bar a:focus-visible{outline:3px solid #b8860b;outline-offset:2px;'
-        'border-radius:.25rem;}</style>'
+        '<style>.local-src-bar a:focus-visible,.local-src-bar button:focus-visible{'
+        'outline:3px solid #b8860b;outline-offset:2px;border-radius:.25rem;}</style>'
     )
 
 
@@ -459,6 +461,12 @@ class DevHandler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         path = self.path.split('?', 1)[0]
+        if path.startswith('/local-source/') and path.endswith('/open'):
+            if not self._local_referer_ok():
+                self._deny(403, 'Forbidden: must be opened from a local article page.')
+                return
+            self._handle_local_open()
+            return
         if path not in ('/api/rebuild', '/api/deploy', '/api/categories', '/api/weekly-schedule', '/api/summaries', '/api/ai-summarize'):
             self.send_error(404, 'Not found')
             return
@@ -558,6 +566,42 @@ class DevHandler(BaseHTTPRequestHandler):
             self.send_error(404, 'Not found')
             return
         self._send_file(src, cache=False)
+
+    def _local_referer_ok(self):
+        """Only allow open requests navigated from a locally served article page."""
+        ref = self.headers.get('Referer') or ''
+        try:
+            parsed = urlparse(ref)
+        except Exception:
+            return False
+        if (parsed.hostname or '') not in ('localhost', '127.0.0.1', '::1'):
+            return False
+        return (parsed.path or '').startswith('/documents/')
+
+    def _handle_local_open(self):
+        """Open the original .docx in Word on this PC, then return to the article."""
+        stem = (self.path.split('?', 1)[0])[len('/local-source/'):]
+        if stem.endswith('/open'):
+            stem = stem[:-len('/open')]
+        raw = unquote(stem).split('/')[0]
+        back = self.headers.get('Referer') or '/'
+        if not re.fullmatch(r'doc_\d+', raw or ''):
+            self.send_error(404, 'Not found')
+            return
+        doc = _article_index()['by_id'].get(raw)
+        src = _source_path_for(doc)
+        if src is None:
+            self.send_error(404, 'Not found')
+            return
+        try:
+            os.startfile(str(src))  # noqa: S606 -- localhost dev server, local user action
+        except (OSError, AttributeError) as e:
+            self._deny(500, f'Could not open in Word: {e}')
+            return
+        self.send_response(303)
+        self.send_header('Location', back)
+        self.send_header('Cache-Control', 'no-store')
+        self.end_headers()
 
     # ---- API handlers ----
 
