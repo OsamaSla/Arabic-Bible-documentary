@@ -1031,33 +1031,44 @@ def _id_num(entry):
     return int(m.group(1)) if m else None
 
 
+_OUTPUT_ROOTS = {}
+
+
+def _output_roots(base_dir):
+    """Absolute (docs/, local-hidden/) once per base_dir, for path checks."""
+    key = str(base_dir)
+    roots = _OUTPUT_ROOTS.get(key)
+    if roots is None:
+        base = Path(base_dir)
+        roots = tuple(
+            os.path.normcase(os.path.abspath(base / name))
+            for name in ('docs', 'local-hidden')
+        )
+        _OUTPUT_ROOTS[key] = roots
+    return roots
+
+
 def _output_path(base_dir, rel):
     """Resolve a generated path from the index.
 
     Visible entries store paths relative to docs/; hidden entries store paths
     relative to the repo root. Return the existing file inside docs/ or
     local-hidden/, or None.
+
+    Uses abspath (not resolve) and memoized roots: this runs once per document
+    per build, and resolve() alone was ~1 s of a 11 s build.
     """
     if not rel:
         return None
     base = Path(base_dir)
-    try:
-        roots = [(base / 'docs').resolve(), (base / 'local-hidden').resolve()]
-    except OSError:
-        return None
+    roots = _output_roots(base_dir)
     for candidate in (base / rel, base / 'docs' / rel):
-        try:
-            resolved = candidate.resolve()
-        except OSError:
-            continue
         if not candidate.is_file():
             continue
+        absolute = os.path.normcase(os.path.abspath(candidate))
         for root in roots:
-            try:
-                if resolved == root or resolved.is_relative_to(root):
-                    return resolved
-            except (OSError, ValueError):
-                continue
+            if absolute == root or absolute.startswith(root + os.sep):
+                return Path(os.path.abspath(candidate))
     return None
 
 

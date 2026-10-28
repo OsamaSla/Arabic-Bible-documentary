@@ -10,6 +10,7 @@ import json
 import re
 import shutil
 import time
+import hashlib
 from datetime import datetime
 from pathlib import Path
 
@@ -29,6 +30,14 @@ from scripture_index import (
 from mega_nav import compute_counts, inject_mega_nav_in_files
 
 UMAMI_SNIPPET = umami_tag()
+
+# Arabic-aware tokenization for the search index (mirrored in
+# js/search.js:ArSearch: strip diacritics/tatweel, normalize alef/hamza,
+# keep words of 2+ letters).
+WORD_RE = re.compile(r'[^\W\d_]{2,}', re.UNICODE)
+STRIP_RE = re.compile(r'[\u064b-\u0652\u0670\u0640]')
+ALEF_MAP = str.maketrans({'أ': 'ا', 'إ': 'ا', 'آ': 'ا',
+                          'ٱ': 'ا', 'ؤ': 'و', 'ئ': 'ي'})
 
 
 def setup_directories(base_dir):
@@ -508,13 +517,20 @@ def build_related_sidebar(doc, documents, catalog, categories, limit=6):
     )
 
 
-def inject_related_sidebars(docs_dir, documents, catalog, categories):
-    """Replace <!-- RELATED_SIDEBAR --> in every visible document page."""
+def inject_related_sidebars(docs_dir, documents, catalog, categories, page_paths=None):
+    """Replace <!-- RELATED_SIDEBAR --> in every visible document page.
+
+    *page_paths* scopes the pass (a build's touched pages); when None every
+    visible document page is a candidate (full pass / --full).
+    """
     ok = 0
     skipped = 0
     for doc in documents:
         html_path = doc.get('html_path', '')
         if not html_path.startswith('documents/'):
+            continue
+        if page_paths is not None and (docs_dir / html_path) not in page_paths:
+            skipped += 1
             continue
         path = docs_dir / html_path
         if not path.exists():
@@ -564,13 +580,16 @@ def build_chapters_nav(doc):
     )
 
 
-def inject_chapters_nav(docs_dir, documents):
+def inject_chapters_nav(docs_dir, documents, page_paths=None):
     """Replace <!-- CHAPTERS_NAV --> in every visible document page."""
     ok = 0
     skipped = 0
     for doc in documents:
         html_path = doc.get('html_path', '')
         if not html_path.startswith('documents/'):
+            continue
+        if page_paths is not None and (docs_dir / html_path) not in page_paths:
+            skipped += 1
             continue
         path = docs_dir / html_path
         if not path.exists():
@@ -1120,13 +1139,46 @@ def _bible_chapter_page(name, slug, ch, total, verses, has_docs):
 '''
 
 
-def generate_search_index(base_dir, docs_dir, visible_documents):
-    """Full-text search index: docs/search-index.json {docs:[{id,title,author,html_path}], index:{token:[docIdx]}}.
+def _cache_dir(base_dir):
+    path = Path(base_dir) / '.build-cache'
+    path.mkdir(parents=True, exist_ok=True)
+    return path
 
-    Arabic-aware tokenization (mirrored in js/search.js:ArSearch): strip
-    diacritics/tatweel, normalize alef/hamza forms, words of 2+ letters.
-    One posting entry per (token, doc) — no positions (snippets are extracted
-    client-side by fetching the matched page).
+
+# Bump when the tokenization or the cache layout changes: it silently
+# invalidates the cached term lists and forces a clean rebuild.
+SEARCH_CACHE_SCHEMA = 1
+
+
+def _load_search_cache(base_dir):
+    path = _cache_dir(base_dir) / 'search-cache.json'
+    try:
+        data = json.loads(path.read_text(encoding='utf-8'))
+    except (OSError, ValueError):
+        return None
+    if data.get('schema') != SEARCH_CACHE_SCHEMA:
+        return None
+    if not isinstance(data.get('terms'), dict):
+        return None
+    data.setdefault('docs', [])
+    return data
+
+
+def _save_search_cache(base_dir, docs, terms):
+    path = _cache_dir(base_dir) / 'search-cache.json'
+    payload = {'schema': SEARCH_CACHE_SCHEMA, 'docs': docs, 'terms': terms}
+    try:
+        tmp = path.with_name(path.name + '.tmp')
+        tmp.write_text(json.dumps(payload, ensure_ascii=False), encoding='utf-8')
+        tmp.replace(path)
+    except OSError as exc:
+        print(f'  [WARNING] could not write search cache: {exc}')
+
+
+def _article_terms(page):
+    """Unique normalized words of one article page, in first-seen order.
+
+    Returns None when the page cannot be read or parsed.
     """
     from html.parser import HTMLParser
 
@@ -1150,59 +1202,168 @@ def generate_search_index(base_dir, docs_dir, visible_documents):
             if self.in_article:
                 self.parts.append(data)
 
-    WORD_RE = re.compile(r'[^\W\d_]{2,}', re.UNICODE)
-    STRIP_RE = re.compile(r'[\u064b-\u0652\u0670\u0640]')
-    ALEF_MAP = str.maketrans({'أ': 'ا', 'إ': 'ا', 'آ': 'ا',
-                              'ٱ': 'ا', 'ؤ': 'و', 'ئ': 'ي'})
+    try:
+        html = page.read_text(encoding='utf-8')
+    except (OSError, UnicodeDecodeError):
+        return None
+    parser = _ArticleText()
+    try:
+        parser.feed(html)
+    except Exception:
+        return None
+    text = STRIP_RE.sub('', re.sub(r'\s+', ' ', ''.join(parser.parts)))
+    text = text.translate(ALEF_MAP)
+    seen = []
+    known = set()
+    for m in WORD_RE.finditer(text):
+        word = m.group(0)
+        if word in known:
+            continue
+        known.add(word)
+        seen.append(word)
+    return seen
 
-    docs_meta = []
-    postings = {}
+
+def generate_search_index(base_dir, docs_dir, visible_documents):
+    """Full-text search index: docs/search-index.json {docs:[{id,title,author,html_path}], index:{token:[docIdx]}}.
+
+    Arabic-aware tokenization (mirrored in js/search.js:ArSearch): strip
+    diacritics/tatweel, normalize alef/hamza forms, words of 2+ letters.
+    One posting entry per (token, doc) — no positions (snippets are extracted
+    client-side by fetching the matched page).
+
+    Incremental: the per-document term lists are cached in
+    .build-cache/search-cache.json so a build only re-parses pages that
+    actually changed. Parsing every article page was ~6.5 s of an 11 s build.
+    """
+    out = docs_dir / 'search-index.json'
+
+    # Cheap fingerprint of each generated page: no reads, just stat().
+    entries = []
+    signature = []
     for doc in visible_documents:
         rel = doc.get('html_path') or ''
+        if not rel:
+            continue
         page = docs_dir / rel
-        if not rel or not page.exists():
-            continue
         try:
-            html = page.read_text(encoding='utf-8')
-        except (OSError, UnicodeDecodeError):
+            stat = page.stat()
+        except OSError:
             continue
-        parser = _ArticleText()
-        try:
-            parser.feed(html)
-        except Exception:
-            continue
-        text = STRIP_RE.sub('', re.sub(r'\s+', ' ', ''.join(parser.parts))).translate(ALEF_MAP)
-        idx = len(docs_meta)
-        docs_meta.append({'id': doc.get('id', ''), 'title': doc.get('title', ''),
-                          'author': doc.get('author', ''), 'html_path': rel})
-        seen = set()
-        for m in WORD_RE.finditer(text):
-            w = m.group(0)
-            if w in seen:
-                continue
-            seen.add(w)
-            postings.setdefault(w, []).append(idx)
+        row = [doc.get('id', ''), doc.get('title', ''), doc.get('author', ''),
+               rel, stat.st_size, stat.st_mtime_ns]
+        entries.append(row)
+        signature.append(row)
 
-    payload = {'docs': docs_meta, 'index': postings}
-    out = docs_dir / 'search-index.json'
-    raw = json.dumps(payload, ensure_ascii=False).encode('utf-8')
-    _write_if_changed(out, raw)
-    try:
-        import gzip as _gzip
-        gz = len(_gzip.compress(raw, 9))
-    except Exception:
-        gz = -1
+    cached = _load_search_cache(base_dir)
+    if cached and cached.get('docs') == signature and out.exists():
+        print(f'  [OK] search-index.json unchanged ({len(entries)} docs, cached)')
+        return
+
+    docs_meta = [{'id': r[0], 'title': r[1], 'author': r[2], 'html_path': r[3]}
+                 for r in entries]
+    previous = cached or {'docs': [], 'terms': {}}
+    previous_rows = {r[0]: r for r in previous.get('docs', []) if r}
+    old_terms = previous.get('terms', {})
+
+    changed = [r[0] for r in entries if previous_rows.get(r[0]) != r]
+    index_of = {r[0]: i for i, r in enumerate(entries)}
+
+    # Can we patch the published postings in place? Only when the document
+    # list is identical, so every stored index still points at the same doc.
+    patched = False
+    postings = None
+    if out.exists() and changed:
+        try:
+            current = json.loads(out.read_text(encoding='utf-8'))
+        except (OSError, ValueError):
+            current = None
+        if current and current.get('docs') == docs_meta \
+                and isinstance(current.get('index'), dict) \
+                and all(doc_id in old_terms for doc_id in changed):
+            from bisect import insort
+            postings = current['index']
+            for doc_id in changed:
+                idx = index_of[doc_id]
+                for term in old_terms[doc_id].split():
+                    bucket = postings.get(term)
+                    if not bucket or idx not in bucket:
+                        continue
+                    bucket.remove(idx)
+                    if not bucket:
+                        del postings[term]
+                terms = _article_terms(docs_dir / entries[idx][3])
+                if terms is None:
+                    postings = None
+                    break
+                for term in terms:
+                    bucket = postings.get(term)
+                    if bucket is None:
+                        postings[term] = [idx]
+                    elif idx not in bucket:
+                        insort(bucket, idx)
+            patched = postings is not None
+
+    terms_out = {}
+    if patched:
+        for row in entries:
+            doc_id = row[0]
+            if doc_id in changed:
+                terms_out[doc_id] = ' '.join(
+                    _article_terms(docs_dir / row[3]) or [])
+            else:
+                terms_out[doc_id] = old_terms[doc_id]
+        _write_if_changed(out, json.dumps(
+            {'docs': docs_meta, 'index': postings}, ensure_ascii=False).encode('utf-8'))
+        action = f'patched {len(changed)} doc(s)'
+    else:
+        postings = {}
+        reparsed = 0
+        for i, row in enumerate(entries):
+            doc_id = row[0]
+            terms = None
+            if doc_id in old_terms and doc_id not in changed:
+                terms = old_terms[doc_id].split()
+            else:
+                terms = _article_terms(docs_dir / row[3])
+                reparsed += 1
+                if terms is None:
+                    terms = []
+            terms_out[doc_id] = ' '.join(terms)
+            for term in terms:
+                bucket = postings.get(term)
+                if bucket is None:
+                    postings[term] = [i]
+                else:
+                    bucket.append(i)
+        _write_if_changed(out, json.dumps(
+            {'docs': docs_meta, 'index': postings}, ensure_ascii=False).encode('utf-8'))
+        action = f'rebuilt, parsed {reparsed} page(s)'
+
+    _save_search_cache(base_dir, signature, terms_out)
+
+    size_kb = out.stat().st_size // 1024 if out.exists() else 0
     print(f'  [OK] search-index.json: {len(docs_meta)} docs, '
-          f'{len(postings)} terms, {len(raw) // 1024} KB ({gz // 1024} KB gzip)')
+          f'{len(postings)} terms, {size_kb} KB ({action})')
+    if os.environ.get('BUILD_GZIP_STATS'):
+        try:
+            import gzip as _gzip
+            raw = out.read_bytes()
+            print(f'  [OK] gzip size: {len(_gzip.compress(raw, 9)) // 1024} KB')
+        except OSError:
+            pass
 
 
-def copy_search_page(base_dir, docs_dir):
+def copy_search_page(base_dir, docs_dir, touched=None):
     """Static results shell: templates/search.html -> docs/search.html."""
     src = base_dir / 'templates' / 'search.html'
+    dst = docs_dir / 'search.html'
     if not src.exists():
         print('  [WARNING] templates/search.html not found, skipping')
         return
-    shutil.copy2(src, docs_dir / 'search.html')
+    shutil.copy2(src, dst)
+    if touched is not None:
+        touched.add(dst)
     print('  [OK] search.html copied')
 
 
@@ -1893,7 +2054,7 @@ def generate_authors_page(docs_dir, index_data, catalog=None, categories=None):
     print(f'  [OK] authors.html generated')
 
 
-def copy_translations_page(base_dir, docs_dir, index_data=None, categories_data=None):
+def copy_translations_page(base_dir, docs_dir, index_data=None, categories_data=None, touched=None):
     """Copy translations landing + category pages from templates to docs.
 
     The landing page ships server-rendered counts ({{DOCS_*}} / {{BOOKS_*}})
@@ -1908,6 +2069,8 @@ def copy_translations_page(base_dir, docs_dir, index_data=None, categories_data=
         if src.exists():
             shutil.copy2(src, dst)
             copied += 1
+            if touched is not None:
+                touched.add(dst)
         else:
             print(f'  [WARNING] {name} not found in templates')
     landing = docs_dir / 'translations.html'
@@ -1921,6 +2084,8 @@ def copy_translations_page(base_dir, docs_dir, index_data=None, categories_data=
             text = text.replace('{{DOCS_' + token + '}}', str(docs_n))
             text = text.replace('{{BOOKS_' + token + '}}', str(len(books)))
         landing.write_text(text, encoding='utf-8')
+        if touched is not None:
+            touched.add(landing)
     for name in pages:
         if inject_data_script_tag(docs_dir / name):
             print(f'  [OK] data script tag added to {name}')
@@ -1978,6 +2143,55 @@ def inject_data_script_tag(html_path):
 _ASSET_URL_RE = re.compile(r'((?:href|src)=")((?:\.\./)*(?:css|js)/[^"]*?\.(?:css|js))(")')
 
 
+# Bump when the meaning of any manifest field changes: stale manifests are
+# ignored, which only costs one full pass.
+MANIFEST_SCHEMA = 1
+
+
+def _manifest_path(base_dir):
+    return _cache_dir(base_dir) / 'manifest.json'
+
+
+def _load_manifest(base_dir):
+    try:
+        data = json.loads(_manifest_path(base_dir).read_text(encoding='utf-8'))
+    except (OSError, ValueError):
+        return {}
+    return data if data.get('schema') == MANIFEST_SCHEMA else {}
+
+
+def _save_manifest(base_dir, data):
+    payload = dict(data)
+    payload['schema'] = MANIFEST_SCHEMA
+    try:
+        path = _manifest_path(base_dir)
+        tmp = path.with_name(path.name + '.tmp')
+        tmp.write_text(json.dumps(payload, ensure_ascii=False, indent=1),
+                       encoding='utf-8')
+        tmp.replace(path)
+    except OSError as exc:
+        print(f'  [WARNING] could not write build manifest: {exc}')
+
+
+def _pages_touched(docs_dir, since):
+    """HTML pages written since *since* (a previous build's finish time).
+
+    Walking the tree is ~20 ms; reading the pages is the expensive part, so
+    this is how an incremental build avoids re-reading ~2,100 unchanged files.
+    Returns None when *since* is unknown, meaning "every page".
+    """
+    if not since:
+        return None
+    page_paths = []
+    for path in docs_dir.rglob('*.html'):
+        try:
+            if path.stat().st_mtime >= since - 2:
+                page_paths.append(path)
+        except OSError:
+            continue
+    return page_paths
+
+
 def _asset_stamp(docs_dir):
     """Content hash over published CSS/JS (stable while assets are unchanged).
 
@@ -1998,14 +2212,19 @@ def _asset_stamp(docs_dir):
 
 
 
-def inject_ruler_assets(docs_dir):
+def inject_ruler_assets(docs_dir, page_paths=None):
     """Ensure every generated page loads the study ruler (css/ruler.css +
     js/ruler.js). Document pages get the tags from convert.py; this covers
     all other generated pages (home, authors, bible, translations...).
     Idempotent: skips pages that already reference ruler.js.
+
+    *page_paths* limits the pass (a build's touched pages); when None the
+    pass covers every generated page (full pass / --full).
+    Writes only when the injected content actually differs.
     """
     files = 0
-    for path in docs_dir.rglob('*.html'):
+    candidates = page_paths if page_paths is not None else docs_dir.rglob('*.html')
+    for path in candidates:
         try:
             text = path.read_text(encoding='utf-8')
         except (OSError, UnicodeDecodeError):
@@ -2029,23 +2248,38 @@ def inject_ruler_assets(docs_dir):
         else:
             continue
         try:
-            path.write_text(text, encoding='utf-8')
-            files += 1
+            if path.read_text(encoding='utf-8') != text:
+                path.write_text(text, encoding='utf-8')
+                files += 1
         except OSError:
             continue
     print(f'  [OK] ruler assets injected into {files} pages')
     return files
 
 
-def bust_asset_cache(docs_dir):
+def bust_asset_cache(docs_dir, page_paths=None, previous_stamp=None):
     """Append ?v=<hash> to local CSS/JS URLs in every generated page.
 
     Idempotent (skips URLs that already carry a query string), so reruns
     and stale-file sweeps never stack versions.
+
+    A full pass is only needed when the stamp itself changed; otherwise pages
+    written earlier already carry the current value, so *page_paths* (pages
+    written by this build) is enough.
     """
     stamp = _asset_stamp(docs_dir)
+    full_pass = previous_stamp != stamp
+    if full_pass:
+        candidates = docs_dir.rglob('*.html')
+        label = 'full pass'
+    elif page_paths is not None:
+        candidates = page_paths
+        label = f'{len(page_paths)} touched page(s)'
+    else:
+        candidates = docs_dir.rglob('*.html')
+        label = 'full pass'
     files = 0
-    for path in docs_dir.rglob('*.html'):
+    for path in candidates:
         try:
             text = path.read_text(encoding='utf-8')
         except (OSError, UnicodeDecodeError):
@@ -2064,14 +2298,22 @@ def bust_asset_cache(docs_dir):
                 files += 1
             except OSError:
                 continue
-    print(f'  [OK] asset stamp ?v={stamp} applied to {files} pages')
+    print(f'  [OK] asset stamp ?v={stamp} applied to {files} page(s), {label}')
     return stamp
 
 
-def main():
+def main(force=False):
     base_dir = Path(__file__).parent.parent
-    
+    manifest = {} if force else _load_manifest(base_dir)
+    since = manifest.get('finished_at')
+    previous_stamp = manifest.get('asset_stamp')
+
     print('[BUILD] Starting site build...\n')
+    if force:
+        print('[BUILD] --full: ignoring caches, doing a complete pass\n')
+    elif since:
+        print(f'[BUILD] Incremental since previous build '
+              f'({datetime.fromtimestamp(since).strftime("%Y-%m-%d %H:%M:%S")})\n')
     
     # Setup directories
     print('[BUILD] Creating directories...')
@@ -2080,7 +2322,7 @@ def main():
     # Run conversion
     print('\n[BUILD] Converting Word documents...')
     try:
-        documents = convert_documents()
+        documents = convert_documents(force=force)
     except Exception as e:
         # ASCII-safe: exception text may hold non-console-encodable paths
         safe_err = str(e).encode('ascii', 'replace').decode()
@@ -2120,19 +2362,25 @@ def main():
     if hidden_count > 0:
         print(f'[BUILD] {hidden_count} hidden documents excluded from main site')
 
+    # Finalization scope (nav/stamp/ruler): None = full pass.
+    # Computed after all generators, once the template copies are registered.
+    finalize_paths = None
+
     # Scripture indexing: extract Book/Chapter/Verse refs from metadata and
     # build the Book -> Chapter -> Documents index (powers bibles.html)
     print('\n[BUILD] Indexing scripture references...')
     categories_data, book_catalog, scripture = prepare_scripture_data(
         base_dir, docs_dir, visible_index_data)
 
-    # Related-commentaries sidebar on every document page
+    # Related-commentaries sidebar on every visible document page (scoped
+    # to this build's changed pages when running incrementally).
     print('\n[BUILD] Injecting related-commentaries sidebars...')
-    inject_related_sidebars(docs_dir, visible_documents, book_catalog, categories_data)
+    inject_related_sidebars(docs_dir, visible_documents, book_catalog, categories_data,
+                             finalize_paths)
 
     # Chapter index beside multi-chapter articles (Word Next-Page breaks)
     print('\n[BUILD] Injecting chapter indexes...')
-    inject_chapters_nav(docs_dir, visible_documents)
+    inject_chapters_nav(docs_dir, visible_documents, finalize_paths)
 
     # Copy static files
     print('\n[BUILD] Copying static files...')
@@ -2168,9 +2416,12 @@ def main():
     print('\n[BUILD] Generating full-text search index...')
     generate_search_index(base_dir, docs_dir, visible_documents)
 
+    # Finalization scope (nav/stamp/ruler): None = full pass; computed
+    # below from mtime-touched pages + copy-registered pages.
+
     # Search results page (static shell; results rendered client-side)
     print('\n[BUILD] Copying search page...')
-    copy_search_page(base_dir, docs_dir)
+    copy_search_page(base_dir, docs_dir, finalize_paths)
     
     # Generate document index pages
     print('\n[BUILD] Generating document index pages...')
@@ -2186,7 +2437,8 @@ def main():
     
     # Copy translations landing + category pages (with server-rendered counts)
     print('\n[BUILD] Copying translations pages...')
-    copy_translations_page(base_dir, docs_dir, visible_index_data, categories_data)
+    copy_translations_page(base_dir, docs_dir, visible_index_data, categories_data,
+                            finalize_paths)
 
     # Remove any previously-published admin files from docs/
     for stale in ('admin.html', 'admin-panel.html'):
@@ -2200,11 +2452,28 @@ def main():
             stale_path.unlink()
             print(f'  [OK] removed stale js/{stale_js} from docs/')
 
+    # Merge mtime-touched pages (from the generators above) with the template
+    # copies registered by the copy steps, then persist for nav / ruler / stamp.
+    if finalize_paths is not None:
+        touched = _pages_touched(docs_dir, since) if since else []
+        finalize_paths = list(dict.fromkeys(touched + finalize_paths))
+        print(f'\n[BUILD] {len(finalize_paths)} page(s) in finalization scope')
+    else:
+        print(f'\n[BUILD] full pass (no incremental scope)')
+
     # Replace MEGA_* nav markers with the full hover mega-menu (last write)
     print('\n[BUILD] Injecting mega navigation...')
     counts = compute_counts(visible_index_data.get('documents', []), categories_data)
+    nav_sig = hashlib.sha256(json.dumps(
+        [categories_data, counts], sort_keys=True, ensure_ascii=False
+    ).encode('utf-8')).hexdigest()[:16]
+    # Markers only need rewriting on pages written by this build, unless the
+    # counts/categories themselves changed (then every page is stale).
+    nav_paths = finalize_paths if manifest.get('nav_sig') == nav_sig else None
     for root in (docs_dir, base_dir / 'local-hidden'):
-        n_files, n_markers = inject_mega_nav_in_files(root, categories_data, counts)
+        scoped = nav_paths if root == docs_dir else None
+        n_files, n_markers = inject_mega_nav_in_files(
+            root, categories_data, counts, scoped)
         label = 'docs/' if root == docs_dir else 'local-hidden/'
         if n_markers:
             print(f'  [OK] {n_markers} markers in {n_files} files under {label}')
@@ -2215,13 +2484,20 @@ def main():
     # Study ruler on every page (document pages already carry the tags
     # via convert.py; this covers home/authors/bible/translations pages).
     print('\n[BUILD] Injecting study ruler assets...')
-    inject_ruler_assets(docs_dir)
+    inject_ruler_assets(docs_dir, finalize_paths)
 
     print('\n[BUILD] Stamping asset URLs for cache busting...')
-    bust_asset_cache(docs_dir)
+    stamp = bust_asset_cache(docs_dir, finalize_paths, previous_stamp)
 
     print('\n[BUILD] Site build completed successfully!')
     print(f'[BUILD] Site ready at: docs/')
+    _save_manifest(base_dir, {
+        'asset_stamp': stamp,
+        'nav_sig': nav_sig,
+        'finished_at': time.time(),
+        'documents': len(visible_documents),
+        'hidden_documents': len(all_documents) - len(visible_documents),
+    })
     stamp_path = base_dir / '.last_build'
     try:
         stamp_path.write_text(datetime.now().isoformat(timespec='seconds'), encoding='utf-8')
@@ -2236,4 +2512,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    main(force='--full' in sys.argv[1:])

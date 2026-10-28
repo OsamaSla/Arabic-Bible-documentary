@@ -181,13 +181,17 @@ def inject_mega_nav(html, categories, counts):
     return MARKER_RE.sub(_sub, html), count
 
 
-def inject_mega_nav_in_files(root, categories, counts):
-    """Walk *root* (docs/ or local-hidden/) and replace markers in place."""
+def inject_mega_nav_in_files(root, categories, counts, paths=None):
+    """Walk *root* (docs/ or local-hidden/) and replace markers in place.
+
+    *paths* limits the walk to specific files (pages written by this build).
+    """
     if not root or not root.exists():
         return 0, 0
     replaced = 0
     files = 0
-    for path in root.rglob('*.html'):
+    candidates = paths if paths is not None else root.rglob('*.html')
+    for path in candidates:
         try:
             text = path.read_text(encoding='utf-8')
         except (OSError, UnicodeDecodeError):
