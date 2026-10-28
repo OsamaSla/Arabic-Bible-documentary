@@ -70,6 +70,14 @@ Last verified: 2026-10-28, commit cd7ff5f8
 - **Full build is slow by construction**: `convert.py` re-parses all 775 docx
   every run (~0.152 s/doc measured on 20 files → ~2 min), then rewrites every
   page. Total deploy ~3–5 min.
+- **Index paths are `docs/`-relative for visible docs and repo-relative for
+  hidden ones.** `html_path` like `documents/<author>/doc_0042.html`. Any code
+  resolving them must try `base/rel` then `base/docs/rel` (see
+  `convert._output_path`). This cost a full wasted 65 s build to discover.
+- **A rebuild must be byte-identical** — verify with a tree hash of `docs/`,
+  not with `git status` (git churn also appears from the one-time restamp).
+- **Asset stamp must exclude generated data.** `_asset_stamp` hashing
+  `docs/js/data-visible.js` made every content edit restamp all ~2100 pages.
 - `serve.py` runs the build synchronously (timeout 300 s) and is
   single-threaded: the panel is frozen during a build and two deploys can run
   concurrently (no lock).
@@ -97,12 +105,21 @@ Goal: edit `.docx` → local preview in ~5 s → live site in ~1–1.5 min.
 Decisions: incremental build (no Firebase/runtime layer); per-article button;
 auto-deploy after 10 s idle; keep SEO/URLs; IDs must stay stable.
 
-- **Stage 1 (in progress)** — `convert.py`: reuse previous index, skip unchanged
-  docx by `mtime_ns`+`size`, hash only when mtime changed, backfill `size`/
-  `mtime_ns`, stable ids (`max+1`), purge removed docs, expose changed paths.
-  Verify: full build output identical except new index fields.
-- **Stage 2** — `build.py`: target asset/nav/cache-bust passes to changed pages,
-  incremental `search-index.json`, paired sidebar/chapter markers,
+- **Stage 1 (DONE, commit 6aa323db + e93f79cc)** — `convert.py`: reuses the
+  previous index, skips unchanged docx by `mtime_ns`+`size`, hashes only when
+  mtime changed, backfills both fields, stable ids (`max+1`), purges removed
+  docs, exposes `LAST_RUN['changed_paths']`, and takes `main(input_dir=)` for
+  isolated tests. `build.py`: `_asset_stamp` skips generated `data-*.js`;
+  homepage cards seeded per day.
+  Measured: full build **11.5 s** (was 65 s cold, ~3–5 min before the change);
+  `reused 775, converted 0`. Two consecutive builds produce a **byte-identical**
+  `docs/` tree (`e87ebad4…`, 3414 files). Isolated test
+  (`%TEMP%\opencode\test_incremental.py`) verified: no-op rebuild identical,
+  one edit converts exactly 1 doc and moves no ids, new doc gets `doc_0003`
+  appended, deleted doc loses page + download, rebuild stable afterwards.
+  One-time cost: 1370 pages restamped because the stamp definition changed.
+- **Stage 2 (next)** — `build.py`: target asset/nav/cache-bust passes to changed
+  pages, incremental `search-index.json`, paired sidebar/chapter markers,
   `_write_if_changed` everywhere, `.build-cache/manifest.json`, `--full` flag.
 - **Stage 3** — `serve.py`: build thread + lock, `/api/build-status`,
   `/api/update-doc`, auto-deploy watcher (2 s poll, 10 s debounce, ignore Word
