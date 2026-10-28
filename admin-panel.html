@@ -420,6 +420,10 @@ border-radius: var(--radius-lg);
             </div>
         </div>
         <div id="deployStatus" class="deploy-status" role="status" aria-live="polite"></div>
+        <div style="display:flex;gap:0.5rem;align-items:center;margin-top:0.5rem;flex-wrap:wrap;">
+            <button type="button" class="admin-btn admin-btn-secondary" id="liveLogToggle" aria-expanded="false" aria-controls="liveLogPanel">Live log</button>
+        </div>
+        <section id="liveLogPanel" class="changes-panel" hidden aria-live="polite" aria-label="Build status log" style="margin-top:0.5rem;"></section>
         <section class="schedule-panel" aria-labelledby="schedHeading">
             <h3 id="schedHeading">Weekly auto-deploy</h3>
             <p class="sched-lines">Last deploy: <strong id="lastDeploy">…</strong><br>

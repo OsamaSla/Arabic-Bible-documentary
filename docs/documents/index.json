@@ -5301,10 +5301,10 @@
       "download_path": "downloads/gerrid-setzer/تم/doc_0172.docx",
       "chapters": [],
       "page_count": null,
-      "mtime": 1615637336,
-      "mtime_ns": 1615637336000000000,
-      "size": 20485,
-      "file_hash": "8b88221e",
+      "mtime": 1793226209,
+      "mtime_ns": 1793226209901585600,
+      "size": 20144,
+      "file_hash": "2063a429",
       "refs": []
     },
     {
@@ -24666,9 +24666,31 @@
       "size": 17406,
       "file_hash": "68633ff0",
       "refs": []
+    },
+    {
+      "id": "doc_0775",
+      "title": "عجائب الرب (11) - الخمسة آلاف",
+      "description": "ارتُكبت للتو جريمة دموية في البلاد؛ إذ قُطع رأس يوحنا المعمدان، المُمَهِّد المتميز للمخلص.",
+      "author": "William Wooldridge Fereday",
+      "author_slug": "william-wooldridge-fereday",
+      "completed": false,
+      "hidden": false,
+      "categories": [],
+      "category": "uncategorized",
+      "filename": "عجائب الرب - الخمسة آلاف.docx",
+      "rel_path": "",
+      "html_path": "documents/william-wooldridge-fereday/doc_0775.html",
+      "download_path": "downloads/william-wooldridge-fereday/doc_0775.docx",
+      "chapters": [],
+      "page_count": null,
+      "mtime": 1793227323,
+      "mtime_ns": 1793227323312693200,
+      "size": 16389,
+      "file_hash": "75d04cb6",
+      "refs": []
     }
   ],
-  "total_count": 763,
+  "total_count": 764,
   "completed_count": 340,
   "authors": {
     "Achim Zöfelt": {
@@ -25053,7 +25075,7 @@
     },
     "William Wooldridge Fereday": {
       "slug": "william-wooldridge-fereday",
-      "total": 8,
+      "total": 9,
       "completed": 2
     },
     "Zukunft_Versammlung": {

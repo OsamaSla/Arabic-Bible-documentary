@@ -800,6 +800,8 @@
                         '<span class="cat-save-status" data-doc-id="' + escapeHtml(doc.id) + '" aria-live="polite"></span>' +
                         '<button type="button" class="admin-btn admin-btn-secondary" ' +
                             'data-doc-open="' + link + '" style="padding:0.3rem 0.7rem;font-size:0.88rem;">فتح</button>' +
+                        '<button type="button" class="admin-btn admin-btn-primary" ' +
+                            'data-update-doc="' + escapeHtml(doc.id || '') + '" style="padding:0.3rem 0.7rem;font-size:0.88rem;margin-left:0.3rem;">Update &amp; publish</button>' +
                     '</div>' +
                     '<div class="cat-tray" id="' + trayId + '" hidden data-doc-id="' + escapeHtml(doc.id) + '" ' +
                         'role="group" aria-label="اختيار فئات ' + escapeHtml(doc.id) + '">' +
@@ -992,6 +994,75 @@
             }).catch(function () { say('Cannot reach server.', 'err'); });
         });
     }
+    function setupLiveLog() {
+        var btn = document.getElementById('liveLogToggle');
+        var panel = document.getElementById('liveLogPanel');
+        if (!btn || !panel || btn._listenerAdded) return;
+        btn._listenerAdded = true;
+        btn.addEventListener('click', function () {
+            var open = panel.hidden === false;
+            panel.hidden = open;
+            btn.setAttribute('aria-expanded', String(!open));
+            if (!open) {
+                pollLiveLog();
+            } else {
+                if (btn._pollTimer) clearInterval(btn._pollTimer);
+            }
+        });
+        function pollLiveLog() {
+            if (btn._pollTimer) clearInterval(btn._pollTimer);
+            function tick() {
+                if (panel.hidden !== false) {
+                    if (btn._pollTimer) clearInterval(btn._pollTimer);
+                    return;
+                }
+                window.__adminApi.getApi('/api/build-status').then(function (res) {
+                    var d = (res && res.data) || {};
+                    var msg = '';
+                    msg += '<strong>Running:</strong> ' + (d.running ? 'Yes' : 'No') + ' | ';
+                    msg += '<strong>Last result:</strong> ' + (d.last_result === true ? 'OK' : (d.last_result === false ? 'Failed' : 'None')) + ' | ';
+                    msg += '<strong>Started:</strong> ' + (d.started_at || '-') + ' | ';
+                    msg += '<strong>Finished:</strong> ' + (d.finished_at || '-') + '<br>';
+                    if (d.last_message) {
+                        msg += '<pre style="font-size:0.8rem;background:#f8f9fa;padding:0.5rem;border-radius:4px;margin-top:0.5rem;overflow:auto;max-height:200px;">' + String(d.last_message || '').replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</pre>';
+                    }
+                    panel.innerHTML = msg || '<em>Waiting for first poll…</em>';
+                }).catch(function () {
+                    panel.innerHTML = '<span style="color:#dc3545;">Cannot reach server.</span>';
+                });
+            }
+            tick();
+            btn._pollTimer = setInterval(tick, 3000);
+        }
+    }
+
+    function setupUpdateDocButtons() {
+        document.body.addEventListener('click', function (e) {
+            var btn = e.target.closest ? e.target.closest('[data-update-doc]') : null;
+            if (!btn) return;
+            e.preventDefault();
+            e.stopPropagation();
+            var docId = btn.getAttribute('data-update-doc');
+            if (!docId) return;
+            btn.disabled = true;
+            var prevText = btn.textContent;
+            btn.textContent = 'Updating…';
+            window.__adminApi.postApi('/api/update-doc', { docId: docId }).then(function (res) {
+                var d = (res && res.data) || {};
+                if (res.status === 202 && d.ok) {
+                    btn.textContent = 'Started';
+                    setTimeout(function () { btn.textContent = prevText; btn.disabled = false; }, 3000);
+                } else {
+                    btn.textContent = 'Failed';
+                    btn.disabled = false;
+                }
+            }).catch(function () {
+                btn.textContent = 'Failed';
+                btn.disabled = false;
+            });
+        });
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
         pinAdminToolbar();
         document.getElementById('adminContent').style.display = 'block';
@@ -1001,6 +1072,8 @@
         loadCategories().then(function () {
             loadDocuments();
         });
+        setupLiveLog();
+        setupUpdateDocButtons();
     });
 })();
 

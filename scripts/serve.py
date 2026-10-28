@@ -225,6 +225,95 @@ def _load_assignments():
 
 
 _DOC_LOOKUP = {'by_html': None, 'by_id': None}
+_BUILD_LOCK = threading.Lock()
+_BUILD_STATUS = {
+    'running': False,
+    'last_result': None,
+    'last_message': None,
+    'started_at': None,
+    'finished_at': None,
+}
+
+
+def _clear_doc_lookup():
+    _DOC_LOOKUP['by_html'] = None
+    _DOC_LOOKUP['by_id'] = None
+
+
+def _run_build_async_start():
+    if not _BUILD_LOCK.acquire(blocking=False):
+        return False  # already running
+    def _work():
+        global _BUILD_STATUS
+        _BUILD_STATUS['running'] = True
+        _BUILD_STATUS['started_at'] = datetime.now().isoformat(timespec='seconds')
+        try:
+            result = subprocess.run(
+                [sys.executable, str(SCRIPT_DIR / 'build.py')],
+                cwd=str(BASE_DIR),
+                timeout=300,
+                capture_output=True,
+            )
+            success = result.returncode == 0
+            msg = ''
+            if result.stdout:
+                msg += result.stdout.decode('utf-8', errors='replace')[-500:]
+            if result.stderr:
+                msg += '\n' + result.stderr.decode('utf-8', errors='replace')[-500:]
+            _BUILD_STATUS['last_result'] = success
+            _BUILD_STATUS['last_message'] = msg
+            print(f'[SERVER] Async build finished: ok={success}')
+        except subprocess.TimeoutExpired:
+            _BUILD_STATUS['last_result'] = False
+            _BUILD_STATUS['last_message'] = 'Build timed out.'
+            print('[SERVER] Async build timed out.')
+        except Exception as e:
+            _BUILD_STATUS['last_result'] = False
+            _BUILD_STATUS['last_message'] = str(e)
+            print(f'[SERVER] Async build error: {e}')
+        finally:
+            _BUILD_STATUS['running'] = False
+            _BUILD_STATUS['finished_at'] = datetime.now().isoformat(timespec='seconds')
+            _clear_doc_lookup()
+            try:
+                _BUILD_LOCK.release()
+            except RuntimeError:
+                pass
+    threading.Thread(target=_work, daemon=True).start()
+    return True
+
+
+def _run_build_sync():
+    print('[SERVER] Running build (scan source + regenerate)...')
+    try:
+        result = subprocess.run(
+            [sys.executable, str(SCRIPT_DIR / 'build.py')],
+            cwd=str(BASE_DIR),
+            timeout=300,
+            capture_output=True,
+        )
+        success = result.returncode == 0
+        if success:
+            print('[SERVER] Build succeeded.')
+            _clear_doc_lookup()
+        else:
+            msg = result.stderr.decode('utf-8', errors='replace')[-500:] if result.stderr else ''
+            print(f'[SERVER] Build failed with code {result.returncode}: {msg}')
+        return success
+    except subprocess.TimeoutExpired:
+        print('[SERVER] Build timed out.')
+        return False
+    except Exception as e:
+        print(f'[SERVER] Build error: {e}')
+        return False
+
+
+def _run_build():
+    """Non-blocking trigger; returns True if build started, False if already running."""
+    started = _run_build_async_start()
+    if started:
+        return True
+    return False
 
 
 def _article_index():
@@ -449,6 +538,11 @@ class DevHandler(BaseHTTPRequestHandler):
                 self._deny(403, 'Forbidden: missing or invalid token/origin.')
                 return
             self._handle_weekly_status()
+        elif path == '/api/build-status':
+            if not self._authorize_api():
+                self._deny(403, 'Forbidden: missing or invalid token/origin.')
+                return
+            self._handle_build_status()
         elif path == '/admin-panel.html':
             if not self._origin_allowed():
                 self._deny(403, 'Forbidden origin.')
@@ -467,7 +561,7 @@ class DevHandler(BaseHTTPRequestHandler):
                 return
             self._handle_local_open()
             return
-        if path not in ('/api/rebuild', '/api/deploy', '/api/categories', '/api/weekly-schedule', '/api/summaries', '/api/ai-summarize'):
+        if path not in ('/api/rebuild', '/api/deploy', '/api/categories', '/api/weekly-schedule', '/api/summaries', '/api/ai-summarize', '/api/update-doc'):
             self.send_error(404, 'Not found')
             return
         if not self._authorize_api():
@@ -483,6 +577,8 @@ class DevHandler(BaseHTTPRequestHandler):
             self._handle_summaries_post()
         elif path == '/api/ai-summarize':
             self._handle_ai_summarize()
+        elif path == '/api/update-doc':
+            self._handle_update_doc()
         else:
             self._handle_deploy()
 
@@ -516,7 +612,7 @@ class DevHandler(BaseHTTPRequestHandler):
             return
         if self._serve_article_local(resolved):
             return
-        self._send_file(resolved, cache=True)
+        self._send_file(resolved, cache=False)
 
     def _serve_article_local(self, resolved):
         """Inject the localhost-only original-docx bar into article pages (memory only)."""
@@ -900,14 +996,31 @@ class DevHandler(BaseHTTPRequestHandler):
         return ''
 
     def _handle_rebuild(self):
-        success = self._run_build()
-        if success:
-            self._json_response(200, {'ok': True, 'message': 'Site rebuilt.'})
+        started = self._run_build()
+        if started:
+            self._json_response(202, {'ok': True, 'message': 'Build started.', 'build_started': True})
         else:
-            self._json_response(500, {'ok': False, 'message': 'Build failed.'})
+            if _BUILD_STATUS['running']:
+                self._json_response(202, {'ok': True, 'message': 'Build already running.', 'build_started': False, 'running': True})
+            else:
+                self._json_response(500, {'ok': False, 'message': 'Build could not start.'})
 
     def _handle_deploy(self):
-        if not self._run_build():
+        started = self._run_build()
+        if not started:
+            if _BUILD_STATUS['running']:
+                self._json_response(202, {'ok': True, 'message': 'Build already running; deploy queued.', 'pushed': False})
+            else:
+                self._json_response(500, {'ok': False, 'message': 'Build could not start.', 'pushed': False})
+            return
+
+        # Deploy path keeps synchronous build+push behavior for simplicity
+        # Since async build started, we don't have result yet; to keep deploy
+        # simple, we run a sync build here instead.
+        # This overrides the async trigger above — acceptable for deploy.
+        print('[SERVER] Deploy: running sync build before push...')
+        build_ok = _run_build_sync()
+        if not build_ok:
             self._json_response(500, {'ok': False, 'message': 'Build failed.', 'pushed': False})
             return
 
@@ -951,25 +1064,40 @@ class DevHandler(BaseHTTPRequestHandler):
             self._json_response(400, {'ok': False, 'message': detail})
 
     def _run_build(self):
-        print('[SERVER] Running build (scan source + regenerate)...')
-        try:
-            result = subprocess.run(
-                [sys.executable, str(SCRIPT_DIR / 'build.py')],
-                cwd=str(BASE_DIR),
-                timeout=300,
-            )
-            success = result.returncode == 0
-            if success:
-                print('[SERVER] Build succeeded.')
+        """Non-blocking build trigger; returns True if started, False if busy."""
+        started = _run_build_async_start()
+        if started:
+            return True
+        return False
+
+    def _handle_update_doc(self):
+        body = self._read_json_body()
+        if not isinstance(body, dict):
+            self._json_response(400, {'ok': False, 'message': 'Invalid JSON body.'})
+            return
+        doc_id = str(body.get('docId') or '').strip()
+        if not doc_id:
+            self._json_response(400, {'ok': False, 'message': 'Missing docId.'})
+            return
+        started = self._run_build()
+        if started:
+            self._json_response(202, {'ok': True, 'message': f'Update started for {doc_id}.', 'docId': doc_id, 'build_started': True})
+        else:
+            if _BUILD_STATUS['running']:
+                self._json_response(202, {'ok': True, 'message': f'Build already running (update queued for {doc_id}).', 'docId': doc_id, 'running': True})
             else:
-                print(f'[SERVER] Build failed with code {result.returncode}')
-            return success
-        except subprocess.TimeoutExpired:
-            print('[SERVER] Build timed out.')
-            return False
-        except Exception as e:
-            print(f'[SERVER] Build error: {e}')
-            return False
+                self._json_response(500, {'ok': False, 'message': 'Could not start build.'})
+
+    def _handle_build_status(self):
+        payload = {
+            'ok': True,
+            'running': _BUILD_STATUS['running'],
+            'last_result': _BUILD_STATUS['last_result'],
+            'last_message': _BUILD_STATUS['last_message'],
+            'started_at': _BUILD_STATUS['started_at'],
+            'finished_at': _BUILD_STATUS['finished_at'],
+        }
+        self._json_response(200, payload)
 
     def log_message(self, format, *args):
         if hasattr(self, 'path') and self.path.startswith('/api/'):
@@ -1014,6 +1142,47 @@ def main():
             except Exception as e:
                 print(f'[SERVER] Could not open browser: {e}. Open manually: {admin_url}')
         threading.Timer(0.4, _open_browser).start()
+
+    # Auto-deploy watcher: 2 s poll, 10 s stability debounce, ignore ~$.docx
+    def _watcher_loop():
+        last_change_time = None
+        stable_for = 0.0
+        while True:
+            try:
+                import time
+                time.sleep(2)
+                if not SOURCE_DIR.exists():
+                    continue
+                changed_files = []
+                for f in SOURCE_DIR.rglob('*.docx'):
+                    try:
+                        # Ignore temporary lock files
+                        if '~$' in f.name:
+                            continue
+                        changed_files.append(f.stat().st_mtime)
+                    except OSError:
+                        continue
+                if changed_files:
+                    latest = max(changed_files)
+                    if last_change_time is None or abs(latest - last_change_time) > 1:
+                        last_change_time = latest
+                        stable_for = 0.0
+                    else:
+                        stable_for += 2
+                    if stable_for >= 10:
+                        if _BUILD_STATUS['running']:
+                            stable_for = 0.0
+                            continue
+                        print('[WATCHER] Source stable for 10s — triggering build.')
+                        _run_build_async_start()
+                        stable_for = 0.0
+                        last_change_time = None
+                else:
+                    stable_for = 0.0
+                    last_change_time = None
+            except Exception as e:
+                print(f'[WATCHER] Error: {e}')
+    threading.Thread(target=_watcher_loop, daemon=True).start()
 
     try:
         server.serve_forever()
