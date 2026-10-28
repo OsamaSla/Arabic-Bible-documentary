@@ -1006,18 +1006,7 @@ class DevHandler(BaseHTTPRequestHandler):
                 self._json_response(500, {'ok': False, 'message': 'Build could not start.'})
 
     def _handle_deploy(self):
-        started = self._run_build()
-        if not started:
-            if _BUILD_STATUS['running']:
-                self._json_response(202, {'ok': True, 'message': 'Build already running; deploy queued.', 'pushed': False})
-            else:
-                self._json_response(500, {'ok': False, 'message': 'Build could not start.', 'pushed': False})
-            return
-
-        # Deploy path keeps synchronous build+push behavior for simplicity
-        # Since async build started, we don't have result yet; to keep deploy
-        # simple, we run a sync build here instead.
-        # This overrides the async trigger above — acceptable for deploy.
+        # Deploy requires a completed build before push; use sync path.
         print('[SERVER] Deploy: running sync build before push...')
         build_ok = _run_build_sync()
         if not build_ok:

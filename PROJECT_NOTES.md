@@ -1,5 +1,5 @@
 # PROJECT NOTES — Arabic Bible documentary
-Last verified: 2026-10-29, commit 9e87b789 (notes-stage2), abfa21df (build); stage 3 implemented in scripts/serve.py (uncommitted)
+Last verified: 2026-10-29, commit 9b47e50a (stage 3+4 pushed)
 
 ## 1. What this is
 Static site (docs/) of Arabic Christian translations + Bible indexes.
@@ -46,6 +46,12 @@ python scripts/convert.py      # stage 1 conversion
 - `_clear_doc_lookup()` called in build `finally` block; `Cache-Control: no-store` on all static (`cache=False`) and API responses.
 - `_run_build_sync()` preserved for deploy path (needs result before push).
 Verified: syntax ok; import ok; module-level functions and endpoints present.
+
+## 8. Stage 4 (admin UI) — IMPLEMENTED & PUSHED (commit 9b47e50a)
+- Toggle (`liveLogToggle`): shows/hides `liveLogPanel`; starts 3 s poll of `/api/build-status`.
+- Live log (`pollLiveLog`): displays `running`, `last_result` (OK/Failed/None), timestamps, `last_message`.
+- Per-row button (`data-update-doc`): calls `POST /api/update-doc` with doc `id`; shows "Started" / "Failed".
+Verified: admin-ui.js syntax/intact; build passes (11.5 s first, incremental faster); commit pushed to origin/main (docs/ rebuilt + 14 files, 539 insertions).
 
 ## 8. Context budget
 Checkpoint done after stage 2 (writes to `PROJECT_NOTES.md`, `git log` confirmed

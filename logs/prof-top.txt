@@ -1,0 +1,32 @@
+Wed Oct 28 23:26:29 2026    logs\build.prof
+
+         23100381 function calls (22663861 primitive calls) in 18.605 seconds
+
+   Ordered by: cumulative time
+   List reduced from 1416 to 22 due to restriction <22>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+    132/1    0.001    0.000   18.605   18.605 {built-in method builtins.exec}
+        1    0.001    0.001   18.605   18.605 scripts\build.py:1(<module>)
+        1    0.010    0.010   18.440   18.440 scripts\build.py:2071(main)
+        1    1.604    1.604   12.309   12.309 scripts\build.py:1123(generate_search_index)
+      763    0.001    0.000    6.326    0.008 C:\Users\osama\AppData\Local\Programs\Python\Python311\Lib\html\parser.py:103(feed)
+      763    1.333    0.002    6.325    0.008 C:\Users\osama\AppData\Local\Programs\Python\Python311\Lib\html\parser.py:133(goahead)
+   301751    1.452    0.000    2.764    0.000 C:\Users\osama\AppData\Local\Programs\Python\Python311\Lib\html\parser.py:300(parse_starttag)
+        1    0.001    0.001    1.672    1.672 C:\Users\osama\AppData\Local\Programs\Python\Python311\Lib\gzip.py:576(compress)
+        1    1.669    1.669    1.669    1.669 {built-in method zlib.compress}
+    10338    0.023    0.000    1.447    0.000 C:\Users\osama\AppData\Local\Programs\Python\Python311\Lib\pathlib.py:1053(read_text)
+        1    0.007    0.007    1.412    1.412 D:\PROJECTS\Arabic-Bible-documentary\scripts\convert.py:1074(main)
+        1    0.014    0.014    1.197    1.197 scripts\build.py:2040(bust_asset_cache)
+    10549    0.597    0.000    1.066    0.000 {method 'read' of '_io.TextIOWrapper' objects}
+      775    0.001    0.000    1.052    0.001 D:\PROJECTS\Arabic-Bible-documentary\scripts\convert.py:1064(_outputs_present)
+      779    0.001    0.000    1.051    0.001 {built-in method builtins.all}
+     2325    0.002    0.000    1.049    0.000 D:\PROJECTS\Arabic-Bible-documentary\scripts\convert.py:1066(<genexpr>)
+     1550    0.011    0.000    1.047    0.001 D:\PROJECTS\Arabic-Bible-documentary\scripts\convert.py:1034(_output_path)
+   292574    0.598    0.000    0.954    0.000 C:\Users\osama\AppData\Local\Programs\Python\Python311\Lib\html\parser.py:378(parse_endtag)
+    10874    0.787    0.000    0.949    0.000 {method 'sub' of 're.Pattern' objects}
+     6176    0.013    0.000    0.869    0.000 C:\Users\osama\AppData\Local\Programs\Python\Python311\Lib\pathlib.py:981(resolve)
+  2087275    0.825    0.000    0.825    0.000 {method 'match' of 're.Pattern' objects}
+        1    0.000    0.000    0.804    0.804 scripts\build.py:357(prepare_scripture_data)
+
+

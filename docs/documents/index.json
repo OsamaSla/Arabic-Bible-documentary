@@ -24668,30 +24668,30 @@
       "refs": []
     },
     {
-      "id": "doc_0775",
+      "id": "doc_0776",
       "title": "عجائب الرب (11) - الخمسة آلاف",
       "description": "ارتُكبت للتو جريمة دموية في البلاد؛ إذ قُطع رأس يوحنا المعمدان، المُمَهِّد المتميز للمخلص.",
       "author": "William Wooldridge Fereday",
       "author_slug": "william-wooldridge-fereday",
-      "completed": false,
+      "completed": true,
       "hidden": false,
       "categories": [],
       "category": "uncategorized",
       "filename": "عجائب الرب - الخمسة آلاف.docx",
-      "rel_path": "",
-      "html_path": "documents/william-wooldridge-fereday/doc_0775.html",
-      "download_path": "downloads/william-wooldridge-fereday/doc_0775.docx",
+      "rel_path": "تم",
+      "html_path": "documents/william-wooldridge-fereday/تم/doc_0776.html",
+      "download_path": "downloads/william-wooldridge-fereday/تم/doc_0776.docx",
       "chapters": [],
       "page_count": null,
-      "mtime": 1793227323,
-      "mtime_ns": 1793227323312693200,
-      "size": 16389,
-      "file_hash": "75d04cb6",
+      "mtime": 1793229196,
+      "mtime_ns": 1793229196394766400,
+      "size": 16882,
+      "file_hash": "d39b51dc",
       "refs": []
     }
   ],
   "total_count": 764,
-  "completed_count": 340,
+  "completed_count": 341,
   "authors": {
     "Achim Zöfelt": {
       "slug": "achim-zöfelt",
@@ -25076,7 +25076,7 @@
     "William Wooldridge Fereday": {
       "slug": "william-wooldridge-fereday",
       "total": 9,
-      "completed": 2
+      "completed": 3
     },
     "Zukunft_Versammlung": {
       "slug": "zukunft_versammlung",
