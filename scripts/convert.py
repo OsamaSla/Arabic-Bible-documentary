@@ -993,9 +993,87 @@ def _scan_recursive(current_path, author_root, author_name, documents, is_done, 
             })
 
 
-def main():
+def _norm_rel(rel):
+    """Normalize a relative path so keys compare across builds."""
+    rel = (rel or '').replace('/', os.sep).replace('\\', os.sep)
+    return rel.strip(os.sep)
+
+
+def _doc_key(entry):
+    """Stable identity of one source file across builds."""
+    return (
+        entry.get('author') or '',
+        _norm_rel(entry.get('rel_path')),
+        entry.get('filename') or '',
+    )
+
+
+def load_previous_index(local_hidden_dir):
+    """doc-key -> entry from the last build (full index, hidden included)."""
+    path = Path(local_hidden_dir) / 'documents-index.json'
+    if not path.exists():
+        return {}
+    try:
+        with open(path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+    except (OSError, ValueError):
+        return {}
+    previous = {}
+    for entry in data.get('documents', []):
+        key = _doc_key(entry)
+        if key[0] and key[2]:
+            previous[key] = entry
+    return previous
+
+
+def _id_num(entry):
+    m = re.fullmatch(r'doc_(\d+)', str(entry.get('id') or ''))
+    return int(m.group(1)) if m else None
+
+
+def _output_path(base_dir, rel):
+    """Resolve a generated path from the index.
+
+    Visible entries store paths relative to docs/; hidden entries store paths
+    relative to the repo root. Return the existing file inside docs/ or
+    local-hidden/, or None.
+    """
+    if not rel:
+        return None
+    base = Path(base_dir)
+    try:
+        roots = [(base / 'docs').resolve(), (base / 'local-hidden').resolve()]
+    except OSError:
+        return None
+    for candidate in (base / rel, base / 'docs' / rel):
+        try:
+            resolved = candidate.resolve()
+        except OSError:
+            continue
+        if not candidate.is_file():
+            continue
+        for root in roots:
+            try:
+                if resolved == root or resolved.is_relative_to(root):
+                    return resolved
+            except (OSError, ValueError):
+                continue
+    return None
+
+
+def _outputs_present(base_dir, entry):
+    """True when both generated files for a cached entry still exist."""
+    return all(_output_path(base_dir, entry.get(field)) for field in
+               ('html_path', 'download_path'))
+
+
+# Filled by main() so build.py can target the steps that touch changed files.
+LAST_RUN = {}
+
+
+def main(force=False, input_dir=None):
     base_dir = Path(__file__).parent.parent
-    input_dir = Path('D:\\MegaDrive\\ترجمات')
+    input_dir = Path(input_dir) if input_dir else Path('D:\\MegaDrive\\ترجمات')
     output_dir = base_dir / 'docs'
     local_hidden_dir = base_dir / 'local-hidden'
     if not input_dir.exists():
@@ -1012,11 +1090,66 @@ def main():
     print('[SCAN] Scanning source directory...')
     source_docs = scan_source_directory(input_dir)
     print(f'[SCAN] Found {len(source_docs)} documents ({sum(1 for d in source_docs if d["completed"])} completed, {sum(1 for d in source_docs if d.get("hidden"))} hidden)')
+    previous = {} if force else load_previous_index(local_hidden_dir)
+    if force:
+        print('[CACHE] --full: ignoring the previous build')
+    else:
+        print(f'[CACHE] {len(previous)} documents in the previous build')
+
+    next_id = 0
+    for _entry in previous.values():
+        _n = _id_num(_entry)
+        if _n is not None:
+            next_id = max(next_id, _n + 1)
+
     documents = []
-    doc_counter = 0
+    changed_paths = set()
+    stats = {'reused': 0, 'converted': 0, 'removed': 0}
+
     for source_doc in source_docs:
-        doc_id = f"doc_{doc_counter:04d}"
-        doc_counter += 1
+        key = _doc_key(source_doc)
+        cap = previous.get(key)
+        try:
+            st = os.stat(source_doc['filepath'])
+        except OSError:
+            print(f'  [!] unreadable: {source_doc["filename"]}')
+            continue
+        size = st.st_size
+        mtime_ns = st.st_mtime_ns
+        mtime = int(st.st_mtime)
+        completed = bool(source_doc['completed'])
+        hidden = bool(source_doc.get('hidden', False))
+
+        reuse = False
+        if cap and _outputs_present(base_dir, cap) \
+                and bool(cap.get('completed')) == completed \
+                and bool(cap.get('hidden')) == hidden:
+            if cap.get('mtime_ns') is not None and cap.get('size') is not None:
+                reuse = int(cap['mtime_ns']) == mtime_ns and int(cap['size']) == size
+            else:
+                # Legacy index (written before this cache): trust the
+                # second-resolution mtime once, then backfill exact fields.
+                reuse = int(cap.get('mtime') or 0) == mtime
+            if not reuse:
+                # Touched but identical bytes -> keep the built page.
+                try:
+                    reuse = get_file_hash(source_doc['filepath']) == cap.get('file_hash')
+                except OSError:
+                    reuse = False
+
+        if reuse:
+            doc = dict(cap)
+            doc['mtime'] = mtime
+            doc['mtime_ns'] = mtime_ns
+            doc['size'] = size
+            documents.append(doc)
+            stats['reused'] += 1
+            continue
+
+        doc_id = (cap or {}).get('id')
+        if not doc_id:
+            doc_id = f'doc_{next_id:04d}'
+            next_id += 1
         title = get_title_from_docx(source_doc['filepath'])
         footnotes = extract_footnotes(source_doc['filepath'])
         _FN_CTX['doc'] = doc_id
@@ -1079,7 +1212,7 @@ def main():
         if is_hidden:
             html_rel = 'local-hidden/' + html_rel
             dl_rel = 'local-hidden/' + dl_rel
-        documents.append({
+        doc = {
             'id': doc_id,
             'title': title,
             'description': description,
@@ -1095,14 +1228,51 @@ def main():
             'download_path': dl_rel,
             'chapters': chapters if len(chapters) > 1 else [],
             'page_count': None,
-            'mtime': int(os.path.getmtime(source_doc['filepath'])),
+            'mtime': mtime,
+            'mtime_ns': mtime_ns,
+            'size': size,
             'file_hash': get_file_hash(source_doc['filepath'])
-        })
+        }
+        if cap and cap.get('ai_summary'):
+            doc['ai_summary'] = cap['ai_summary']
+        documents.append(doc)
+        changed_paths.add(str(doc_path))
+        changed_paths.add(str(download_path))
+        stats['converted'] += 1
         try:
             status = 'v' if source_doc['completed'] else 'o'
             print(f'  [{status}] {title[:50]}')
         except UnicodeEncodeError:
             print(f'  [{status}] Document {doc_id} converted')
+
+    # Drop documents whose source file disappeared (or was renamed).
+    current_keys = {_doc_key(d) for d in source_docs}
+    for key, entry in previous.items():
+        if key in current_keys:
+            continue
+        for field in ('html_path', 'download_path'):
+            target = _output_path(base_dir, entry.get(field) or '')
+            if target and target.is_file():
+                try:
+                    target.unlink()
+                    changed_paths.add(str(target))
+                except OSError:
+                    pass
+        stats['removed'] += 1
+
+    # Stable order: by numeric id, so appended ids land at the end.
+    documents.sort(key=lambda d: (_id_num(d) if _id_num(d) is not None else 10 ** 9))
+
+    LAST_RUN.clear()
+    LAST_RUN.update({
+        'documents': len(documents),
+        'reused': stats['reused'],
+        'converted': stats['converted'],
+        'removed': stats['removed'],
+        'changed_paths': sorted(changed_paths),
+    })
+    print(f'[CACHE] reused {stats["reused"]}, converted {stats["converted"]}, '
+          f'removed {stats["removed"]}')
 
     def _as_category_list(value):
         """Normalize assignment value: str | list | None -> list of slugs."""

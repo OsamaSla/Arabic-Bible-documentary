@@ -261,7 +261,9 @@ def generate_random_articles_v2(index_data):
         return '<div class="rx-card-empty">لا توجد مقالات مكتملة حالياً.</div>'
 
     shuffled = list(completed)
-    random.shuffle(shuffled)
+    # Deterministic per day: stable across rebuilds (no git churn on index.html)
+    # while still rotating the selection daily.
+    random.Random(datetime.now().strftime('%Y-%m-%d')).shuffle(shuffled)
     selected = shuffled[:10]
 
     html_parts = []
@@ -1977,13 +1979,21 @@ _ASSET_URL_RE = re.compile(r'((?:href|src)=")((?:\.\./)*(?:css|js)/[^"]*?\.(?:cs
 
 
 def _asset_stamp(docs_dir):
-    """Content hash over published CSS/JS (stable while assets are unchanged)."""
+    """Content hash over published CSS/JS (stable while assets are unchanged).
+
+    Build-generated data files are excluded: docs/js/data-visible.js changes on
+    every content edit, and including it would restamp all ~2,100 pages and push
+    a full-site diff for a one-article change.
+    """
     import hashlib
     h = hashlib.sha256()
     for path in sorted(docs_dir.rglob('*')):
-        if path.suffix in ('.css', '.js') and path.is_file():
-            h.update(path.name.encode())
-            h.update(path.read_bytes())
+        if path.suffix not in ('.css', '.js') or not path.is_file():
+            continue
+        if path.name.startswith('data-'):
+            continue
+        h.update(path.name.encode())
+        h.update(path.read_bytes())
     return h.hexdigest()[:8]
 
 

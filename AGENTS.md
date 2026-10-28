@@ -1,3 +1,5 @@
+Read `PROJECT_NOTES.md` before exploring; update it after non-trivial changes.
+
 # UI/UX Quality Guidelines for this Project
 - Every interactive component MUST support visible focus-visible states.
 - Component previews must include state toggles (default, hover, loading, disabled).
