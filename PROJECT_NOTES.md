@@ -118,9 +118,18 @@ auto-deploy after 10 s idle; keep SEO/URLs; IDs must stay stable.
   one edit converts exactly 1 doc and moves no ids, new doc gets `doc_0003`
   appended, deleted doc loses page + download, rebuild stable afterwards.
   One-time cost: 1370 pages restamped because the stamp definition changed.
-- **Stage 2 (next)** — `build.py`: target asset/nav/cache-bust passes to changed
-  pages, incremental `search-index.json`, paired sidebar/chapter markers,
-  `_write_if_changed` everywhere, `.build-cache/manifest.json`, `--full` flag.
+- **Stage 2 (DONE, commit abfa21df)** — `build.py`: `generate_search_index`
+  caches per-document terms (`.build-cache/search-cache.json`, schema=1);
+  no-op builds skip HTML parsing entirely (was ~12 s of 18 s, now ~0).
+  `_asset_stamp` excludes `data-*.js`. `finalize_paths` limits
+  `inject_ruler_assets`/`bust_asset_cache`/nav/chapter/related passes.
+  Build manifest (`MANIFEST_SCHEMA`) tracks asset_stamp, nav_sig, finished_at.
+  `main()` takes `--full` to bypass cache. `inject_*` passes honor scope.
+  Measured: first cached build **11.5 s**, second cached **4.9 s**; search index
+  unchanged (`search-index.json unchanged (763 docs, cached)`).
+  Note: the 4.9 s second-run measured a full pass (`finalize_paths` = full);
+  a truly single-doc edit will be faster because only changed file pages are
+  rewired (tested in isolation).
 - **Stage 3** — `serve.py`: build thread + lock, `/api/build-status`,
   `/api/update-doc`, auto-deploy watcher (2 s poll, 10 s debounce, ignore Word
   lock files), `no-store` for local HTML, clear `_DOC_LOOKUP` after builds.
