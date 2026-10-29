@@ -91,7 +91,7 @@
 
 html {
     scroll-behavior: smooth;
-    font-size: 150%;
+    font-size: 127.5%;
     /* Stop pull-to-refresh / scroll-chaining at page edges from yanking
        the reader away (mobile article pages lost their pager page). */
     overscroll-behavior-y: contain;
