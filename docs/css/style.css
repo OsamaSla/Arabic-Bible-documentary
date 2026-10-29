@@ -91,6 +91,7 @@
 
 html {
     scroll-behavior: smooth;
+    font-size: 150%;
     /* Stop pull-to-refresh / scroll-chaining at page edges from yanking
        the reader away (mobile article pages lost their pager page). */
     overscroll-behavior-y: contain;
@@ -176,7 +177,7 @@ a:hover {
     align-items: center;
     gap: var(--spacing-sm);
     color: var(--text-light);
-    font-size: var(--font-size-xl);
+    font-size: 1.1rem;
     font-weight: 700;
 }
 
@@ -185,7 +186,7 @@ a:hover {
 }
 
 .logo .cross {
-    font-size: var(--font-size-3xl);
+    font-size: 1.8rem;
     color: var(--color-secondary);
     text-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
@@ -195,6 +196,7 @@ a:hover {
     gap: var(--spacing-lg);
     flex-wrap: wrap;
     justify-content: center;
+    align-items: center;
 }
 
 .main-nav a {
@@ -203,6 +205,7 @@ a:hover {
     border-radius: var(--radius-md);
     transition: all var(--transition-fast);
     font-weight: 500;
+    font-size: 0.9rem;
 }
 
 .main-nav a:hover,

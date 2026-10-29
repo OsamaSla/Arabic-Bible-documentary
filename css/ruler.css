@@ -314,6 +314,12 @@ body.r-fs-3 .document-content { font-size: 1.15rem; }
 body.r-fs-4 .document-content { font-size: 1.28rem; }
 body.r-fs-5 .document-content { font-size: 1.42rem; }
 
+/* Font family choices for reading */
+body.r-font-amiri .document-content { font-family: 'Amiri', 'Noto Naskh Arabic', 'Traditional Arabic', serif; }
+body.r-font-naskh .document-content { font-family: 'Noto Naskh Arabic', 'Amiri', 'Traditional Arabic', serif; }
+body.r-font-traditional .document-content { font-family: 'Tajawal', serif; }
+body.r-font-simplified .document-content { font-family: 'Simplified Arabic', 'Noto Naskh Arabic', sans-serif; }
+
 /* NOTE: line-height must target paragraphs/items directly — the base
    stylesheet sets .document-content p explicitly, which beats inheritance
    from the container. Headings keep their own tighter rhythm. */

@@ -57,7 +57,8 @@
         hideFnRefs: lsGet('hideFnRefs', '0') === '1',
         hideRefs: lsGet('hideRefs', '0') === '1',
         hideVerses: lsGet('hideVerses', '0') === '1',
-        focus: lsGet('focus', '0') === '1'
+        focus: lsGet('focus', '0') === '1',
+        font: lsGet('font', 'naskh')
     };
 
     function applyState() {
@@ -67,9 +68,11 @@
         for (i = 1; i <= 3; i++) b.classList.remove('r-lh-' + i);
         b.classList.remove('r-w-compact', 'r-w-normal', 'r-w-wide');
         b.classList.remove('r-mode-comfortable', 'r-mode-study', 'r-mode-minimal');
+        b.classList.remove('r-font-amiri', 'r-font-naskh', 'r-font-traditional', 'r-font-simplified');
         if (state.fs >= 1 && state.fs <= 5) b.classList.add('r-fs-' + state.fs);
         if (state.lh >= 1 && state.lh <= 3) b.classList.add('r-lh-' + state.lh);
         if (state.width) b.classList.add('r-w-' + state.width);
+        if (state.font) b.classList.add('r-font-' + state.font);
         if (state.mode) b.classList.add('r-mode-' + state.mode);
         b.classList.toggle('r-hide-notes', state.hideNotes);
         b.classList.toggle('r-hide-fnrefs', state.hideFnRefs);
@@ -529,6 +532,16 @@
         ], state.lh, function (v) {
             state.lh = v;
             lsSet('lh', String(v));
+            applyState();
+        }));
+        pView.appendChild(chipRow('الخط العربي', [
+            { value: 'naskh', label: 'نسخ' },
+            { value: 'amiri', label: 'أميري' },
+            { value: 'traditional', label: 'Tajawal' },
+            { value: 'simplified', label: 'مبسط' }
+        ], state.font, function (v) {
+            state.font = v;
+            lsSet('font', v);
             applyState();
         }));
         if (ctx.isCommentary) {
