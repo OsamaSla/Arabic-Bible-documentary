@@ -1,5 +1,5 @@
 # PROJECT NOTES — Arabic Bible documentary
-Last verified: 2026-10-29, commit 9b47e50a (stage 3+4 pushed)
+Last verified: 2026-10-29, commit 44a6ac6b (font + banner + mobile fix pushed, docs rebuilt ?v=66149845)
 
 ## 1. What this is
 Static site (docs/) of Arabic Christian translations + Bible indexes.
@@ -52,6 +52,19 @@ Verified: syntax ok; import ok; module-level functions and endpoints present.
 - Live log (`pollLiveLog`): displays `running`, `last_result` (OK/Failed/None), timestamps, `last_message`.
 - Per-row button (`data-update-doc`): calls `POST /api/update-doc` with doc `id`; shows "Started" / "Failed".
 Verified: admin-ui.js syntax/intact; build passes (11.5 s first, incremental faster); commit pushed to origin/main (docs/ rebuilt + 14 files, 539 insertions).
+
+## 9. Font & banner fixes (verified 2026-10-29, commit 44a6ac6b)
+- Global font-size 150% (`html { font-size: 150%; }` in `css/style.css`).
+- Arabic font picker in ruler (`js/ruler.js`): نسخ (default/Naskh), أميري (Amiri), Tajawal (loaded via Google Fonts import in `css/fonts.css`), مبسط (Simplified Arabic).
+- Banner resize/alignment: `.logo` 1.1rem, `.logo .cross` 1.8rem, `.main-nav a` 0.9rem, `.main-nav` `align-items: center`.
+- Build passes (`python scripts/build.py`); `node --check js/ruler.js` clean; docs rebuilt and pushed.
+
+## 9. Mobile fixes (verified 2026-10-29)
+- Header: `.site-header` `min-height` 56px → 64px; `.logo` 0.95rem; `.main-nav a` 0.8rem; `align-items: center` preserved for banner alignment (`الترجمات` aligned).
+- Document/article: `.document-viewer` padding 0.75rem 0; `.document-title` 1.2rem / line-height 1.5.
+- Ruler toolbar (`css/ruler.css`): `.ruler-base` height 34px → 44px; chip/label/switch/input scaled to `0.75rem`; mobile media query updated (`min-height: 36px`, `max-height: 75vh`).
+- Font picker (`rpanel-view`): `traditional` value maps to `'Tajawal', serif` in CSS; chip label stays readable at 150% scale.
+- Build passes (`python scripts/build.py`); docs rebuilt (`?v=66149845`); `node --check js/ruler.js` clean.
 
 ## 8. Context budget
 Checkpoint done after stage 2 (writes to `PROJECT_NOTES.md`, `git log` confirmed
