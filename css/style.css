@@ -4828,3 +4828,387 @@ body.page-redesign .rx-brand:hover .rx-brand-title {
         font-size: 13px;
     }
 }
+
+/* ============================================================
+   MOBILE APP PASS
+   Off-canvas drawer (shared by .nav-bar and .rx-nav — both use
+   #navBar / #navToggle), thumb-sized targets, safe-area insets,
+   fluid headings and iOS input-zoom fix.
+   ============================================================ */
+
+/* Backdrop is created once by js/nav.js. */
+.nav-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    background: rgba(8, 15, 25, 0.55);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+    -webkit-backdrop-filter: blur(2px);
+    backdrop-filter: blur(2px);
+}
+
+.nav-backdrop.is-visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.nav-drawer-head {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    /* Scroll lock while the drawer is open (html class set in nav.js). */
+    html.nav-open,
+    html.nav-open body {
+        overflow: hidden;
+    }
+
+    /* ---- Drawer panel ---- */
+    .nav-bar.open,
+    .rx-nav.open {
+        display: flex;
+        flex-direction: column;
+        position: fixed;
+        top: 0;
+        right: 0;
+        left: auto;
+        bottom: auto;
+        width: min(88vw, 380px);
+        height: 100dvh;
+        max-height: 100dvh;
+        margin: 0;
+        padding: 0;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        z-index: 10001;
+        background: var(--color-primary-dark);
+        border-top: none;
+        box-shadow: -12px 0 32px rgba(0, 0, 0, 0.45);
+        animation: nav-drawer-in 0.22s ease-out;
+    }
+
+    .rx-nav.open {
+        background: var(--rx-header-bg, var(--color-primary-dark));
+    }
+
+    @keyframes nav-drawer-in {
+        from { transform: translateX(100%); }
+        to { transform: translateX(0); }
+    }
+
+    .nav-drawer-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        padding: calc(env(safe-area-inset-top) + 12px) 16px 10px;
+        background: inherit;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+        color: #ffffff;
+        font-weight: 700;
+        font-size: 1rem;
+    }
+
+    .nav-drawer-close {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 44px;
+        height: 44px;
+        margin: -6px 0;
+        font-size: 22px;
+        line-height: 1;
+        color: #ffffff;
+        background: rgba(255, 255, 255, 0.12);
+        border: 1px solid rgba(255, 255, 255, 0.28);
+        border-radius: 999px;
+        cursor: pointer;
+    }
+
+    .nav-drawer-close:hover,
+    .nav-drawer-close:focus-visible {
+        background: rgba(255, 255, 255, 0.22);
+    }
+
+    .nav-drawer-close:focus-visible {
+        outline: 3px solid var(--color-secondary-light);
+        outline-offset: 2px;
+    }
+
+    /* ---- Rows ---- */
+    .nav-bar.open .container,
+    .rx-nav.open .rx-nav-inner {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 2px;
+        min-height: 0;
+        width: 100%;
+        max-width: none;
+        padding: 10px 12px calc(env(safe-area-inset-bottom) + 20px);
+    }
+
+    .nav-bar.open .nav-item {
+        width: 100%;
+    }
+
+    .nav-bar.open .nav-link,
+    .rx-nav.open .rx-nav-link {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        width: 100%;
+        min-height: 48px;
+        padding: 0 14px;
+        border-bottom: none;
+        border-radius: 10px;
+        font-size: 1rem;
+        font-weight: 600;
+        color: #eef3f8;
+    }
+
+    .nav-bar.open .nav-link:hover,
+    .nav-bar.open .nav-link:focus-visible,
+    .rx-nav.open .rx-nav-link:hover,
+    .rx-nav.open .rx-nav-link:focus-visible {
+        background: rgba(255, 255, 255, 0.10);
+        color: var(--color-secondary-light);
+    }
+
+    .nav-bar.open .nav-link.active,
+    .rx-nav.open .rx-nav-link.active {
+        background: rgba(255, 255, 255, 0.13);
+        color: var(--color-secondary-light);
+    }
+
+    /* Mega panels stay inline in the drawer, but as inset cards. */
+    .nav-bar.open .nav-mega,
+    .rx-nav.open .nav-mega {
+        margin: 2px 0 10px;
+        padding: 6px 8px 12px;
+        border-radius: 12px;
+    }
+
+    .nav-bar.open .nav-mega .mega-link,
+    .rx-nav.open .nav-mega .mega-link {
+        min-height: 40px;
+    }
+
+    /* ---- Header: app bar proportions + notch ---- */
+    .rx-header {
+        padding-top: env(safe-area-inset-top);
+    }
+
+    .rx-header-bar {
+        min-height: 58px;
+        padding: 6px 12px;
+    }
+
+    .rx-brand-title {
+        font-size: 15px;
+    }
+
+    .rx-icon-btn {
+        width: 44px;
+        height: 44px;
+    }
+
+    /* Legacy header (bible / author / index pages): keep the app bar to
+       one compact row — the long Arabic title must ellipsize, not wrap. */
+    .site-header {
+        padding: 0.25rem 0;
+    }
+
+    .site-header .header-top {
+        padding: 0.25rem 0;
+    }
+
+    .header-top .container {
+        flex-wrap: nowrap;
+        gap: 0.5rem;
+    }
+
+    .site-header .logo {
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+
+    .site-header .logo .logo-text {
+        min-width: 0;
+        font-size: 0.8rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .site-header .logo .cross {
+        flex-shrink: 0;
+    }
+
+    .header-actions {
+        flex-shrink: 0;
+    }
+
+    .nav-toggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 44px;
+        min-height: 44px;
+        padding: 0;
+        flex-shrink: 0;
+    }
+
+    /* ---- Touch targets ---- */
+    .ruler-btn {
+        min-height: 40px;
+        min-width: 40px;
+    }
+
+    .nav-link,
+    .rx-nav-link,
+    .filter-btn,
+    .tab-btn,
+    .btn,
+    .doc-download {
+        min-height: 44px;
+    }
+
+    /* ---- iOS: never zoom on focus ---- */
+    .rx-search-input,
+    .rx-select,
+    .rx-chapter-input,
+    .rx-filter-input,
+    #pageSearchInput,
+    .search-box input,
+    .header-search input,
+    .filter-input,
+    .newsletter-form input {
+        font-size: 16px;
+    }
+
+    /* ---- Fluid headings (root stays 127.5%) ---- */
+    h1 { font-size: clamp(1.5rem, 6vw, 2rem); }
+    h2 { font-size: clamp(1.25rem, 5vw, 1.65rem); }
+    h3 { font-size: clamp(1.125rem, 4.4vw, 1.4rem); }
+    h4 { font-size: clamp(1.05rem, 4vw, 1.2rem); }
+
+    .rx-welcome-inner {
+        padding: 28px 16px;
+        min-height: 0;
+    }
+
+    .rx-welcome h1 {
+        font-size: clamp(1.4rem, 6.4vw, 1.9rem);
+    }
+
+    .rx-main {
+        padding: 20px 14px 40px;
+        gap: 18px;
+    }
+
+    .rx-panel {
+        padding: 16px;
+    }
+
+    .rx-panel-head {
+        gap: 10px;
+        padding-bottom: 12px;
+        margin-bottom: 16px;
+    }
+
+    .rx-panel-head h2,
+    .rx-latest-head h2 {
+        font-size: clamp(1.2rem, 4.8vw, 1.5rem);
+    }
+
+    .rx-card {
+        min-height: 0;
+        padding: 16px;
+    }
+
+    .rx-card-title {
+        font-size: 1.02rem;
+    }
+
+    .rx-card-foot {
+        min-height: 44px;
+    }
+
+    .rx-latest {
+        padding: 0 14px 40px;
+    }
+
+    .rx-footer-grid {
+        padding: 28px 16px;
+        gap: 22px;
+    }
+
+    .document-content {
+        padding: 1rem;
+        line-height: 1.95;
+    }
+
+    .document-title {
+        font-size: clamp(1.15rem, 5vw, 1.45rem);
+        line-height: 1.6;
+    }
+
+    .pager-bar .btn,
+    .pager-bar .pager-btn {
+        min-height: 44px;
+        min-width: 44px;
+    }
+}
+
+@media (max-width: 480px) {
+    /* Quick lookup stacks into full-width fields instead of squeezing. */
+    .rx-lookup {
+        padding: 10px 12px;
+    }
+
+    .rx-lookup-inner {
+        gap: 8px;
+    }
+
+    .rx-lookup-fields {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    .rx-select,
+    .rx-chapter-input,
+    .rx-lookup-fields .rx-btn {
+        width: 100%;
+        min-height: 44px;
+    }
+
+    .rx-search-input {
+        min-height: 44px;
+    }
+
+    .rx-panel {
+        padding: 14px;
+    }
+
+    .rx-card {
+        padding: 14px;
+    }
+
+    .rx-search {
+        padding-inline: 12px;
+    }
+
+    .document-viewer {
+        padding-top: 0.5rem;
+    }
+
+    .document-actions .btn {
+        min-height: 44px;
+    }
+}

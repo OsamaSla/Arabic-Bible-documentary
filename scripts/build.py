@@ -2504,11 +2504,10 @@ def main(force=False):
         print(f'[BUILD] Stamped {stamp_path.name}')
     except Exception as e:
         print(f'[BUILD] Could not write .last_build: {e}')
-    print('\nTo deploy on GitHub Pages:')
-    print('  1. git add docs/')
-    print('  2. git commit -m "Build site"')
-    print('  3. git push')
-    print('  4. Enable GitHub Pages from docs/ folder')
+    print('\nTo deploy:')
+    print('  Firebase: firebase deploy --only hosting --project arabic-bible-documentary')
+    print('  GitHub:   git add docs/ && git commit -m "Build site" && git push')
+    print('  Live:     https://arabic-bible-documentary.web.app')
 
 
 if __name__ == '__main__':

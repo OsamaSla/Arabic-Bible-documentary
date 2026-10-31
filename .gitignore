@@ -43,6 +43,10 @@ desktop.ini
 # Local build timestamp
 .last_build
 
+# Firebase deploy cache / logs
+.firebase/
+firebase-debug.log
+
 # Local-only hidden documents and admin index (never publish)
 local-hidden/
 

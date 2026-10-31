@@ -83,7 +83,10 @@ Open `docs/index.html` in your browser, or run the dev server:
 python scripts/serve.py
 ```
 
-### 6. Deploy to GitHub Pages
+### 6. Deploy
+
+The site publishes to two targets from the same `docs/` folder:
+**Firebase Hosting** (https://arabic-bible-documentary.web.app) and GitHub Pages.
 
 **Option A — watch + auto-push** (recommended while editing source folders):
 
@@ -91,13 +94,14 @@ python scripts/serve.py
 python scripts/watch.py --push
 ```
 
-Every detected change rebuilds `docs/`, then commits and pushes.
+Every detected change rebuilds `docs/`, then commits and pushes. The push helper
+(`scripts/git_ops.py`) also runs `firebase deploy --only hosting` afterwards.
 
 **Option B — Admin panel** (requires `python scripts/serve.py`):
 
 1. Open `http://localhost:8000/admin-panel.html` (no password; bound to `127.0.0.1` only)
 2. **Check changes** — source `.docx` + git changes since last build
-3. **Deploy to GitHub** — same as one watch cycle: scan source → rebuild → push
+3. **Deploy to GitHub** — same as one watch cycle: scan source → rebuild → push → Firebase
 
 > Deploy only works on `http://localhost:8000/...`. Opening the file directly (`file://`) or GitHub Pages cannot run local scripts.
 > API routes (`/api/changes`, `/api/documents`, `/api/rebuild`, `/api/deploy`) require the per-run `X-Serve-Token` header injected into the local admin page.
@@ -109,7 +113,11 @@ python scripts/build.py
 git add .
 git commit -m "Build site"
 git push origin main
+firebase deploy --only hosting --project arabic-bible-documentary
 ```
+
+Firebase config lives in `firebase.json` / `.firebaserc` (project
+`arabic-bible-documentary`, public dir `docs`).
 
 Then go to **Settings → Pages → Source: main branch, folder: /docs → Save**
 
